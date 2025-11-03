@@ -1,0 +1,194 @@
+.trading {
+  display: flex;
+  gap: 1rem;
+}
+
+.add-trade {
+  width: 45%;
+  // padding: 8px 16px;
+  .btn-add {
+    width: 100%;
+    height: 2.5rem;
+    font-weight: 600;
+    background: #5f5cf0;
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    &:hover {
+      opacity: 0.9;
+    }
+  }
+}
+
+.recent-trade {
+  width: 100%;
+  margin-top: 1rem;
+  .ant-card-body {
+    padding: 12px 24px;
+  }
+  .ant-tabs-tab {
+    padding: 8px;
+  }
+  .ant-tabs-tab-btn {
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .table-trades {
+    width: 100%;
+  }
+}
+
+.recent-trade-dark {
+  .ant-card {
+    background: #5f5cf0 !important;
+  }
+}
+
+.datepicker {
+  width: 12rem;
+  margin-bottom: 1rem;
+  font-size: 22px;
+  .ant-picker-input input {
+    font-size: 18px;
+  }
+}
+
+.calendar {
+  width: 100%;
+  height: 300px;
+  border-radius: 50%;
+  //   :global {
+  //   .ant-picker-cell {
+  //     background: #8cd095;
+  //   }
+  .dayTrade {
+    // background: #8cd095;
+    font-size: 12px;
+    text-align: right;
+    color: #676666;
+  }
+  .ant-picker-cell {
+    border: 1px solid #eaf2e7;
+  }
+  .ant-picker-cell-inner {
+    border-top: none !important;
+    margin: 4px 4px 4px 4px !important;
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+  .ant-picker-cell-inner:has(.profit) {
+    // padding: 4px !important;
+    background: #ddf1e7;
+    border: 1px solid #b3cdc1;
+    border-top: 1px solid #b3cdc1 !important;
+  }
+  .ant-picker-cell-inner:has(.loss) {
+    background: #fad3d3;
+    border: 1px solid #f0c8c7;
+    border-top: 1px solid #f0c8c7 !important;
+  }
+
+  //   }
+  .profit-cell {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333333;
+  }
+
+  .ant-picker-cell:not(.ant-picker-cell-in-view) {
+    visibility: hidden; /* hoặc display: none (nếu bạn muốn collapse luôn hàng) */
+    // display: none;
+  }
+
+  .ant-picker-content thead tr {
+    height: 3rem;
+    // border: 1px solid #b3cdc1;
+    // background-color: #e4f4f7;
+    th {
+      font-weight: 600;
+      font-size: 18px;
+      border: 1px solid #eaf2e7;
+    }
+  }
+}
+
+.calendar-title {
+  display: flex;
+  justify-content: space-between;
+}
+
+.modal-add-trade {
+  label {
+    font-size: 16px !important;
+  }
+  input,
+  .input-trade {
+    // padding: 4px !important;
+    height: 2.5rem;
+  }
+  .ant-modal-footer {
+    display: none;
+  }
+}
+
+.trade-side-group {
+  display: flex;
+  // gap: 2px;
+
+  .trade-side {
+    flex: 1;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    padding: 8px 0;
+    // border-radius: 8px !important;
+    transition: all 0.2s ease;
+    border: 1px solid #dddddd;
+    background-color: #dadada;
+    height: 2.5rem;
+
+    &.buy {
+      &:hover {
+        color: white;
+        background-color: #27ae60;
+      }
+      &.ant-radio-button-wrapper-checked {
+        color: white;
+        background-color: #46d280; // xanh
+        border: #2db766;
+        // box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.15) inset;
+        filter: brightness(0.9);
+      }
+    }
+
+    &.sell {
+      &:hover {
+        color: white;
+        background-color: #b8483c;
+      }
+      &.ant-radio-button-wrapper-checked {
+        color: white;
+        background-color: #e66051; // đỏ
+        // box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.15) inset;
+        filter: brightness(0.9);
+      }
+    }
+  }
+
+  // Remove Ant Design default borders
+  .ant-radio-button-wrapper::before {
+    display: none;
+  }
+}
+
+.btn-submit-trade {
+  height: 3rem;
+  background: #4b9ee6;
+  &:hover {
+    opacity: 0.9;
+  }
+}

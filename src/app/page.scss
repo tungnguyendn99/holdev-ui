@@ -1,0 +1,19 @@
+.app {
+  display: flex;
+  // background-color: #f5f6fa;
+  font-family: 'Inter', sans-serif;
+  // color: #101a28;
+  height: 1200px;
+
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+
+    .content {
+      padding: 24px;
+      // background-color: #f5f6fa;
+      min-height: calc(100vh - 64px);
+    }
+  }
+}
