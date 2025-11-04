@@ -22,7 +22,7 @@ export default function LayoutMobile({ children }: { children: React.ReactNode }
   }
 
   return (
-    <div className="flex w-full flex-col h-screen transition-colors duration-300">
+    <div className="flex w-full flex-col transition-colors duration-300">
       {/* 🔝 Topbar */}
       <header className="flex justify-between items-center px-4 py-3 border-b border-border bg-card shadow-sm">
         <button
