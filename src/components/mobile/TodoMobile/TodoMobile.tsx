@@ -1,5 +1,5 @@
 'use client';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Plus,
@@ -40,110 +40,178 @@ import './TodoMobile.scss';
 import { Tag } from 'antd';
 import { cn } from '../../../../lib/utils';
 import { usePushNotification } from '../../../hooks/usePushNotification';
+import API from '../../../utils/api';
+import { openNotification } from '../../../common/utils.notification';
+import moment from 'moment';
 
 interface TodoItem {
   id: string;
   title: string;
   done: boolean;
-  date: string;
+  date: Date;
+  formatDate: string;
   description?: string;
   priority?: string;
 }
 
 export default function TodoMobile() {
-  const [todos, setTodos] = useState<TodoItem[]>([
-    {
-      id: '1',
-      title: 'Làm bài tập',
-      done: false,
-      date: '2025-11-01',
-      description: 'Toán + Lý',
-      priority: 'MEDIUM',
-    },
-    {
-      id: '2',
-      title: 'Đi siêu thị',
-      done: true,
-      date: '2025-11-02',
-      description: 'Mua rau và sữa',
-      priority: 'HIGH',
-    },
-    { id: '3', title: 'Viết báo cáo', done: false, date: '2025-11-03', priority: 'LOW' },
-    { id: '4', title: 'Tập gym', done: true, date: '2025-11-03', description: 'Ngày tập chân' },
-  ]);
+  const [allTodos, setAllTodos] = useState<TodoItem[]>([]);
+  const [filtered, setFiltered] = useState<TodoItem[]>([]);
+  // const [todoDone, setTodoDone] = useState<TodoItem[]>([]);
 
   const [newTask, setNewTask] = useState('');
   const [newDate, setNewDate] = useState<Date | undefined>(new Date());
+  const [newDateModal, setNewDateModal] = useState<Date | undefined>(new Date());
   const [priority, setPriority] = useState<any>('MEDIUM');
+  const [priorityModal, setPriorityModal] = useState<any>();
   const [tab, setTab] = useState<'pending' | 'done' | 'calendar'>('pending');
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
 
   const [selectedTodo, setSelectedTodo] = useState<TodoItem | null>(null);
   const [editMode, setEditMode] = useState(false);
 
-  const handleAdd = () => {
-    if (!newTask.trim() || !newDate) return;
-    const newTodo: TodoItem = {
-      id: Date.now().toString(),
-      title: newTask.trim(),
-      done: false,
-      date: format(newDate, 'yyyy-MM-dd'),
-      priority,
-    };
-    setTodos([newTodo, ...todos]);
-    setNewTask('');
+  const getTodos = async () => {
+    try {
+      // Simulate API call (replace with actual API request)
+      const { data } = await API.get('/todo');
+      setAllTodos(data);
+    } catch (err) {
+      console.log('error123', err);
+    }
+  };
+
+  useEffect(() => {
+    getTodos();
+  }, []);
+
+  useEffect(() => {
+    setFiltered(allTodos.filter((t) => (tab === 'done' ? t.done : !t.done)));
+    setNewDate(new Date());
+  }, [tab, allTodos]);
+
+  const handleAdd = async () => {
+    try {
+      if (!newTask.trim() || !newDate) return;
+      const newTodo = {
+        title: newTask.trim(),
+        date: newDate,
+        priority,
+      };
+      const { data } = await API.post('/todo', newTodo);
+      getTodos();
+    } catch (error) {
+      openNotification('error', {
+        message: 'Có lỗi khi lấy danh sách todo.',
+      });
+    }
   };
 
   console.log('newDate', newDate);
 
-  const toggleDone = (id: string) =>
-    setTodos((prev) => prev.map((t) => (t.id === id ? { ...t, done: !t.done } : t)));
+  // const toggleDone = (id: string) =>
+  //   setTodos((prev) => prev.map((t) => (t.id === id ? { ...t, done: !t.done } : t)));
+  const toggleDone = async (id: string, done: boolean) => {
+    try {
+      const { data } = await API.post('/todo/update', { id, done });
+      getTodos();
+    } catch (error) {
+      openNotification('error', {
+        message: 'Có lỗi khi lấy danh sách todo.',
+      });
+    }
+  };
 
-  const deleteTodo = (id: string) => setTodos((prev) => prev.filter((t) => t.id !== id));
+  // const deleteTodo = (id: string) => setTodos((prev) => prev.filter((t) => t.id !== id));
+  const deleteTodo = async (id: string) => {
+    try {
+      const { data } = await API.delete(`/todo/${id}`);
+      getTodos();
+    } catch (error) {
+      openNotification('error', {
+        message: 'Có lỗi khi lấy danh sách todo.',
+      });
+    }
+  };
 
-  const filtered = todos.filter((t) => (tab === 'done' ? t.done : !t.done));
+  // const filtered = todos.filter((t) => (tab === 'done' ? t.done : !t.done));
 
-  const todosOfSelectedDate = todos.filter(
-    (t) => t.date === format(selectedDate || new Date(), 'yyyy-MM-dd'),
+  const todosOfSelectedDate = allTodos.filter(
+    (t) => t.formatDate === format(selectedDate || new Date(), 'yyyy-MM-dd'),
   );
 
   const pendingDays = useMemo(
-    () => todos.filter((t) => !t.done).map((t) => parseISO(t.date)),
-    [todos],
+    () => allTodos.filter((t) => !t.done).map((t) => parseISO(t.formatDate)),
+    [allTodos],
   );
 
-  const doneDays = useMemo(() => todos.filter((t) => t.done).map((t) => parseISO(t.date)), [todos]);
+  const doneDays = useMemo(
+    () => allTodos.filter((t) => t.done).map((t) => parseISO(t.formatDate)),
+    [allTodos],
+  );
 
-  const handleSaveTodo = () => {
+  const handleSaveTodo = async () => {
+    try {
+      if (!selectedTodo) return;
+      console.log('selectedTodo', selectedTodo);
+      console.log('allTodos', allTodos);
+
+      const findTodo = allTodos.find((t) => t.id === selectedTodo.id);
+      console.log('findTodo', findTodo);
+
+      const payload = {
+        id: selectedTodo.id,
+        ...(selectedTodo?.title !== findTodo?.title && { title: selectedTodo.title }),
+        ...(selectedTodo?.description !== findTodo?.description && {
+          description: selectedTodo.description,
+        }),
+        ...(newDateModal !== findTodo?.date && { date: newDateModal }),
+        ...(selectedTodo?.priority !== findTodo?.priority && { priority: selectedTodo.priority }),
+        ...(selectedTodo?.done !== findTodo?.done && { done: selectedTodo.done }),
+      };
+      console.log('payload', payload);
+
+      const { data } = await API.post('/todo/update', payload);
+      // setTodos((prev) => prev.map((t) => (t.id === selectedTodo.id ? selectedTodo : t)));
+      setEditMode(false);
+      getTodos();
+    } catch (error) {
+      openNotification('error', {
+        message: 'Có lỗi khi lấy danh sách todo.',
+      });
+    }
+  };
+
+  const handlePriorityInModal = (value: string) => {
     if (!selectedTodo) return;
-    setTodos((prev) => prev.map((t) => (t.id === selectedTodo.id ? selectedTodo : t)));
-    setEditMode(false);
+    const updated = { ...selectedTodo, priority: value };
+    setSelectedTodo(updated);
+    // setTodos((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
   };
 
   const handleToggleDoneInModal = (checked: boolean) => {
     if (!selectedTodo) return;
     const updated = { ...selectedTodo, done: checked };
     setSelectedTodo(updated);
-    setTodos((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
+    // setTodos((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
   };
 
-  console.log('todos', todos);
+  console.log('allTodos', allTodos);
 
-  const { subscribe, unsubscribe, isSubscribed } = usePushNotification(
-    process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
-  );
+  // const { subscribe, unsubscribe, isSubscribed } = usePushNotification(
+  //   process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
+  // );
 
-  console.log('process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY', process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY);
-  console.log('subscribe', subscribe);
-  console.log('unsubscribe', unsubscribe);
-  console.log('isSubscribed', isSubscribed);
+  // console.log('process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY', process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY);
+  // console.log('subscribe', subscribe);
+  // console.log('unsubscribe', unsubscribe);
+  // console.log('isSubscribed', isSubscribed);
 
   return (
     <div className="h-full flex flex-col bg-background text-foreground px-3 pt-3 pb-16">
       <div>
-        <h1 className="text-xl font-bold">🔔 Web Push Notification</h1>
+        {/* <h1 className="text-xl font-bold">🔔 Web Push Notification</h1> */}
 
-        {!isSubscribed ? (
+        {/* {!isSubscribed ? (
           <button onClick={() => subscribe()} className="px-4 py-2 bg-blue-500 text-white rounded">
             Đăng ký nhận thông báo
           </button>
@@ -151,7 +219,7 @@ export default function TodoMobile() {
           <button onClick={unsubscribe} className="px-4 py-2 bg-red-500 text-white rounded">
             Hủy đăng ký
           </button>
-        )}
+        )} */}
       </div>
       <h1 className="text-xl font-bold mb-5 text-center">🗓️ Những việc cần làm của Txinh</h1>
 
@@ -240,6 +308,7 @@ export default function TodoMobile() {
                 deleteTodo={deleteTodo}
                 onOpenDetail={(todo) => {
                   setSelectedTodo(todo);
+                  setNewDateModal(todo.date);
                   setEditMode(false);
                 }}
               />
@@ -257,12 +326,12 @@ export default function TodoMobile() {
               modifiers={{
                 hasPending: pendingDays,
                 hasDone: doneDays,
-                hasBoth: todos
+                hasBoth: allTodos
                   .filter((t) => {
-                    const sameDay = todos.filter((tt) => tt.date === t.date);
+                    const sameDay = allTodos.filter((tt) => tt.formatDate === t.formatDate);
                     return sameDay.some((tt) => tt.done) && sameDay.some((tt) => !tt.done);
                   })
-                  .map((t) => parseISO(t.date)),
+                  .map((t) => parseISO(t.formatDate)),
               }}
               modifiersClassNames={{
                 hasPending: 'day-has-pending',
@@ -289,6 +358,7 @@ export default function TodoMobile() {
                 deleteTodo={deleteTodo}
                 onOpenDetail={(todo) => {
                   setSelectedTodo(todo);
+                  setNewDateModal(todo.date);
                   setEditMode(false);
                 }}
               />
@@ -325,13 +395,39 @@ export default function TodoMobile() {
                     rows={4}
                   />
                   <div className="flex items-center gap-2">
-                    <CalendarIcon size={16} />
+                    {/* <CalendarIcon size={16} />
                     <input
                       type="date"
                       value={selectedTodo.date}
                       onChange={(e) => setSelectedTodo({ ...selectedTodo, date: e.target.value })}
                       className="border rounded-md px-2 py-1 text-sm"
-                    />
+                    /> */}
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            'w-[160px] justify-start text-left font-normal h-8 text-sm',
+                            !newDateModal && 'text-muted-foreground',
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {newDateModal ? (
+                            format(newDateModal, 'dd/MM/yyyy')
+                          ) : (
+                            <span>Chọn ngày</span>
+                          )}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={newDateModal}
+                          onSelect={setNewDateModal}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
                   </div>
                 </>
               ) : (
@@ -340,7 +436,7 @@ export default function TodoMobile() {
                     <strong>Tiêu đề:</strong> {selectedTodo.title}
                   </p>
                   <p>
-                    <strong>Ngày:</strong> {format(parseISO(selectedTodo.date), 'dd/MM/yyyy')}
+                    <strong>Ngày:</strong> {moment(newDateModal).format('DD/MM/YYYY')}
                   </p>
                   <div>
                     <strong>Mô tả:</strong>{' '}
@@ -357,7 +453,7 @@ export default function TodoMobile() {
 
               {/* ✅ Toggle trạng thái */}
               <div className="flex items-center justify-between border-t pt-3 mt-2">
-                <Label htmlFor="" className="flex gap-3 text-sm font-medium">
+                <Label htmlFor="" className="flex items-center gap-3 text-sm font-medium">
                   <p>
                     Trạng thái:{' '}
                     {selectedTodo.done ? (
@@ -366,7 +462,40 @@ export default function TodoMobile() {
                       <span className="text-blue-600">Chưa hoàn thành</span>
                     )}
                   </p>
-                  <p>Ưu tiên: {handlePriority(selectedTodo.priority)}</p>
+                  {editMode ? (
+                    <Select
+                      value={selectedTodo.priority}
+                      onValueChange={(val) => {
+                        handlePriorityInModal(val);
+                      }}
+                    >
+                      <SelectTrigger className="w-[130px] h-8 text-sm">
+                        <SelectValue placeholder="Ưu tiên" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {priorityList.map((p) => (
+                          <SelectItem
+                            key={p.value}
+                            value={p.value}
+                            onClick={(e) => {
+                              // Dừng propagation để đảm bảo sự kiện được bắt
+                              e.stopPropagation();
+                              selectedTodo.priority === p.value && handlePriorityInModal('');
+                            }}
+                          >
+                            <div className="flex items-center gap-2">
+                              <Circle className={`${p.color} w-3 h-3`} />
+                              <span>{p.label}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <p className="flex items-center gap-2">
+                      Ưu tiên: {handlePriority(selectedTodo.priority)}
+                    </p>
+                  )}
                 </Label>
                 <Switch
                   id="done-switch"
@@ -401,7 +530,7 @@ function TodoList({
   onOpenDetail,
 }: {
   todos: TodoItem[];
-  toggleDone: (id: string) => void;
+  toggleDone: (id: string, done: boolean) => void;
   deleteTodo: (id: string) => void;
   onOpenDetail: (todo: TodoItem) => void;
 }) {
@@ -434,10 +563,14 @@ function TodoList({
                   <CheckCircle2
                     className="text-green-500"
                     size={20}
-                    onClick={() => toggleDone(todo.id)}
+                    onClick={() => toggleDone(todo.id, !todo.done)}
                   />
                 ) : (
-                  <Circle className="text-gray-400" size={20} onClick={() => toggleDone(todo.id)} />
+                  <Circle
+                    className="text-gray-400"
+                    size={20}
+                    onClick={() => toggleDone(todo.id, !todo.done)}
+                  />
                 )}
                 <div className="flex flex-col">
                   <span className={`text-base ${todo.done ? 'line-through text-gray-400' : ''}`}>

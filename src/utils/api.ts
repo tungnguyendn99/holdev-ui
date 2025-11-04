@@ -3,7 +3,8 @@ import axios from 'axios';
 
 const API = axios.create({
   // baseURL: 'http://localhost:3009', // Use the API URL from env
-  baseURL: 'http://192.168.0.130:3009', // Use the API URL from env
+  baseURL: 'https://holdev-project.onrender.com', // Use the API URL from env
+  // baseURL: 'http://192.168.0.130:3009', // Use the API URL from env
   headers: {
     'Content-Type': 'application/json',
   },
