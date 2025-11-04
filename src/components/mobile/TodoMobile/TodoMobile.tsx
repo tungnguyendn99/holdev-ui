@@ -99,6 +99,7 @@ export default function TodoMobile() {
       };
       const { data } = await API.post('/todo', newTodo);
       getTodos();
+      setNewTask('');
     } catch (error) {
       openNotification('error', {
         message: 'Có lỗi khi lấy danh sách todo.',
