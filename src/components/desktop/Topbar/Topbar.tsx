@@ -21,7 +21,6 @@ const Topbar = ({ onToggleSidebar }: any) => {
     const token = localStorage.getItem('token');
     const storedUser = localStorage.getItem('user') || '';
     const user = storedUser ? JSON.parse(storedUser) : {};
-    console.log('user0', user);
 
     if (token) {
       setIsAuthenticated(true);
@@ -84,7 +83,9 @@ const Topbar = ({ onToggleSidebar }: any) => {
   );
 
   return (
-    <header className={`topbar ${theme === 'dark' && 'topbar-dark'}`}>
+    <header
+      className={`topbar ${theme === 'dark' && 'topbar-dark'} ${theme === 'light' && 'topbar-light'}`}
+    >
       <div className="flex gap-1.5 items-center">
         <button
           onClick={onToggleSidebar}

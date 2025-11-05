@@ -29,7 +29,6 @@ const Sidebar = ({ isCollapsed }: { isCollapsed: boolean }) => {
     const token = localStorage.getItem('token');
     const storedUser = localStorage.getItem('user') || '';
     const user = storedUser ? JSON.parse(storedUser) : {};
-    console.log('user0', user);
 
     if (user.features) {
       setFeatures(user.features);
@@ -63,7 +62,7 @@ const Sidebar = ({ isCollapsed }: { isCollapsed: boolean }) => {
   return (
     <aside
       className={cx(
-        `sidebar ${theme === 'dark' && 'sidebar-dark'}`,
+        `sidebar ${theme === 'dark' && 'sidebar-dark'} ${theme === 'light' && 'sidebar-light'}`,
         'overflow-hidden transition-[width] duration-500 ease-in-out',
         isCollapsed ? 'w-24' : 'w-56',
       )}

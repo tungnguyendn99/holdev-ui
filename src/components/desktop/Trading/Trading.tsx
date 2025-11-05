@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './Trading.scss';
 import {
   Badge,
@@ -28,6 +28,8 @@ import { PlusOutlined, SlidersOutlined } from '@ant-design/icons';
 import Table, { ColumnsType } from 'antd/es/table';
 import { useTheme } from 'next-themes';
 import { useWindowResize } from '../../../common/func';
+import API from '../../../utils/api';
+import TradingMobile from '../../mobile/TradingMobile/TradingMobile';
 
 const getListData = (value: Dayjs) => {
   let listData: { type: string; content: string }[] = []; // Specify the type of listData
@@ -106,7 +108,6 @@ const getMonthData = (value: Dayjs) => {
 
 const Trading = () => {
   const isMobile = useWindowResize(576);
-  console.log('isMobile', isMobile);
   const { Option } = Select;
   const data: any = {};
   const [form] = Form.useForm();
@@ -118,21 +119,104 @@ const Trading = () => {
     },
   };
   const { theme } = useTheme();
+
+  const [dataDays, setDataDays] = useState<any>({});
+  const [dataMonth, setDataMonth] = useState<any>({});
+  const [dataRecent, setDataRecent] = useState<any>([]);
   const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
   const [openDetail, setOpenDetail] = useState<any>({
     open: false,
     data: {},
   });
-  const [isOpenAddTrade, setIsOpenAddTrade] = useState<boolean>(false);
+  const [isOpenAddTrade, setIsOpenAddTrade] = useState<any>({
+    status: false,
+    type: 'add',
+  });
   const [activeKey, setActiveKey] = useState('recent');
   const [closedBy, setClosedBy] = useState(closeByList[0].value);
   const [rating, setRating] = useState(0);
+  const [idUpdate, setIdUpdate] = useState('');
 
-  if (isMobile) {
-    return <p>The feature is developing!</p>;
-  }
+  const addTrade = async (formData: any) => {
+    try {
+      // Simulate API call (replace with actual API request)
+      const { data } = await API.post('/trading/add-trade', {
+        ...formData,
+      });
+      syncPageData();
+      setIsOpenAddTrade({ status: false });
+    } catch (err) {
+      console.log('error123', err);
+    }
+  };
+
+  const updateTrade = async (formData: any) => {
+    try {
+      console.log('formData', formData);
+
+      // Simulate API call (replace with actual API request)
+      const { data } = await API.post('/trading/update', {
+        ...formData,
+        id: idUpdate,
+      });
+      syncPageData();
+      setIsOpenAddTrade({ status: false });
+    } catch (err) {
+      console.log('error123', err);
+    }
+  };
+
+  const getDataDaysTrade = async () => {
+    try {
+      // Simulate API call (replace with actual API request)
+      const { data } = await API.post('/trading/list', {
+        mode: 'day',
+        dateString: selectedDate.format('YYYY-MM'),
+      });
+      setDataDays(data);
+    } catch (err) {
+      console.log('error123', err);
+    }
+  };
+  const getDataMonthTrade = async () => {
+    try {
+      // Simulate API call (replace with actual API request)
+      const { data } = await API.post('/trading/list', {
+        mode: 'month',
+        dateString: selectedDate.format('YYYY-MM'),
+      });
+      setDataMonth(data[selectedDate.format('YYYY-MM')]);
+    } catch (err) {
+      console.log('error123', err);
+    }
+  };
+  const getRecentTrade = async () => {
+    try {
+      // Simulate API call (replace with actual API request)
+      const { data } = await API.post('/trading/list', {});
+      setDataRecent(data);
+    } catch (err) {
+      console.log('error123', err);
+    }
+  };
+
+  useEffect(() => {
+    getRecentTrade();
+  }, []);
+
+  useEffect(() => {
+    getDataDaysTrade();
+    getDataMonthTrade();
+  }, [selectedDate]);
+
+  const syncPageData = async () => {
+    getRecentTrade();
+    getDataDaysTrade();
+    getDataMonthTrade();
+  };
 
   const handleMonthYearChange = (date: any) => {
+    console.log('date', date);
     setSelectedDate(date); // Cập nhật ngày đã chọn
   };
   const handleDateChange = (date: any) => {
@@ -143,8 +227,11 @@ const Trading = () => {
     return !current.isSame(selectedDate, 'month'); // Vô hiệu hóa các ngày không thuộc tháng hiện tại
   };
   const dateCellRender = (value: Dayjs) => {
+    // console.log('value', value.format('YYYY-MM-DD'));
+    // console.log('value1', value.format('YYYY-MM'));
+
     // const listData = getListData(value);
-    const data = sampleData[value.date()];
+    const data = dataDays[value.format('YYYY-MM-DD')];
     if (data && value.isSame(selectedDate, 'month')) {
       return (
         // <ul className="events">
@@ -188,15 +275,20 @@ const Trading = () => {
   const onFinish = (value: any) => {
     console.log('test finish', value);
     console.log('time', moment(value.entryTime.format()));
+    if (isOpenAddTrade.type === 'add') {
+      return addTrade(value);
+    } else {
+      return updateTrade(value);
+    }
   };
 
   const columns: ColumnsType<any> = [
     {
       title: 'Close Date',
-      dataIndex: 'date',
-      key: 'date',
-      width: 120,
-      render: (text) => <span>{text}</span>,
+      dataIndex: 'closeTime',
+      key: 'closeTime',
+      width: 110,
+      render: (text) => <span>{moment(text).format('DD/MM/YYYY')}</span>,
     },
     {
       title: 'Symbol',
@@ -204,12 +296,41 @@ const Trading = () => {
       key: 'symbol',
       width: 100,
       align: 'center',
+      render: (_, record) => (
+        <span
+          className="cursor-pointer"
+          onClick={() => {
+            console.log('asd', { ...record });
+            setIdUpdate(record.id);
+            form.setFieldsValue({
+              ...record,
+              ...(record?.entryTime !== undefined && { entryTime: dayjs(record.entryTime) }),
+              ...(record?.closeTime !== undefined && { closeTime: dayjs(record.closeTime) }),
+            });
+            setIsOpenAddTrade({ status: true, type: 'edit' });
+          }}
+        >
+          {record.symbol}
+        </span>
+      ),
+    },
+    {
+      title: 'Trade Side',
+      dataIndex: 'tradeSide',
+      key: 'tradeSide',
+      width: 80,
+      align: 'center',
+      render: (text) => (
+        <span className={cx(`font-bold ${text === 'BUY' ? 'text-green-500' : 'text-red-400'}`)}>
+          {text}
+        </span>
+      ),
     },
     {
       title: 'Net P&L',
-      dataIndex: 'pnl',
-      key: 'pnl',
-      width: 120,
+      dataIndex: 'result',
+      key: 'result',
+      width: 100,
       align: 'right',
       render: (pnl: number) => (
         <span
@@ -218,16 +339,27 @@ const Trading = () => {
             fontWeight: 600,
           }}
         >
-          {pnl >= 0 ? `$${pnl.toLocaleString()}` : `-$${Math.abs(pnl).toLocaleString()}`}
+          {!pnl
+            ? undefined
+            : pnl >= 0
+              ? `$${pnl.toLocaleString()}`
+              : `-$${Math.abs(pnl).toLocaleString()}`}
         </span>
       ),
     },
   ];
 
+  // if (isMobile) {
+  //   return <TradingMobile />;
+  // }
+
   return (
     <div className="trading">
       <div className="add-trade">
-        <Button className="btn-add" onClick={() => setIsOpenAddTrade(true)}>
+        <Button
+          className="btn-add"
+          onClick={() => setIsOpenAddTrade({ status: true, type: 'add' })}
+        >
           <PlusOutlined /> Add New Trade
         </Button>
         <Card
@@ -248,8 +380,9 @@ const Trading = () => {
                 label: 'Recent trades',
                 children: (
                   <Table
+                    rowKey={(r) => r.id}
                     columns={columns}
-                    dataSource={dataTrades}
+                    dataSource={dataRecent}
                     pagination={false}
                     scroll={{ y: 240 }}
                     size="small"
@@ -283,17 +416,23 @@ const Trading = () => {
             picker="month"
             onChange={handleMonthYearChange}
             className="datepicker"
-            defaultValue={moment()}
+            defaultValue={dayjs()}
             placeholder="Chọn tháng và năm"
             cellRender={(current: any) => <div>Tháng {current.format('MM')}</div>}
           />
-          <div>
-            <p>
+          <div className="flex">
+            <p className="mt-2">
               <span style={{ fontWeight: 700 }}>Monthly stats:</span>{' '}
               <Tag color="green" style={{ fontSize: '18px' }}>
-                4$
+                {dataMonth?.profit}
               </Tag>
             </p>
+            <button
+              onClick={syncPageData}
+              className="w-20 h-6 mt-2 bg-indigo-500 text-blue-50 rounded-lg cursor-pointer hover:opacity-90"
+            >
+              Sync
+            </button>
           </div>
         </div>
         <Calendar
@@ -306,10 +445,10 @@ const Trading = () => {
           // onSelect={handleDateChange}
         />
       </div>
-      {isOpenAddTrade && (
+      {isOpenAddTrade.status && (
         <Modal
           centered
-          open={isOpenAddTrade}
+          open={isOpenAddTrade.status}
           title={
             <div
               style={{
@@ -322,7 +461,8 @@ const Trading = () => {
                 borderBottom: '1px solid #dddddd',
               }}
             >
-              <SlidersOutlined style={{ marginRight: '5px' }} /> {'Add New Trade'}
+              <SlidersOutlined style={{ marginRight: '5px' }} />{' '}
+              {isOpenAddTrade.type === 'add' ? 'Add New Trade' : 'Edit Trade'}
             </div>
           }
           okText={null}
@@ -334,7 +474,10 @@ const Trading = () => {
           // onOk={() => {
           //   () => setIsOpenAddTrade(false);
           // }}
-          onCancel={() => setIsOpenAddTrade(false)}
+          onCancel={() => {
+            form.resetFields();
+            setIsOpenAddTrade({ status: false });
+          }}
         >
           <Form
             form={form}
@@ -392,7 +535,7 @@ const Trading = () => {
                 <Form.Item
                   label="Close Price"
                   name="closePrice"
-                  rules={[{ required: true, message: 'Please input close price!' }]}
+                  // rules={[{ required: true, message: 'Please input close price!' }]}
                 >
                   <InputNumber
                     min={0}
@@ -423,7 +566,7 @@ const Trading = () => {
                 <Form.Item
                   label="Take Profit"
                   name="takeProfit"
-                  rules={[{ required: true, message: 'Please input take profit!' }]}
+                  // rules={[{ required: true, message: 'Please input take profit!' }]}
                 >
                   <InputNumber
                     min={0}
@@ -449,7 +592,7 @@ const Trading = () => {
                 <Form.Item
                   label="Close Time"
                   name="closeTime"
-                  rules={[{ required: true, message: 'Please select close time!' }]}
+                  // rules={[{ required: true, message: 'Please select close time!' }]}
                 >
                   <DatePicker showTime style={{ width: '100%' }} className="input-trade" />
                 </Form.Item>
@@ -477,7 +620,7 @@ const Trading = () => {
                 <Form.Item
                   label="Result (USD)"
                   name="result"
-                  rules={[{ required: true, message: 'Please input result!' }]}
+                  // rules={[{ required: true, message: 'Please input result!' }]}
                 >
                   <InputNumber
                     style={{ width: '100%' }}
@@ -494,7 +637,7 @@ const Trading = () => {
                 <Form.Item
                   label="Closed By"
                   name="closedBy"
-                  rules={[{ required: true, message: 'Please select trade side!' }]}
+                  // rules={[{ required: true, message: 'Please select trade side!' }]}
                 >
                   <Select
                     style={{ width: '100%' }}
@@ -515,7 +658,7 @@ const Trading = () => {
                 <Form.Item
                   label="Rating"
                   name="rating"
-                  rules={[{ required: false, message: 'Please rate your trade' }]}
+                  // rules={[{ required: false, message: 'Please rate your trade' }]}
                 >
                   <Rate onChange={(value) => setRating(value)} value={rating} />
                 </Form.Item>
@@ -548,7 +691,7 @@ const Trading = () => {
 
             <Form.Item>
               <Button type="primary" htmlType="submit" block className="btn-submit-trade">
-                Save Trade
+                {isOpenAddTrade.type === 'add' ? 'Add Trade' : 'Save Trade'}
               </Button>
             </Form.Item>
           </Form>
@@ -594,6 +737,7 @@ const symbolList = [
 const closeByList = [
   { label: 'Stop Loss', value: 'SL' },
   { label: 'Take Profit', value: 'TP' },
+  { label: 'Break Even', value: 'BE' },
   { label: 'Manually', value: 'MA' },
   { label: 'Stop Out', value: 'SO' },
 ];

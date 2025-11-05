@@ -36,8 +36,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     return <main className="flex-1 bg-gray-100 p-6 overflow-y-auto">{children}</main>;
   }
 
-  console.log('isMobile', isMobile);
-
   if (isMobile) {
     return <LayoutMobile children={children} />;
   }
