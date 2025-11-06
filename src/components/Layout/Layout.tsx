@@ -5,6 +5,8 @@ import Topbar from '../desktop/Topbar/Topbar';
 import { usePathname } from 'next/navigation';
 import { useWindowResize } from '../../common/func';
 import LayoutMobile from '../mobile/LayoutMobile';
+import { useAppSelector } from '../../store/hooks';
+import { LoadingOverlay } from '../LoadingOverLay';
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
@@ -15,6 +17,9 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const [mounted, setMounted] = useState(false); // ✅ tránh mismatch
   //   const [isMobile, setIsMobile] = useState(false);
   const isMobile = useWindowResize(576);
+
+  const loading = useAppSelector((state) => state.user.loading);
+  console.log('loading', loading);
 
   useEffect(() => {
     setMounted(true);
@@ -37,11 +42,17 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   }
 
   if (isMobile) {
-    return <LayoutMobile children={children} />;
+    return (
+      <>
+        <LoadingOverlay show={loading} fullscreen />
+        <LayoutMobile children={children} />;
+      </>
+    );
   }
 
   return (
     <>
+      <LoadingOverlay show={loading} fullscreen />
       {hideLayout ? (
         <main className="flex-1 bg-gray-100 p-6 overflow-y-auto">{children}</main>
       ) : (

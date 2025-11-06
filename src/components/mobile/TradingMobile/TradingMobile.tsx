@@ -19,10 +19,8 @@ import {
   SelectContent,
   SelectItem,
 } from '@/components/ui/select';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
+
 import { Label } from '@/components/ui/label';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Calendar as CalendarIcon, Pencil, Save, DollarSign } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import moment from 'moment';
@@ -31,7 +29,11 @@ import API from '../../../utils/api';
 import { openNotification } from '../../../common/utils.notification';
 import { DayPicker } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
+import Datetime from 'react-datetime';
+import 'react-datetime/css/react-datetime.css';
 import { Rate, Tag } from 'antd';
+import { useAppDispatch, useAppSelector } from '../../../store/hooks';
+import { hideLoading, showLoading } from '../../../store/slices/user.slice';
 
 export default function TradingMobile() {
   const [tab, setTab] = useState<'trades' | 'calendar' | 'plan'>('trades');
@@ -44,6 +46,10 @@ export default function TradingMobile() {
   const [formData, setFormData] = useState<any>({});
   const [dataMonth, setDataMonth] = useState<any>({});
   const [month, setMonth] = useState<any>(moment().toDate());
+
+  //store
+  const dispatch = useAppDispatch();
+  const userInfo = useAppSelector((state) => state.user.userInfo);
 
   const getRecentTrade = async () => {
     try {
@@ -59,47 +65,6 @@ export default function TradingMobile() {
     getRecentTrade();
   }, []);
 
-  const addTrade = async (formData: any) => {
-    try {
-      // Simulate API call (replace with actual API request)
-      const { data } = await API.post('/trading/add-trade', {
-        ...formData,
-      });
-      syncPageData();
-      setIsOpenTradeModal(false);
-    } catch (err) {
-      console.log('error123', err);
-    }
-  };
-
-  const updateTrade = async (formData: any) => {
-    try {
-      console.log('formData', formData);
-
-      // Simulate API call (replace with actual API request)
-      //   const { data } = await API.post('/trading/update', {
-      //     ...formData,
-      //     id: idUpdate,
-      //   });
-      //   syncPageData();
-      //   setIsOpenTradeModal(false);
-    } catch (err) {
-      console.log('error123', err);
-    }
-  };
-
-  const getDataDaysTrade = async () => {
-    try {
-      // Simulate API call (replace with actual API request)
-      //   const { data } = await API.post('/trading/list', {
-      //     mode: 'day',
-      //     dateString: selectedDate.format('YYYY-MM'),
-      //   });
-      //   setDataDays(data);
-    } catch (err) {
-      console.log('error123', err);
-    }
-  };
   const getDataMonthTrade = async (time?: any) => {
     try {
       // Simulate API call (replace with actual API request)
@@ -114,19 +79,22 @@ export default function TradingMobile() {
     }
   };
 
-  //   useEffect(() => {
-  //     getDataDaysTrade();
-  //     getDataMonthTrade();
-  //   }, [selectedDate]);
-
   const syncPageData = async () => {
-    getRecentTrade();
-    getDataDaysTrade();
-    getDataMonthTrade();
+    try {
+      dispatch(showLoading()); // bật loading
+
+      // Gọi 3 API song song
+      await Promise.all([getRecentTrade(), getDataMonthTrade()]);
+    } catch (err) {
+      console.error('Lỗi khi sync dữ liệu:', err);
+    } finally {
+      dispatch(hideLoading()); // tắt loading dù có lỗi hay không
+    }
   };
 
   const handleSubmit = async () => {
     try {
+      dispatch(showLoading());
       if (isEdit) {
         await API.post('/trading/update', { id: selectedTrade.id, ...formData });
       } else {
@@ -136,6 +104,8 @@ export default function TradingMobile() {
       getRecentTrade();
     } catch (err) {
       openNotification('error', { message: 'Lỗi khi lưu trade' });
+    } finally {
+      dispatch(hideLoading()); 
     }
   };
 
@@ -191,7 +161,7 @@ export default function TradingMobile() {
     profit: 0,
     plan: '',
     target: '',
-    risk: 1,
+    risk: 4,
   });
   const [editPlan, setEditPlan] = useState(false);
 
@@ -207,6 +177,7 @@ export default function TradingMobile() {
 
   return (
     <div className="h-full flex flex-col bg-background text-foreground px-3 pt-3 pb-16">
+      {/* <LoadingOverlay show={loading} fullscreen /> */}
       <h1 className="text-xl font-bold mb-5 text-center">📊 Trading Mobile Dashboard</h1>
 
       <Tabs value={tab} onValueChange={(v) => setTab(v as any)} className="flex-1 flex flex-col">
@@ -234,7 +205,10 @@ export default function TradingMobile() {
                 <div>
                   <p className="font-medium">{t.symbol}</p>
                   <p className="text-xs text-muted-foreground">
-                    {moment(t.closeTime || t.entryTime).format('DD/MM/YYYY')} · {t.tradeSide}
+                    {moment(t.closeTime || t.entryTime).format('DD/MM/YYYY')} ·{' '}
+                    <span className={t.tradeSide === 'BUY' ? 'text-green-500' : 'text-red-500'}>
+                      {t.tradeSide}
+                    </span>
                   </p>
                 </div>
                 {t.result && (
@@ -251,82 +225,6 @@ export default function TradingMobile() {
         </TabsContent>
 
         {/* TAB 2 - CALENDAR */}
-        {/* <TabsContent value="calendar" className="flex-1 overflow-y-auto">
-          <div className="flex flex-col items-center">
-            <DayPicker
-              mode="single"
-              selected={selectedDate}
-              onSelect={setSelectedDate}
-              className="rounded-lg border shadow-sm p-2"
-              modifiers={{
-                hasProfit: Object.keys(profitByDate)
-                  .filter((d) => profitByDate[d] > 0)
-                  .map((d) => parseISO(d)),
-                hasLoss: Object.keys(profitByDate)
-                  .filter((d) => profitByDate[d] < 0)
-                  .map((d) => parseISO(d)),
-                hasBoth: Object.keys(profitByDate)
-                  .filter((d) => profitByDate[d] === 0)
-                  .map((d) => parseISO(d)),
-              }}
-              modifiersClassNames={{
-                hasProfit: 'day-has-profit',
-                hasLoss: 'day-has-loss',
-                hasBoth: 'day-has-both',
-              }}
-            />
-
-            <div className="mt-4 flex justify-center gap-4 text-sm text-muted-foreground">
-              <span className="flex items-center gap-1">
-                <span className="w-2 h-2 bg-green-500 rounded-full"></span> Lợi nhuận
-              </span>
-              <span className="flex items-center gap-1">
-                <span className="w-2 h-2 bg-red-500 rounded-full"></span> Thua lỗ
-              </span>
-              <span className="flex items-center gap-1">
-                <span className="w-2 h-2 bg-gray-400 rounded-full"></span> Hòa vốn
-              </span>
-            </div>
-
-            <h2 className="mt-4 font-semibold">
-              Giao dịch ngày {selectedDate ? format(selectedDate, 'dd/MM/yyyy') : '...'}
-            </h2>
-
-            <div className="mt-3 w-full space-y-2">
-              {tradesOfSelectedDate.length === 0 ? (
-                <p className="text-center text-muted-foreground text-sm">
-                  Không có giao dịch nào trong ngày này
-                </p>
-              ) : (
-                tradesOfSelectedDate.map((t) => (
-                  <Card
-                    key={t.id}
-                    className="flex justify-between items-center px-3 py-2 cursor-pointer"
-                    onClick={() => handleOpenTrade(t)}
-                  >
-                    <div>
-                      <p className="font-medium">{t.symbol}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {moment(t.closeTime || t.entryTime).format('HH:mm')} · {t.tradeSide}
-                      </p>
-                    </div>
-                    <p
-                      className={`font-semibold ${
-                        t.result > 0
-                          ? 'text-green-500'
-                          : t.result < 0
-                            ? 'text-red-500'
-                            : 'text-gray-400'
-                      }`}
-                    >
-                      {t.result > 0 ? '+' : ''}
-                    </p>
-                  </Card>
-                ))
-              )}
-            </div>
-          </div>
-        </TabsContent> */}
         <TabsContent value="calendar" className="flex-1 overflow-y-auto">
           <div className="flex flex-col items-center">
             <div className="flex gap-2">
@@ -573,45 +471,25 @@ export default function TradingMobile() {
             {/* Entry Time */}
             <div>
               <Label className="text-sm font-medium mb-1 block">Entry Time *</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full justify-start">
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {formData.entryTime
-                      ? moment(formData.entryTime).format('DD/MM/YYYY HH:mm')
-                      : 'Select date'}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={formData.entryTime ?? undefined}
-                    onSelect={(v) => setFormData({ ...formData, entryTime: v! })}
-                  />
-                </PopoverContent>
-              </Popover>
+              <Datetime
+                value={formData.entryTime ? moment(formData.entryTime) : undefined}
+                onChange={(v) => setFormData({ ...formData, entryTime: moment(v).toDate() })}
+                dateFormat="DD/MM/YYYY"
+                timeFormat="HH:mm"
+                className="h-9 w-full rounded-md border border-input bg-transparent px-2 py-1.5 text-base shadow-sm transition-colors md:text-sm"
+              />
             </div>
 
             {/* Close Time */}
             <div>
               <Label className="text-sm font-medium mb-1 block">Close Time</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full justify-start">
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {formData.closeTime
-                      ? moment(formData.closeTime).format('DD/MM/YYYY HH:mm')
-                      : 'Select date'}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={formData.closeTime ?? undefined}
-                    onSelect={(v: any) => setFormData({ ...formData, closeTime: v! })}
-                  />
-                </PopoverContent>
-              </Popover>
+              <Datetime
+                value={formData.closeTime ? moment(formData.closeTime) : undefined}
+                onChange={(v) => setFormData({ ...formData, closeTime: moment(v).toDate() })}
+                dateFormat="DD/MM/YYYY"
+                timeFormat="HH:mm"
+                className="h-9 w-full rounded-md border border-input bg-transparent px-2 py-1.5 text-base shadow-sm transition-colors md:text-sm"
+              />
             </div>
 
             {/* Trade Side */}

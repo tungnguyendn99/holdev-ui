@@ -5,6 +5,8 @@ import './globals.css';
 import './page.scss';
 import Layout from '../components/Layout/Layout';
 import { ThemeProvider } from 'next-themes';
+import { Provider } from 'react-redux';
+import { store } from '../store';
 
 // const geistSans = Geist({
 //   variable: '--font-geist-sans',
@@ -30,7 +32,9 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`antialiased app`}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
-          <Layout children={children} />
+          <Provider store={store}>
+            <Layout children={children} />
+          </Provider>
         </ThemeProvider>
       </body>
     </html>

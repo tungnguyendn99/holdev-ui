@@ -43,6 +43,9 @@ import { usePushNotification } from '../../../hooks/usePushNotification';
 import API from '../../../utils/api';
 import { openNotification } from '../../../common/utils.notification';
 import moment from 'moment';
+import { useAppDispatch, useAppSelector } from '../../../store/hooks';
+import { hideLoading, showLoading } from '../../../store/slices/user.slice';
+import { LoadingOverlay } from '../../LoadingOverLay';
 
 interface TodoItem {
   id: string;
@@ -55,6 +58,7 @@ interface TodoItem {
 }
 
 export default function TodoMobile() {
+  const dispatch = useAppDispatch();
   const [allTodos, setAllTodos] = useState<TodoItem[]>([]);
   const [filtered, setFiltered] = useState<TodoItem[]>([]);
   // const [todoDone, setTodoDone] = useState<TodoItem[]>([]);
@@ -70,13 +74,19 @@ export default function TodoMobile() {
   const [selectedTodo, setSelectedTodo] = useState<TodoItem | null>(null);
   const [editMode, setEditMode] = useState(false);
 
+  const userInfo = useAppSelector((state) => state.user.userInfo);
+  const loading = useAppSelector((state) => state.user.loading);
+
   const getTodos = async () => {
     try {
       // Simulate API call (replace with actual API request)
+      dispatch(showLoading());
       const { data } = await API.get('/todo');
       setAllTodos(data);
+      dispatch(hideLoading());
     } catch (err) {
       console.log('error123', err);
+      dispatch(hideLoading());
     }
   };
 
@@ -209,6 +219,7 @@ export default function TodoMobile() {
 
   return (
     <div className="h-full flex flex-col bg-background text-foreground px-3 pt-3 pb-16">
+      <LoadingOverlay show={loading} fullscreen />
       <div>
         {/* <h1 className="text-xl font-bold">🔔 Web Push Notification</h1> */}
 
@@ -222,7 +233,9 @@ export default function TodoMobile() {
           </button>
         )} */}
       </div>
-      <h1 className="text-xl font-bold mb-5 text-center">🗓️ Những việc cần làm của Txinh</h1>
+      <h1 className="text-xl font-bold mb-5 text-center">
+        🗓️ Những việc cần làm của {userInfo.username}
+      </h1>
 
       <Tabs value={tab} onValueChange={(v) => setTab(v as any)} className="flex-1 flex flex-col">
         <TabsList className="grid grid-cols-3 mb-5">

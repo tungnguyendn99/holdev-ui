@@ -5,12 +5,15 @@ declare const localStorage: Storage;
 import { useState } from 'react';
 import API, { setAuthToken } from '../../utils/api';
 import { useRouter } from 'next/navigation';
+import { useAppDispatch } from '../../store/hooks';
+import { setUserInfo } from '../../store/slices/user.slice';
 
 export default function Login({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const dispatch = useAppDispatch();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -40,6 +43,7 @@ export default function Login({
       const token = response.data.accessToken;
       setAuthToken(token); // Save token globally
       localStorage.setItem('user', JSON.stringify(response.data.user));
+      dispatch(setUserInfo(response.data.user));
       router.push('/');
     } catch (err) {
       console.log('error123', err);
