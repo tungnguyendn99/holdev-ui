@@ -53,11 +53,14 @@ export default function TradingMobile() {
 
   const getRecentTrade = async () => {
     try {
+      dispatch(showLoading());
       // Simulate API call (replace with actual API request)
       const { data } = await API.post('/trading/list', {});
       setTrades(data);
     } catch (err) {
       console.log('error123', err);
+    } finally {
+      dispatch(hideLoading()); // tắt loading dù có lỗi hay không
     }
   };
 
@@ -67,6 +70,7 @@ export default function TradingMobile() {
 
   const getDataMonthTrade = async (time?: any) => {
     try {
+      dispatch(showLoading());
       // Simulate API call (replace with actual API request)
       setMonth(moment(time).toDate());
       const { data } = await API.post('/trading/list', {
@@ -76,6 +80,8 @@ export default function TradingMobile() {
       setDataMonth(data[moment(time).format('YYYY-MM')]);
     } catch (err) {
       console.log('error123', err);
+    } finally {
+      dispatch(hideLoading()); // tắt loading dù có lỗi hay không
     }
   };
 

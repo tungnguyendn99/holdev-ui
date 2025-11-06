@@ -87,6 +87,8 @@ export default function TodoMobile() {
     } catch (err) {
       console.log('error123', err);
       dispatch(hideLoading());
+    } finally {
+      dispatch(hideLoading());
     }
   };
 
@@ -101,6 +103,7 @@ export default function TodoMobile() {
 
   const handleAdd = async () => {
     try {
+      dispatch(showLoading());
       if (!newTask.trim() || !newDate) return;
       const newTodo = {
         title: newTask.trim(),
@@ -114,6 +117,8 @@ export default function TodoMobile() {
       openNotification('error', {
         message: 'Có lỗi khi lấy danh sách todo.',
       });
+    } finally {
+      dispatch(hideLoading());
     }
   };
 
@@ -162,6 +167,7 @@ export default function TodoMobile() {
 
   const handleSaveTodo = async () => {
     try {
+      dispatch(showLoading());
       if (!selectedTodo) return;
       console.log('selectedTodo', selectedTodo);
       console.log('allTodos', allTodos);
@@ -189,6 +195,8 @@ export default function TodoMobile() {
       openNotification('error', {
         message: 'Có lỗi khi lấy danh sách todo.',
       });
+    } finally {
+      dispatch(hideLoading()); // tắt loading dù có lỗi hay không
     }
   };
 

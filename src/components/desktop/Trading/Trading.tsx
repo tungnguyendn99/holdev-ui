@@ -30,6 +30,8 @@ import { useTheme } from 'next-themes';
 import { useWindowResize } from '../../../common/func';
 import API from '../../../utils/api';
 import TradingMobile from '../../mobile/TradingMobile/TradingMobile';
+import { useAppDispatch, useAppSelector } from '../../../store/hooks';
+import { hideLoading, showLoading } from '../../../store/slices/user.slice';
 
 const getListData = (value: Dayjs) => {
   let listData: { type: string; content: string }[] = []; // Specify the type of listData
@@ -137,8 +139,12 @@ const Trading = () => {
   const [rating, setRating] = useState(0);
   const [idUpdate, setIdUpdate] = useState('');
 
+  const dispatch = useAppDispatch();
+  const userInfo = useAppSelector((state) => state.user.userInfo);
+
   const addTrade = async (formData: any) => {
     try {
+      dispatch(showLoading());
       // Simulate API call (replace with actual API request)
       const { data } = await API.post('/trading/add-trade', {
         ...formData,
@@ -147,11 +153,14 @@ const Trading = () => {
       setIsOpenAddTrade({ status: false });
     } catch (err) {
       console.log('error123', err);
+    } finally {
+      dispatch(hideLoading());
     }
   };
 
   const updateTrade = async (formData: any) => {
     try {
+      dispatch(showLoading());
       console.log('formData', formData);
 
       // Simulate API call (replace with actual API request)
@@ -163,11 +172,14 @@ const Trading = () => {
       setIsOpenAddTrade({ status: false });
     } catch (err) {
       console.log('error123', err);
+    } finally {
+      dispatch(hideLoading());
     }
   };
 
   const getDataDaysTrade = async () => {
     try {
+      dispatch(showLoading());
       // Simulate API call (replace with actual API request)
       const { data } = await API.post('/trading/list', {
         mode: 'day',
@@ -180,6 +192,7 @@ const Trading = () => {
   };
   const getDataMonthTrade = async () => {
     try {
+      dispatch(showLoading());
       // Simulate API call (replace with actual API request)
       const { data } = await API.post('/trading/list', {
         mode: 'month',
@@ -188,6 +201,8 @@ const Trading = () => {
       setDataMonth(data[selectedDate.format('YYYY-MM')]);
     } catch (err) {
       console.log('error123', err);
+    } finally {
+      dispatch(hideLoading());
     }
   };
   const getRecentTrade = async () => {
@@ -197,6 +212,8 @@ const Trading = () => {
       setDataRecent(data);
     } catch (err) {
       console.log('error123', err);
+    } finally {
+      dispatch(hideLoading());
     }
   };
 
@@ -209,10 +226,22 @@ const Trading = () => {
     getDataMonthTrade();
   }, [selectedDate]);
 
+  // const syncPageData = async () => {
+  //   getRecentTrade();
+  //   getDataDaysTrade();
+  //   getDataMonthTrade();
+  // };
+
   const syncPageData = async () => {
-    getRecentTrade();
-    getDataDaysTrade();
-    getDataMonthTrade();
+    try {
+      dispatch(showLoading());
+      // Gọi 3 API song song
+      await Promise.all([getRecentTrade(), getDataDaysTrade(), getDataMonthTrade()]);
+    } catch (err) {
+      console.error('Lỗi khi sync dữ liệu:', err);
+    } finally {
+      dispatch(hideLoading());
+    }
   };
 
   const handleMonthYearChange = (date: any) => {
