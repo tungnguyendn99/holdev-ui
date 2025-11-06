@@ -34,15 +34,20 @@ import 'react-datetime/css/react-datetime.css';
 import { Rate, Tag } from 'antd';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { hideLoading, showLoading } from '../../../store/slices/user.slice';
+import { Textarea } from '@/components/ui/textarea';
+import { useTheme } from 'next-themes';
+import cx from 'classnames';
+import TradeList from './common/TradeList';
 
 export default function TradingMobile() {
+  const { theme } = useTheme();
   const [tab, setTab] = useState<'trades' | 'calendar' | 'plan'>('trades');
   const [trades, setTrades] = useState<any[]>([]);
   const [selectedTrade, setSelectedTrade] = useState<any | null>(null);
   const [isOpenTradeModal, setIsOpenTradeModal] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
-  const [closeBy, setCloseBy] = useState<any>('');
-  const [rating, setRating] = useState(0);
+  // const [closeBy, setCloseBy] = useState<any>('');
+  // const [rating, setRating] = useState(0);
   const [formData, setFormData] = useState<any>({});
   const [dataMonth, setDataMonth] = useState<any>({});
   const [month, setMonth] = useState<any>(moment().toDate());
@@ -98,6 +103,19 @@ export default function TradingMobile() {
     }
   };
 
+  const deleteTrade = async (id: string) => {
+    try {
+      dispatch(showLoading());
+      // Simulate API call (replace with actual API request)
+      await API.delete(`/trading/${id}`);
+      getRecentTrade();
+    } catch (err) {
+      console.log('error123', err);
+    } finally {
+      dispatch(hideLoading());
+    }
+  };
+
   const handleSubmit = async () => {
     try {
       dispatch(showLoading());
@@ -111,7 +129,7 @@ export default function TradingMobile() {
     } catch (err) {
       openNotification('error', { message: 'Lỗi khi lưu trade' });
     } finally {
-      dispatch(hideLoading()); 
+      dispatch(hideLoading());
     }
   };
 
@@ -202,31 +220,7 @@ export default function TradingMobile() {
           </div>
 
           <div className="space-y-3">
-            {trades.map((t) => (
-              <Card
-                key={t.id}
-                className="flex justify-between items-center px-3 py-2"
-                onClick={() => handleOpenTrade(t)}
-              >
-                <div>
-                  <p className="font-medium">{t.symbol}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {moment(t.closeTime || t.entryTime).format('DD/MM/YYYY')} ·{' '}
-                    <span className={t.tradeSide === 'BUY' ? 'text-green-500' : 'text-red-500'}>
-                      {t.tradeSide}
-                    </span>
-                  </p>
-                </div>
-                {t.result && (
-                  <p
-                    className={`font-semibold ${t.result >= 0 ? 'text-green-500' : 'text-red-500'}`}
-                  >
-                    {t.result >= 0 ? '+' : ''}
-                    {t?.result}$
-                  </p>
-                )}
-              </Card>
-            ))}
+            <TradeList trades={trades} onDelete={deleteTrade} handleOpenTrade={handleOpenTrade} />
           </div>
         </TabsContent>
 
@@ -289,28 +283,11 @@ export default function TradingMobile() {
               Trades {selectedDate ? format(selectedDate, 'dd/MM/yyyy') : '...'}
             </h2>
             <div className="space-y-3 w-full mt-3">
-              {tradesOfSelectedDate.map((t) => (
-                <Card
-                  key={t.id}
-                  className="flex justify-between items-center px-3 py-2"
-                  onClick={() => handleOpenTrade(t)}
-                >
-                  <div>
-                    <p className="font-medium">{t.symbol}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {moment(t.closeTime || t.entryTime).format('DD/MM/YYYY')} · {t.tradeSide}
-                    </p>
-                  </div>
-                  {t.result && (
-                    <p
-                      className={`font-semibold ${t.result >= 0 ? 'text-green-500' : 'text-red-500'}`}
-                    >
-                      {t.result >= 0 ? '+' : ''}
-                      {t?.result}$
-                    </p>
-                  )}
-                </Card>
-              ))}
+              <TradeList
+                trades={tradesOfSelectedDate}
+                onDelete={deleteTrade}
+                handleOpenTrade={handleOpenTrade}
+              />
             </div>
           </div>
         </TabsContent>
@@ -482,7 +459,7 @@ export default function TradingMobile() {
                 onChange={(v) => setFormData({ ...formData, entryTime: moment(v).toDate() })}
                 dateFormat="DD/MM/YYYY"
                 timeFormat="HH:mm"
-                className="h-9 w-full rounded-md border border-input bg-transparent px-2 py-1.5 text-base shadow-sm transition-colors md:text-sm"
+                className="h-9 w-full rounded-md border border-input bg-transparent px-2 py-1.5 text-base shadow-sm transition-colors md:text-sm date-time"
               />
             </div>
 
@@ -494,7 +471,7 @@ export default function TradingMobile() {
                 onChange={(v) => setFormData({ ...formData, closeTime: moment(v).toDate() })}
                 dateFormat="DD/MM/YYYY"
                 timeFormat="HH:mm"
-                className="h-9 w-full rounded-md border border-input bg-transparent px-2 py-1.5 text-base shadow-sm transition-colors md:text-sm"
+                className="h-9 w-full rounded-md border border-input bg-transparent px-2 py-1.5 text-base shadow-sm transition-colors md:text-sm date-time close-time"
               />
             </div>
 
@@ -543,9 +520,13 @@ export default function TradingMobile() {
                 onChange={(e: any) => setFormData({ ...formData, closedBy: e.target.value })}
               /> */}
               <Select
-                value={closeBy || ''}
+                value={formData.closeBy || ''}
                 onValueChange={(val) => {
-                  setCloseBy((prev: any) => (prev === val ? undefined : val));
+                  // setCloseBy((prev: any) => (prev === val ? undefined : val));
+                  setFormData({
+                    ...formData,
+                    closedBy: formData.closeBy === val ? undefined : val,
+                  });
                 }}
               >
                 <SelectTrigger className="h-8 text-sm">
@@ -559,7 +540,11 @@ export default function TradingMobile() {
                       onClick={(e) => {
                         // Dừng propagation để đảm bảo sự kiện được bắt
                         e.stopPropagation();
-                        setCloseBy((prev: any) => prev === p.value && undefined);
+                        setFormData({
+                          ...formData,
+                          closeBy: formData.closeBy === p.value && undefined,
+                        });
+                        // setCloseBy((prev: any) => prev === p.value && undefined);
                       }}
                     >
                       <div className="flex items-center gap-2">
@@ -575,10 +560,11 @@ export default function TradingMobile() {
               <Label className="text-sm font-medium mb-1 block">Rating</Label>
               <Rate
                 onChange={(value) => {
-                  setRating(value);
+                  // setRating(value);
                   setFormData({ ...formData, rating: value });
                 }}
-                value={rating}
+                value={formData.rating}
+                className={cx(`${theme === 'dark' && 'rating-dark'}`)}
                 // className="bg-blue-400 h-4"
                 // onChange={(e: any) => setFormData({ ...formData, rating: e.target.value })}
               />
@@ -588,7 +574,7 @@ export default function TradingMobile() {
           {/* Thought */}
           <div className="mt-4">
             <Label className="text-sm font-medium mb-1 block">Your Thought</Label>
-            <Input
+            <Textarea
               placeholder="Your thought..."
               value={formData.yourThought}
               onChange={(e) => setFormData({ ...formData, yourThought: e.target.value })}

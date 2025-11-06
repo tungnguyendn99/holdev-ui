@@ -5,8 +5,11 @@ import axios from 'axios';
 import { useState } from 'react';
 import API from '../../utils/api';
 import { useRouter } from 'next/navigation';
+import { useAppDispatch } from '../../store/hooks';
+import { hideLoading, showLoading } from '../../store/slices/user.slice';
 
 export default function SignupForm() {
+  const dispatch = useAppDispatch();
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -15,6 +18,7 @@ export default function SignupForm() {
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
+    dispatch(showLoading());
     e.preventDefault();
     setError('');
 
@@ -33,6 +37,8 @@ export default function SignupForm() {
       router.push('/login');
     } catch (err) {
       setError('Signup failed. Try again.');
+    } finally {
+      dispatch(hideLoading());
     }
   };
 

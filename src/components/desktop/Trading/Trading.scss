@@ -64,9 +64,9 @@
   //   }
   .dayTrade {
     // background: #8cd095;
-    font-size: 12px;
+    font-size: 13px;
     text-align: right;
-    color: #676666;
+    color: #404040;
   }
   .ant-picker-cell {
     border: 1px solid #eaf2e7;
@@ -80,13 +80,13 @@
   }
   .ant-picker-cell-inner:has(.profit) {
     // padding: 4px !important;
-    background: #ddf1e7;
-    border: 1px solid #b3cdc1;
+    background: #ddf1e7 !important;
+    border: 1px solid #b3cdc1 !important;
     border-top: 1px solid #b3cdc1 !important;
   }
   .ant-picker-cell-inner:has(.loss) {
-    background: #fad3d3;
-    border: 1px solid #f0c8c7;
+    background: #fad3d3 !important;
+    border: 1px solid #f0c8c7 !important;
     border-top: 1px solid #f0c8c7 !important;
   }
 

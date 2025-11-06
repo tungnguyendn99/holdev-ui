@@ -272,10 +272,17 @@ const Trading = () => {
         // </ul>
         <div className={cx('dayTrade', data.dayProfit && 'profit', data.dayLoss && 'loss')}>
           <p className="profit-cell">
-            {data?.profit} ({data?.reward})
+            <span
+              className={cx(`font-semibold ${data.dayProfit ? 'text-green-500' : 'text-red-400'}`)}
+            >
+              {data?.profit}
+            </span>{' '}
+            {/* ({data?.reward}) */}
           </p>
           <p>{data?.trades}</p>
-          <p>{data?.winrate}</p>
+          <p>
+            {data?.winrate} ({data?.reward})
+          </p>
         </div>
       );
     }
@@ -350,7 +357,7 @@ const Trading = () => {
       width: 80,
       align: 'center',
       render: (text) => (
-        <span className={cx(`font-bold ${text === 'BUY' ? 'text-green-500' : 'text-red-400'}`)}>
+        <span className={cx(`font-semibold ${text === 'BUY' ? 'text-green-500' : 'text-red-400'}`)}>
           {text}
         </span>
       ),
@@ -363,10 +370,11 @@ const Trading = () => {
       align: 'right',
       render: (pnl: number) => (
         <span
-          style={{
-            color: pnl >= 0 ? '#16a34a' : '#dc2626',
-            fontWeight: 600,
-          }}
+          // style={{
+          //   color: pnl >= 0 ? '#16a34a' : '#dc2626',
+          //   fontWeight: 600,
+          // }}
+          className={cx(`font-bold ${pnl >= 0 ? 'text-green-500' : 'text-red-400'}`)}
         >
           {!pnl
             ? undefined

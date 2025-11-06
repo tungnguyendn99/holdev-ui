@@ -6,7 +6,7 @@ import { useState } from 'react';
 import API, { setAuthToken } from '../../utils/api';
 import { useRouter } from 'next/navigation';
 import { useAppDispatch } from '../../store/hooks';
-import { setUserInfo } from '../../store/slices/user.slice';
+import { hideLoading, setUserInfo, showLoading } from '../../store/slices/user.slice';
 
 export default function Login({
   children,
@@ -22,6 +22,7 @@ export default function Login({
   console.log('123123');
 
   const handleSubmit = async (e: React.FormEvent) => {
+    dispatch(showLoading());
     console.log('lkj');
 
     e.preventDefault();
@@ -49,6 +50,8 @@ export default function Login({
       console.log('error123', err);
 
       setError('Invalid login credentials.');
+    } finally {
+      dispatch(hideLoading());
     }
   };
 
