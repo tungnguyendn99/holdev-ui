@@ -1,0 +1,41 @@
+.ant-picker-cell {
+  //   height: 180px !important; /* hoặc giá trị bạn muốn */
+}
+
+.ant-picker-cell {
+  border: 1px solid #eaf2e7;
+}
+.ant-picker-cell-inner {
+  border-top: none !important;
+  margin: 4px 4px 4px 4px !important;
+  &:hover {
+    opacity: 0.8;
+  }
+}
+.ant-picker-cell-inner:has(.profit) {
+  // padding: 4px !important;
+  background: #ddf1e7 !important;
+  border: 1px solid #b3cdc1 !important;
+  border-top: 1px solid #b3cdc1 !important;
+}
+.ant-picker-cell-inner:has(.loss) {
+  background: #fad3d3 !important;
+  border: 1px solid #f0c8c7 !important;
+  border-top: 1px solid #f0c8c7 !important;
+}
+
+.ant-picker-calendar-date-content {
+  height: 90px !important;
+}
+
+.ant-picker-cell-inner:has(.profit) {
+  // padding: 4px !important;
+  background: #ddf1e7 !important;
+  border: 1px solid #b3cdc1 !important;
+  border-top: 1px solid #b3cdc1 !important;
+}
+.ant-picker-cell-inner:has(.loss) {
+  background: #fad3d3 !important;
+  border: 1px solid #f0c8c7 !important;
+  border-top: 1px solid #f0c8c7 !important;
+}

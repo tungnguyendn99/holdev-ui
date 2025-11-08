@@ -1,0 +1,14 @@
+/* Giữ layout grid chuẩn */
+.rdp-month {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr); /* 7 cột cho tuần */
+  gap: 2px; /* khoảng cách giữa ngày */
+}
+
+.rdp-day {
+  aspect-ratio: 1; /* ô vuông */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}

@@ -53,6 +53,10 @@ body {
   @apply bg-[#0f1929] text-gray-200;
 }
 
+.dark main {
+  @apply bg-[#151c26] text-gray-200;
+}
+
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);

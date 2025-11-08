@@ -46,6 +46,7 @@ import moment from 'moment';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { hideLoading, showLoading } from '../../../store/slices/user.slice';
 import { LoadingOverlay } from '../../LoadingOverLay';
+import TodoList from './common/TodoList';
 
 interface TodoItem {
   id: string;
@@ -326,13 +327,13 @@ export default function TodoMobile() {
             <TabsContent value={tab} className="flex-1 overflow-y-auto">
               <TodoList
                 todos={filtered}
-                toggleDone={toggleDone}
-                deleteTodo={deleteTodo}
-                onOpenDetail={(todo) => {
+                onDelete={deleteTodo}
+                handleOpenTodo={(todo: any) => {
                   setSelectedTodo(todo);
                   setNewDateModal(todo.date);
                   setEditMode(false);
                 }}
+                toggleDone={toggleDone}
               />
             </TabsContent>
           </>
@@ -375,14 +376,14 @@ export default function TodoMobile() {
             </h2>
             <div className="mt-3 w-full">
               <TodoList
-                todos={todosOfSelectedDate}
-                toggleDone={toggleDone}
-                deleteTodo={deleteTodo}
-                onOpenDetail={(todo) => {
+                todos={filtered}
+                onDelete={deleteTodo}
+                handleOpenTodo={(todo: any) => {
                   setSelectedTodo(todo);
                   setNewDateModal(todo.date);
                   setEditMode(false);
                 }}
+                toggleDone={toggleDone}
               />
             </div>
           </div>
@@ -541,88 +542,6 @@ export default function TodoMobile() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
-  );
-}
-
-function TodoList({
-  todos,
-  toggleDone,
-  deleteTodo,
-  onOpenDetail,
-}: {
-  todos: TodoItem[];
-  toggleDone: (id: string, done: boolean) => void;
-  deleteTodo: (id: string) => void;
-  onOpenDetail: (todo: TodoItem) => void;
-}) {
-  return (
-    <div className="space-y-3">
-      <AnimatePresence>
-        {todos.length === 0 && (
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center text-muted-foreground py-6"
-          >
-            Không có công việc nào
-          </motion.p>
-        )}
-
-        {todos.map((todo) => (
-          <motion.div
-            key={todo.id}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, x: -40 }}
-          >
-            <Card className="flex items-center justify-between px-3 py-2">
-              <div
-                // onClick={() => toggleDone(todo.id)}
-                className="flex items-center gap-3 cursor-pointer flex-1"
-              >
-                {todo.done ? (
-                  <CheckCircle2
-                    className="text-green-500"
-                    size={20}
-                    onClick={() => toggleDone(todo.id, !todo.done)}
-                  />
-                ) : (
-                  <Circle
-                    className="text-gray-400"
-                    size={20}
-                    onClick={() => toggleDone(todo.id, !todo.done)}
-                  />
-                )}
-                <div className="flex flex-col">
-                  <span className={`text-base ${todo.done ? 'line-through text-gray-400' : ''}`}>
-                    {todo.title}
-                  </span>
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <span>{format(new Date(todo.date), 'dd/MM/yyyy')}</span>
-                    {handlePriority(todo.priority)}
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex gap-2 items-center">
-                <button
-                  onClick={() => onOpenDetail(todo)}
-                  className="p-1 hover:bg-blue-100 rounded-md text-blue-500"
-                >
-                  <Info size={18} />
-                </button>
-                <button
-                  onClick={() => deleteTodo(todo.id)}
-                  className="p-1 hover:bg-red-100 rounded-md text-red-500"
-                >
-                  <Trash2 size={18} />
-                </button>
-              </div>
-            </Card>
-          </motion.div>
-        ))}
-      </AnimatePresence>
     </div>
   );
 }

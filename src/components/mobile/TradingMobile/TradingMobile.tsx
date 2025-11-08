@@ -38,6 +38,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useTheme } from 'next-themes';
 import cx from 'classnames';
 import TradeList from './common/TradeList';
+import CustomDayPicker from '../UI/CustomDatePicker';
 
 export default function TradingMobile() {
   const { theme } = useTheme();
@@ -60,7 +61,7 @@ export default function TradingMobile() {
     try {
       dispatch(showLoading());
       // Simulate API call (replace with actual API request)
-      const { data } = await API.post('/trading/list', {});
+      const { data } = await API.post('/trading/list', { mode: 'year' });
       setTrades(data);
     } catch (err) {
       console.log('error123', err);
@@ -78,8 +79,9 @@ export default function TradingMobile() {
       dispatch(showLoading());
       // Simulate API call (replace with actual API request)
       setMonth(moment(time).toDate());
-      const { data } = await API.post('/trading/list', {
+      const { data } = await API.post('/trading/group', {
         mode: 'month',
+        group: 'month',
         dateString: time ? moment(time).format('YYYY-MM') : moment().format('YYYY-MM'),
       });
       setDataMonth(data[moment(time).format('YYYY-MM')]);
@@ -270,6 +272,13 @@ export default function TradingMobile() {
                 // hasBoth: 'day-has-both',
               }}
             />
+            {/* <CustomDayPicker
+              selectedDate={selectedDate}
+              setSelectedDate={setSelectedDate}
+              profitByDate={profitByDate}
+              month={month}
+              getDataMonthTrade={getDataMonthTrade}
+            /> */}
             <div className="mt-4 flex justify-center gap-4 text-sm text-muted-foreground">
               <span className="flex items-center gap-1">
                 <span className="w-2 h-2 bg-green-500 rounded-full"></span> Profit Day

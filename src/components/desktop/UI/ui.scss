@@ -1,0 +1,111 @@
+//CustomCalendar
+/* Dark mode custom cho Calendar */
+
+.ant-picker-content {
+  thead {
+    height: 50px;
+    tr th {
+      font-weight: 600 !important;
+      text-align: center;
+    }
+  }
+}
+
+.calendar-dark {
+  background-color: #122132 !important;
+  color: #ffffff !important;
+
+  .ant-picker-panel {
+    background-color: #122132 !important;
+    color: #ffffff !important;
+  }
+
+  .ant-select-dropdown {
+    background-color: #122132 !important;
+    color: #ffffff !important;
+  }
+
+  .ant-select-item-option-content {
+    color: #ffffff !important;
+  }
+
+  .ant-picker-content {
+    thead {
+      background-color: #584ff1 !important;
+      color: #fcfff2 !important;
+      border: 1px solid #fcfff2 !important;
+
+      tr th {
+        color: #fcfff2 !important;
+      }
+    }
+  }
+
+  .ant-picker-cell {
+    .ant-picker-calendar-date-value {
+      color: #5c6370;
+    }
+  }
+
+  .ant-picker-cell-in-view {
+    .ant-picker-calendar-date-value {
+      color: #b2bed1 !important;
+      font-weight: bold !important;
+    }
+  }
+
+  .ant-picker-calendar-date-content {
+    color: unset !important;
+  }
+
+  .ant-picker-cell-inner:has(.profit) {
+    // padding: 4px !important;
+    background: #a4ecc8 !important;
+    border: 1px solid #b3cdc1 !important;
+    border-top: 1px solid #b3cdc1 !important;
+    color: #505256 !important;
+    font-weight: bold !important;
+    &:hover {
+      background: #8de4b3 !important;
+    }
+  }
+  .ant-picker-cell-inner:has(.loss) {
+    background: #fad3d3 !important;
+    border: 1px solid #f0c8c7 !important;
+    border-top: 1px solid #f0c8c7 !important;
+    color: #505256 !important;
+    font-weight: bold !important;
+    &:hover {
+      background: #f7bebe !important;
+    }
+  }
+}
+
+/* Inner cell background */
+.calendar-dark .ant-picker-cell-inner {
+  background-color: #122132 !important;
+  color: #ffffff !important;
+  border-radius: 8px;
+}
+
+/* Ô được chọn hoặc hover */
+.calendar-dark .ant-picker-cell-selected .ant-picker-cell-inner,
+.calendar-dark .ant-picker-cell-inner:hover {
+  background-color: #1f3553 !important;
+}
+
+/* Select trong dark theme */
+.dark-select .ant-select-selector {
+  background-color: #6b63ff !important; /* hơi sáng hơn #584ff1 */
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.dark-select .ant-select-arrow {
+  color: #ffffff !important;
+}
+
+.dark-select .ant-select-selection-item {
+  color: #ffffff !important;
+}

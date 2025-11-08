@@ -1,6 +1,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import './Trading.scss';
+import './../UI/ui.scss';
 import {
   Badge,
   BadgeProps,
@@ -33,75 +34,6 @@ import TradingMobile from '../../mobile/TradingMobile/TradingMobile';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { hideLoading, showLoading } from '../../../store/slices/user.slice';
 
-const getListData = (value: Dayjs) => {
-  let listData: { type: string; content: string }[] = []; // Specify the type of listData
-  switch (value.date()) {
-    case 10:
-      listData = [
-        { type: 'success', content: '6$' },
-        { type: 'success', content: '4 trades' },
-        { type: 'success', content: '50%' },
-        // { type: 'error', content: 'This is warning event.' },
-      ];
-      break;
-    case 11:
-      listData = [
-        { type: 'error', content: 'This is error event.' },
-        { type: 'error', content: 'This is error event.' },
-        { type: 'error', content: 'This is error event.' },
-      ];
-      break;
-    // case 15:
-    //   listData = [
-    //     { type: 'warning', content: 'This is warning event' },
-    //     { type: 'success', content: 'This is very long usual event......' },
-    //     { type: 'error', content: 'This is error event 1.' },
-    //     { type: 'error', content: 'This is error event 2.' },
-    //     { type: 'error', content: 'This is error event 3.' },
-    //     { type: 'error', content: 'This is error event 4.' },
-    //   ];
-    //   break;
-    default:
-  }
-  return listData || [];
-};
-
-const sampleData: any = {
-  1: null,
-  7: {
-    profit: '-8$',
-    reward: '-2R',
-    trades: '7 trades',
-    winrate: '20%',
-    dayProfit: false,
-    dayLoss: true,
-  },
-  9: {
-    profit: '4$',
-    reward: '1R',
-    trades: '5 trades',
-    winrate: '60%',
-    dayProfit: true,
-    dayLoss: false,
-  },
-  10: {
-    profit: '4$',
-    reward: '1R',
-    trades: '5 trades',
-    winrate: '60%',
-    dayProfit: true,
-    dayLoss: false,
-  },
-  16: {
-    profit: '4$',
-    reward: '1R',
-    trades: '5 trades',
-    winrate: '60%',
-    dayProfit: true,
-    dayLoss: false,
-  },
-};
-
 const getMonthData = (value: Dayjs) => {
   if (value.month() === 8) {
     return 1394;
@@ -116,7 +48,7 @@ const Trading = () => {
   const locale: any = {
     lang: {
       locale: 'en_US',
-      shortWeekDays: ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'],
+      shortWeekDays: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
       weekStartsOn: 1,
     },
   };
@@ -181,8 +113,8 @@ const Trading = () => {
     try {
       dispatch(showLoading());
       // Simulate API call (replace with actual API request)
-      const { data } = await API.post('/trading/list', {
-        mode: 'day',
+      const { data } = await API.post('/trading/group', {
+        mode: 'month',
         dateString: selectedDate.format('YYYY-MM'),
       });
       setDataDays(data);
@@ -194,8 +126,9 @@ const Trading = () => {
     try {
       dispatch(showLoading());
       // Simulate API call (replace with actual API request)
-      const { data } = await API.post('/trading/list', {
+      const { data } = await API.post('/trading/group', {
         mode: 'month',
+        group: 'month',
         dateString: selectedDate.format('YYYY-MM'),
       });
       setDataMonth(data[selectedDate.format('YYYY-MM')]);
@@ -208,7 +141,7 @@ const Trading = () => {
   const getRecentTrade = async () => {
     try {
       // Simulate API call (replace with actual API request)
-      const { data } = await API.post('/trading/list', {});
+      const { data } = await API.post('/trading/list', { mode: 'month' });
       setDataRecent(data);
     } catch (err) {
       console.log('error123', err);
@@ -270,7 +203,13 @@ const Trading = () => {
         //     </li>
         //   ))}
         // </ul>
-        <div className={cx('dayTrade', data.dayProfit && 'profit', data.dayLoss && 'loss')}>
+        <div
+          className={cx(
+            'dayTrade font-semibold',
+            data.dayProfit && 'profit',
+            data.dayLoss && 'loss',
+          )}
+        >
           <p className="profit-cell">
             <span
               className={cx(`font-semibold ${data.dayProfit ? 'text-green-500' : 'text-red-400'}`)}
@@ -279,8 +218,8 @@ const Trading = () => {
             </span>{' '}
             {/* ({data?.reward}) */}
           </p>
-          <p>{data?.trades}</p>
-          <p>
+          <p className={cx(`${theme === 'light' && 'text-[#737373]'}`)}>{data?.trades}</p>
+          <p className={cx(`${theme === 'light' && 'text-[#737373]'}`)}>
             {data?.winrate} ({data?.reward})
           </p>
         </div>
@@ -473,7 +412,17 @@ const Trading = () => {
           </div>
         </div>
         <Calendar
-          className="calendarContainer"
+          // className="calendarContainer"
+          className={cx(
+            // base style
+            'calendarContainer',
+            // '[&_.ant-picker-cell-inner]:flex [&_.ant-picker-cell-inner]:items-center [&_.ant-picker-cell-inner]:justify-center',
+
+            // dark mode custom
+            {
+              'calendar-dark': theme === 'dark', // custom class khi dark
+            },
+          )}
           locale={locale}
           headerRender={customHeaderRender}
           cellRender={cellRender}
