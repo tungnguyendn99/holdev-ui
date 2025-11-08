@@ -376,7 +376,7 @@ export default function TodoMobile() {
             </h2>
             <div className="mt-3 w-full">
               <TodoList
-                todos={filtered}
+                todos={todosOfSelectedDate}
                 onDelete={deleteTodo}
                 handleOpenTodo={(todo: any) => {
                   setSelectedTodo(todo);

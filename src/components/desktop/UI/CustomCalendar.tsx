@@ -91,7 +91,7 @@ const CustomCalendar = ({
                 style={{ width: 120 }}
                 options={years.map((y) => ({ label: y, value: y }))}
                 className={cx({
-                  'dark-select': theme === 'dark',
+                  'dark-select border-amber-200!': theme === 'dark',
                 })}
               />
               {mode === 'month' && (
@@ -113,8 +113,8 @@ const CustomCalendar = ({
                 size="large"
                 onClick={() => setMode(mode === 'month' ? 'year' : 'month')}
                 // className="text-xs"
-                className={cx('text-xs border-none!', {
-                  'bg-indigo-500! text-white! hover:text-gray-200! font-bold!': theme === 'dark',
+                className={cx('text-xs', {
+                  'bg-[#3f67be]! text-white! hover:text-gray-200!': theme === 'dark',
                 })}
               >
                 {mode === 'month' ? 'Year View' : 'Month View'}
@@ -123,8 +123,8 @@ const CustomCalendar = ({
                 size="large"
                 onClick={() => onChange(dayjs())}
                 // className="text-xs"
-                className={cx('text-xs border-none!', {
-                  'bg-indigo-500! text-white! hover:text-gray-200! font-bold!': theme === 'dark',
+                className={cx('text-xs', {
+                  'bg-[#3f67be]! text-white! hover:text-gray-200!': theme === 'dark',
                 })}
               >
                 Today
