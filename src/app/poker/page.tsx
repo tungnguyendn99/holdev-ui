@@ -1,5 +1,6 @@
 import { headers } from 'next/headers';
 import Poker from '../../components/desktop/Poker/Poker';
+import PokerMobile from '../../components/mobile/PokerMobile/PokerMobile';
 
 export default async function TradingPage() {
   const hdrs = await headers();
@@ -9,7 +10,7 @@ export default async function TradingPage() {
 
   if (isMobile) {
     // return <TradingMobile />;
-    return <p>Coming soon.</p>;
+    return <PokerMobile />;
   }
   return <Poker />;
 }

@@ -45,7 +45,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     return (
       <>
         <LoadingOverlay show={loading} fullscreen />
-        <LayoutMobile children={children} />;
+        <LayoutMobile children={children} />
       </>
     );
   }

@@ -72,12 +72,15 @@ export default function TradingMobile() {
 
   useEffect(() => {
     getRecentTrade();
+    getDataMonthTrade();
   }, []);
 
   const getDataMonthTrade = async (time?: any) => {
     try {
       dispatch(showLoading());
       // Simulate API call (replace with actual API request)
+      console.log('time', time);
+
       setMonth(moment(time).toDate());
       const { data } = await API.post('/trading/group', {
         mode: 'month',
@@ -180,6 +183,14 @@ export default function TradingMobile() {
     (t) => moment(t.closeTime).format('YYYY-MM-DD') === moment(selectedDate).format('YYYY-MM-DD'),
   );
 
+  const rewardOfDay = useMemo(() => {
+    let total = 0;
+    tradesOfSelectedDate.forEach((t) => {
+      total += t.reward || 0;
+    });
+    return total;
+  }, [tradesOfSelectedDate]);
+
   // ==== Tab Plan ====
   const [planData, setPlanData] = useState({
     type: 'TRADING',
@@ -245,7 +256,7 @@ export default function TradingMobile() {
                 Sync
               </button>
             </div>
-            <DayPicker
+            {/* <DayPicker
               mode="single"
               selected={selectedDate}
               onSelect={setSelectedDate}
@@ -271,14 +282,14 @@ export default function TradingMobile() {
                 dayLoss: 'day-loss',
                 // hasBoth: 'day-has-both',
               }}
-            />
-            {/* <CustomDayPicker
+            /> */}
+            <CustomDayPicker
               selectedDate={selectedDate}
               setSelectedDate={setSelectedDate}
               profitByDate={profitByDate}
               month={month}
               getDataMonthTrade={getDataMonthTrade}
-            /> */}
+            />
             <div className="mt-4 flex justify-center gap-4 text-sm text-muted-foreground">
               <span className="flex items-center gap-1">
                 <span className="w-2 h-2 bg-green-500 rounded-full"></span> Profit Day
@@ -289,7 +300,8 @@ export default function TradingMobile() {
             </div>
 
             <h2 className="mt-4 font-semibold">
-              Trades {selectedDate ? format(selectedDate, 'dd/MM/yyyy') : '...'}
+              {`${tradesOfSelectedDate.length} ${tradesOfSelectedDate.length > 1 ? 'trades' : 'trade'}`}{' '}
+              {selectedDate ? format(selectedDate, 'dd/MM/yyyy') : '...'} ({rewardOfDay}R)
             </h2>
             <div className="space-y-3 w-full mt-3">
               <TradeList
