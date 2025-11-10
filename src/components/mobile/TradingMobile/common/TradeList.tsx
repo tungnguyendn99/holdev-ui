@@ -117,7 +117,7 @@ function SwipeToRevealDelete({ trade, onConfirmDelete, handleOpenTrade }: any) {
               <p
                 className={`font-semibold ${trade.result >= 0 ? 'text-green-500' : 'text-red-500'}`}
               >
-                {trade.result}$
+                {trade.result > 0 ? `+${trade.result}` : trade.result}$
               </p>
             )}
             {trade.rating > 0 && (

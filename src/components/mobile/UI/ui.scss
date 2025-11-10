@@ -1,73 +1,75 @@
-/* Gốc */
-.rdp-root {
-  width: 100%;
+.custom-date-picker {
+  /* Gốc */
+  .rdp-root {
+    width: 100%;
+  }
+
+  /* Table chuẩn, giữ grid đều nhau */
+  .rdp-month_grid {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  tr.rdp-weekdays {
+    text-align: center;
+  }
+
+  .rdp-weeks {
+    width: 100% !important;
+    //   width: 364px;
+    //   display: grid;
+    display: table-row;
+    //   flex-direction: column;
+    gap: 4px;
+  }
+
+  .rdp-week {
+    display: grid !important;
+    //   display: table-row !important;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+    margin-left: 3px;
+    height: 56px !important;
+    border-top: 0.5px solid #3f67be;
+    padding-top: 6px;
+    width: 690% !important;
+    //   width: 364px !important;
+  }
+
+  // .rdp-cell {
+  //   width: 14.285%;
+  //   height: 80px;
+  //   text-align: center;
+  //   vertical-align: middle;
+  //   padding: 2px;
+  // }
+
+  /* Ô ngày */
+  .rdp-day {
+    width: 100%;
+    //   width: 14.285% !important;
+    //   width: 52px;
+    font-size: 14px;
+    display: flex;
+    //   display: table-cell;
+    flex-direction: column;
+    //   height: 120%;
+    align-items: center;
+    justify-content: flex-start;
+    border-radius: 8px;
+    transition: all 0.2s;
+    padding-top: 2px;
+  }
+
+  /* Hover, selected */
+  .rdp-day:hover {
+    // background: #4b84bd !important;
+    // background: unset;
+  }
+
+  // .rdp-day_selected {
+  //   background: #584ff1 !important;
+  //   color: white !important;
+  // }
 }
-
-/* Table chuẩn, giữ grid đều nhau */
-.rdp-month_grid {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed;
-}
-
-tr.rdp-weekdays {
-  text-align: center;
-}
-
-.rdp-weeks {
-  width: 100% !important;
-  //   width: 364px;
-  //   display: grid;
-  display: table-row;
-  //   flex-direction: column;
-  gap: 4px;
-}
-
-.rdp-week {
-  display: grid !important;
-  //   display: table-row !important;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 6px;
-  margin-left: 3px;
-  height: 56px !important;
-  border-top: 0.5px solid #3f67be;
-  padding-top: 6px;
-  width: 690% !important;
-  //   width: 364px !important;
-}
-
-// .rdp-cell {
-//   width: 14.285%;
-//   height: 80px;
-//   text-align: center;
-//   vertical-align: middle;
-//   padding: 2px;
-// }
-
-/* Ô ngày */
-.rdp-day {
-  width: 100%;
-  //   width: 14.285% !important;
-  //   width: 52px;
-  font-size: 14px;
-  display: flex;
-  //   display: table-cell;
-  flex-direction: column;
-  //   height: 120%;
-  align-items: center;
-  justify-content: flex-start;
-  border-radius: 8px;
-  transition: all 0.2s;
-  padding-top: 2px;
-}
-
-/* Hover, selected */
-.rdp-day:hover {
-  background: #4b84bd;
-  color: white;
-}
-
-// .rdp-day_selected {
-//   background: #584ff1 !important;
-//   color: white !important;
-// }

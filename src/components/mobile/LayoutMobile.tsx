@@ -2,12 +2,13 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, User } from 'lucide-react';
+import { Menu, X, User, Home } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { Switch } from 'antd';
 import MobileSidebar from './MobileSideBar';
 import UserDrawer from './UserDrawer';
 import { usePathname } from 'next/navigation';
+import Link from 'next/link';
 
 export default function LayoutMobile({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -25,12 +26,18 @@ export default function LayoutMobile({ children }: { children: React.ReactNode }
     <div className="flex w-full flex-col transition-colors duration-300">
       {/* 🔝 Topbar */}
       <header className="flex justify-between items-center px-4 py-3 border-b border-border bg-card shadow-sm">
-        <button
-          onClick={() => setSidebarOpen(true)}
-          className="p-2 rounded-md hover:bg-accent transition-colors"
-        >
-          <Menu size={24} />
-        </button>
+        <div className="flex gap-4 items-center">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="p-2 rounded-md hover:bg-accent transition-colors"
+          >
+            <Menu size={24} />
+          </button>
+          <Link href={'/'} className="flex gap-2 items-center">
+            <Home size={24} />
+            <h2 className="font-bold">The Journey of Discipline</h2>
+          </Link>
+        </div>
 
         <div className="flex items-center gap-3">
           {/* Toggle Theme */}

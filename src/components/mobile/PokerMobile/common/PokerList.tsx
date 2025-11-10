@@ -110,11 +110,11 @@ function SwipeToRevealDelete({ session, onConfirmDelete, handleOpenSession }: an
           <div>
             <p className="font-medium">{session.blind}</p>
             <p className="text-xs text-muted-foreground">
-              {moment(session.startTime).format('DD/MM/YYYY HH:mm')}
-              {session.endTime && ` → ${moment(session.endTime).format('HH:mm')}`}
+              {session.format} · {session.hands} hands
             </p>
             <p className="text-xs text-muted-foreground">
-              {session.format} · {session.totalBefore} → {session.totalAfter || '...'} hands
+              {moment(session.startTime).format('DD/MM/YYYY HH:mm')}
+              {session.endTime && ` → ${moment(session.endTime).format('HH:mm')}`}
             </p>
           </div>
 
@@ -125,7 +125,7 @@ function SwipeToRevealDelete({ session, onConfirmDelete, handleOpenSession }: an
                   session.result >= 0 ? 'text-green-500' : 'text-red-500'
                 }`}
               >
-                {session.result}$
+                {session.result > 0 ? `+${session.result}` : session.result}$
               </p>
             )}
             {session.rating > 0 && (

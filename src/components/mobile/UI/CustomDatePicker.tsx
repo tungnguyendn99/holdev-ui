@@ -25,7 +25,7 @@ const CustomDayPicker = ({
       //   onSelect={(p) => console.log('p', p)}
       onMonthChange={getDataMonthTrade}
       month={month}
-      className="rounded-lg border shadow-sm p-2 mt-3"
+      className="custom-date-picker rounded-lg border shadow-sm p-2 mt-3"
       components={{
         Day: (props) => {
           const date = props.day.date; // ✅ react-day-picker v9 props
@@ -47,19 +47,31 @@ const CustomDayPicker = ({
                 'rdp-day',
                 {
                   'text-[#0b71d6]!': props.modifiers.selected && theme === 'light',
-                  'text-white! ': props.modifiers.selected && theme === 'dark',
+                  // 'text-white! ': props.modifiers.selected && theme === 'dark',
+                  'text-[#0b71d6]! ': props.modifiers.selected && theme === 'dark',
                   'bg-emerald-900': isProfit && theme === 'dark',
                   'bg-red-900': isLoss && theme === 'dark',
                 },
-                isProfit ? 'bg-emerald-100' : isLoss ? 'bg-red-100' : '',
+                isProfit
+                  ? 'bg-emerald-100 hover:bg-emerald-100!'
+                  : isLoss
+                    ? 'bg-red-100 hover:bg-red-100!'
+                    : '',
                 theme === 'dark' ? 'text-[#a9a9a9]' : 'text-[#656464]',
+                // theme === 'dark' ? 'text-[#bebebe]' : 'text-[#656464]',
               )}
               onClick={() => setSelectedDate(date)}
             >
               {/* Ngày */}
               {dateInMonth && (
                 <>
-                  <span>{date.getDate()}</span>
+                  <span
+                    className={cx({
+                      'text-[#0b71d6]!': props.modifiers.selected,
+                    })}
+                  >
+                    {date.getDate()}
+                  </span>
 
                   {/* Profit/Loss */}
                   {profit !== undefined && (

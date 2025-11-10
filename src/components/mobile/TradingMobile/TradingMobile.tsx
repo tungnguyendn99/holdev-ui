@@ -39,6 +39,8 @@ import { useTheme } from 'next-themes';
 import cx from 'classnames';
 import TradeList from './common/TradeList';
 import CustomDayPicker from '../UI/CustomDatePicker';
+import { motion } from 'framer-motion';
+import PlanSettings from './common/Plan';
 
 export default function TradingMobile() {
   const { theme } = useTheme();
@@ -47,7 +49,7 @@ export default function TradingMobile() {
   const [selectedTrade, setSelectedTrade] = useState<any | null>(null);
   const [isOpenTradeModal, setIsOpenTradeModal] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
-  // const [closeBy, setCloseBy] = useState<any>('');
+  const [closeBy, setCloseBy] = useState<any>('');
   // const [rating, setRating] = useState(0);
   const [formData, setFormData] = useState<any>({});
   const [dataMonth, setDataMonth] = useState<any>({});
@@ -145,7 +147,9 @@ export default function TradingMobile() {
         ...trade,
         entryTime: moment(trade.entryTime).toDate(),
         closeTime: trade.closeTime ? moment(trade.closeTime).toDate() : undefined,
+        closeBy: trade.closedBy || '',
       });
+      setCloseBy(trade.closedBy || '');
       setIsEdit(true);
     } else {
       setFormData({
@@ -183,6 +187,15 @@ export default function TradingMobile() {
     (t) => moment(t.closeTime).format('YYYY-MM-DD') === moment(selectedDate).format('YYYY-MM-DD'),
   );
 
+  const winrateByDate = useMemo(() => {
+    const winCount = tradesOfSelectedDate.filter((t) => t.result > 0).length;
+    console.log('trades', trades);
+    console.log('w', winCount);
+    const total = tradesOfSelectedDate.length;
+    const winrate = total > 0 ? Math.round((winCount / total) * 100) : 0;
+    return winrate;
+  }, [tradesOfSelectedDate]);
+
   const rewardOfDay = useMemo(() => {
     let total = 0;
     tradesOfSelectedDate.forEach((t) => {
@@ -215,13 +228,19 @@ export default function TradingMobile() {
   return (
     <div className="h-full flex flex-col bg-background text-foreground px-3 pt-3 pb-16">
       {/* <LoadingOverlay show={loading} fullscreen /> */}
-      <h1 className="text-xl font-bold mb-5 text-center">📊 Trading Mobile Dashboard</h1>
+      <h1 className="text-xl font-bold mb-5 text-center">📚 Trading Journey</h1>
 
       <Tabs value={tab} onValueChange={(v) => setTab(v as any)} className="flex-1 flex flex-col">
         <TabsList className="grid grid-cols-3 mb-3">
-          <TabsTrigger value="trades">Trades</TabsTrigger>
-          <TabsTrigger value="calendar">Calendar</TabsTrigger>
-          <TabsTrigger value="plan">Plan</TabsTrigger>
+          <TabsTrigger value="trades" className="font-bold">
+            Trades
+          </TabsTrigger>
+          <TabsTrigger value="calendar" className="font-bold">
+            Stats
+          </TabsTrigger>
+          <TabsTrigger value="plan" className="font-bold">
+            Plan
+          </TabsTrigger>
         </TabsList>
 
         {/* TAB 1 - TRADES */}
@@ -240,13 +259,28 @@ export default function TradingMobile() {
         {/* TAB 2 - CALENDAR */}
         <TabsContent value="calendar" className="flex-1 overflow-y-auto">
           <div className="flex flex-col items-center">
-            <div className="flex gap-2">
+            {/* <div className="flex gap-2">
               <p className="">
                 <span style={{ fontWeight: 700 }} className="mr-1">
                   Monthly stats:
                 </span>{' '}
-                <Tag color="green" style={{ fontSize: '18px' }}>
+                <Tag
+                  color={`${dataMonth?.dayProfit ? 'green' : 'red'}`}
+                  style={{ fontSize: '18px' }}
+                >
                   {dataMonth?.profit}
+                </Tag>
+                <Tag
+                  color={`${dataMonth?.dayProfit ? 'green' : 'red'}`}
+                  style={{ fontSize: '18px' }}
+                >
+                  {dataMonth?.winrate}
+                </Tag>
+                <Tag
+                  color={`${dataMonth?.dayProfit ? 'green' : 'red'}`}
+                  style={{ fontSize: '18px' }}
+                >
+                  {dataMonth?.reward}
                 </Tag>
               </p>
               <button
@@ -255,7 +289,89 @@ export default function TradingMobile() {
               >
                 Sync
               </button>
+            </div> */}
+            <div className="w-full space-y-2">
+              <div className="flex justify-between items-center">
+                <h3 className="font-semibold text-base">📊 Monthly Stats</h3>
+                <button
+                  onClick={syncPageData}
+                  className="px-3 py-1 bg-blue-400 text-white rounded-md hover:opacity-90 active:scale-95 transition"
+                >
+                  Sync
+                </button>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <div
+                  className={cx('rounded-lg p-2 text-center', {
+                    'bg-[#1e293b]': theme === 'dark',
+                    'bg-[#f0efef]': theme === 'light',
+                  })}
+                >
+                  <p
+                    className={cx('text-xs', {
+                      'text-gray-400': theme === 'dark',
+                      'text-black': theme === 'light',
+                    })}
+                  >
+                    Profit
+                  </p>
+                  <p
+                    className={`text-lg font-semibold ${
+                      dataMonth?.dayProfit ? 'text-green-400' : 'text-red-400'
+                    }`}
+                  >
+                    {dataMonth?.profit ?? '--'}
+                  </p>
+                </div>
+
+                <div
+                  className={cx('rounded-lg p-2 text-center', {
+                    'bg-[#1e293b]': theme === 'dark',
+                    'bg-[#f0efef]': theme === 'light',
+                  })}
+                >
+                  <p
+                    className={cx('text-xs', {
+                      'text-gray-400': theme === 'dark',
+                      'text-black': theme === 'light',
+                    })}
+                  >
+                    Winrate
+                  </p>
+                  <p
+                    className={`text-lg font-semibold ${
+                      dataMonth?.dayProfit ? 'text-green-400' : 'text-red-400'
+                    }`}
+                  >
+                    {dataMonth?.winrate ?? '--'}
+                  </p>
+                </div>
+
+                <div
+                  className={cx('rounded-lg p-2 text-center', {
+                    'bg-[#f0efef]': theme === 'light',
+                    'bg-[#1e293b]': theme === 'dark',
+                  })}
+                >
+                  <p
+                    className={cx('text-xs', {
+                      'text-black': theme === 'light',
+                      'text-gray-400': theme === 'dark',
+                    })}
+                  >
+                    Reward
+                  </p>
+                  <p
+                    className={`text-lg font-semibold ${
+                      dataMonth?.dayProfit ? 'text-green-400' : 'text-red-400'
+                    }`}
+                  >
+                    {dataMonth?.reward ?? '--'}
+                  </p>
+                </div>
+              </div>
             </div>
+
             {/* <DayPicker
               mode="single"
               selected={selectedDate}
@@ -290,19 +406,99 @@ export default function TradingMobile() {
               month={month}
               getDataMonthTrade={getDataMonthTrade}
             />
-            <div className="mt-4 flex justify-center gap-4 text-sm text-muted-foreground">
+            {/* <div className="mt-4 flex justify-center gap-4 text-sm text-muted-foreground">
               <span className="flex items-center gap-1">
                 <span className="w-2 h-2 bg-green-500 rounded-full"></span> Profit Day
               </span>
               <span className="flex items-center gap-1">
                 <span className="w-2 h-2 bg-red-500 rounded-full"></span> Loss Day
               </span>
-            </div>
+            </div> */}
 
-            <h2 className="mt-4 font-semibold">
+            {/* <h2 className="mt-4 font-semibold">
               {`${tradesOfSelectedDate.length} ${tradesOfSelectedDate.length > 1 ? 'trades' : 'trade'}`}{' '}
-              {selectedDate ? format(selectedDate, 'dd/MM/yyyy') : '...'} ({rewardOfDay}R)
-            </h2>
+              {selectedDate ? format(selectedDate, 'dd/MM/yyyy') : '...'} ({winrateByDate}% ·{' '}
+              {rewardOfDay}R)
+            </h2> */}
+            <motion.div
+              key={selectedDate ? selectedDate.toISOString() : 'no-date'}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.5 }}
+              // className="bg-[#1e293b] rounded-xl px-4 py-3 mt-3 text-white shadow-sm flex items-center justify-between w-full"
+              className={cx(
+                'rounded-xl px-4 py-3 mt-3 shadow-sm flex items-center justify-between w-full',
+                {
+                  'bg-[#f0efef]': theme === 'light',
+                  'bg-[#1e293b]': theme === 'dark',
+                },
+              )}
+            >
+              {/* Ngày */}
+              <div className="flex flex-col items-start">
+                <p
+                  className={cx('text-xs', {
+                    'text-black': theme === 'light',
+                    'text-gray-400': theme === 'dark',
+                  })}
+                >
+                  Date
+                </p>
+                <p className="text-[#0b71d6] text-base font-semibold">
+                  {selectedDate ? format(selectedDate, 'dd/MM/yyyy') : '—'}
+                </p>
+              </div>
+
+              {/* Số trade */}
+              <div className="flex flex-col items-center">
+                <p
+                  className={cx('text-xs', {
+                    'text-black': theme === 'light',
+                    'text-gray-400': theme === 'dark',
+                  })}
+                >
+                  Trades
+                </p>
+                <p className="text-[#0b71d6] text-base font-semibold">
+                  {tradesOfSelectedDate.length}{' '}
+                  {tradesOfSelectedDate.length > 1 ? 'trades' : 'trade'}
+                </p>
+              </div>
+
+              {/* Winrate & Reward */}
+              <div className="flex flex-col items-end">
+                <p
+                  className={cx('text-xs', {
+                    'text-black': theme === 'light',
+                    'text-gray-400': theme === 'dark',
+                  })}
+                >
+                  Winrate
+                </p>
+                <p className="text-base font-semibold">
+                  <span className={winrateByDate >= 50 ? 'text-green-400' : 'text-red-400'}>
+                    {winrateByDate}%
+                  </span>{' '}
+                </p>
+              </div>
+              <div className="flex flex-col items-end">
+                <p
+                  className={cx('text-xs', {
+                    'text-black': theme === 'light',
+                    'text-gray-400': theme === 'dark',
+                  })}
+                >
+                  Reward
+                </p>
+                <p className="text-base font-semibold">
+                  <span className={rewardOfDay >= 0 ? 'text-green-400' : 'text-red-400'}>
+                    {rewardOfDay}R
+                  </span>
+                </p>
+              </div>
+            </motion.div>
+
             <div className="space-y-3 w-full mt-3">
               <TradeList
                 trades={tradesOfSelectedDate}
@@ -314,7 +510,7 @@ export default function TradingMobile() {
         </TabsContent>
 
         {/* TAB 3 - PLAN */}
-        <TabsContent value="plan" className="flex-1 overflow-y-auto">
+        {/* <TabsContent value="plan" className="flex-1 overflow-y-auto">
           <div className="space-y-3">
             <p>
               <strong>Type:</strong> {planData.type}
@@ -335,7 +531,6 @@ export default function TradingMobile() {
               <strong>Risk:</strong> {planData.risk}%
             </p>
 
-            {/* Nút mở modal */}
             <Dialog>
               <DialogTrigger asChild>
                 <Button className="w-full mt-3">
@@ -401,19 +596,25 @@ export default function TradingMobile() {
               </DialogContent>
             </Dialog>
           </div>
+        </TabsContent> */}
+        <TabsContent value="plan" className="flex-1 overflow-y-auto">
+          <PlanSettings />
         </TabsContent>
       </Tabs>
 
       {/* MODAL ADD/EDIT TRADE */}
       <Dialog open={isOpenTradeModal} onOpenChange={setIsOpenTradeModal}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto max-w-[100vh]">
+        <DialogContent
+          onOpenAutoFocus={(e) => e.preventDefault()}
+          className="max-h-[90vh] overflow-y-auto max-w-[100vh]"
+        >
           <DialogHeader>
             <DialogTitle className="text-xl font-semibold">
               {isEdit ? 'Edit Trade' : 'Add New Trade'}
             </DialogTitle>
           </DialogHeader>
 
-          <div className="grid grid-cols-2 gap-4 mt-4">
+          <div className="grid grid-cols-2 gap-4 mt-2">
             {/* Symbol */}
             <div>
               <Label className="text-sm font-medium mb-1 block">Symbol *</Label>
@@ -541,9 +742,9 @@ export default function TradingMobile() {
                 onChange={(e: any) => setFormData({ ...formData, closedBy: e.target.value })}
               /> */}
               <Select
-                value={formData.closeBy || ''}
+                value={closeBy || ''}
                 onValueChange={(val) => {
-                  // setCloseBy((prev: any) => (prev === val ? undefined : val));
+                  setCloseBy((prev: any) => (prev === val ? undefined : val));
                   setFormData({
                     ...formData,
                     closedBy: formData.closeBy === val ? undefined : val,
@@ -593,12 +794,13 @@ export default function TradingMobile() {
           </div>
 
           {/* Thought */}
-          <div className="mt-4">
+          <div className="mt-2">
             <Label className="text-sm font-medium mb-1 block">Your Thought</Label>
             <Textarea
               placeholder="Your thought..."
               value={formData.yourThought}
               onChange={(e) => setFormData({ ...formData, yourThought: e.target.value })}
+              rows={4}
             />
           </div>
 

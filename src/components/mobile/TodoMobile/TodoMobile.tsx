@@ -78,6 +78,9 @@ export default function TodoMobile() {
   const userInfo = useAppSelector((state) => state.user.userInfo);
   const loading = useAppSelector((state) => state.user.loading);
 
+  console.log('store', useAppSelector((state) => state));
+  console.log('userInfo', userInfo);
+
   const getTodos = async () => {
     try {
       // Simulate API call (replace with actual API request)

@@ -168,7 +168,7 @@ const Poker = () => {
           {dayData.profit}
         </span>
         <span className={cx(`${theme === 'light' && 'text-[#737373]'}`)}>
-          {`${dayData.count} session${dayData.count > 1 ? 's' : ''}`} ({dayData.hands})
+          {`${dayData.count} session${dayData.count > 1 ? 's' : ''}`} ({dayData.hands} hands)
         </span>
         <span className={cx(`${theme === 'light' && 'text-[#737373]'}`)}>{winrate}</span>
       </div>
@@ -195,7 +195,7 @@ const Poker = () => {
           {monthData.profit}
         </span>
         <span className="text-muted-foreground">
-          {`${monthData.count} session${monthData.count > 1 ? 's' : ''}`} ({monthData.hands})
+          {`${monthData.count} session${monthData.count > 1 ? 's' : ''}`} ({monthData.hands} hands)
         </span>
         <span className="text-muted-foreground">{winrate}</span>
       </div>

@@ -28,6 +28,7 @@ import { hideLoading, showLoading } from '../../../store/slices/user.slice';
 import CustomDayPicker from '../UI/CustomDatePicker';
 import { Textarea } from '@/components/ui/textarea';
 import PokerList from './common/PokerList';
+import { motion } from 'framer-motion';
 
 export default function PokerMobile() {
   const { theme } = useTheme();
@@ -164,8 +165,23 @@ export default function PokerMobile() {
     (s) => moment(s.endTime).format('YYYY-MM-DD') === moment(selectedDate).format('YYYY-MM-DD'),
   );
 
-  const totalResultOfDay = useMemo(() => {
-    return sessionsOfSelectedDate.reduce((acc, s) => acc + (s.result || 0), 0);
+  // const totalResultOfDay = useMemo(() => {
+  //   return sessionsOfSelectedDate.reduce((acc, s) => acc + (s.result || 0), 0);
+  // }, [sessionsOfSelectedDate]);
+
+  const totalHandsOfDay = useMemo(() => {
+    return sessionsOfSelectedDate.reduce((acc, s) => acc + (s.hands || 0), 0);
+  }, [sessionsOfSelectedDate]);
+
+  const winrateByDate = useMemo(() => {
+    const totalHands = sessionsOfSelectedDate.reduce((sum, s) => sum + s.hands, 0);
+    const totalResultBB = sessionsOfSelectedDate.reduce((sum, s) => sum + s.resultBB, 0);
+
+    if (totalHands === 0) return 0;
+
+    const winrate = (totalResultBB / totalHands) * 100;
+
+    return Math.round(winrate);
   }, [sessionsOfSelectedDate]);
 
   // ==== PLAN ====
@@ -180,13 +196,19 @@ export default function PokerMobile() {
 
   return (
     <div className="h-full flex flex-col bg-background text-foreground px-3 pt-3 pb-16">
-      <h1 className="text-xl font-bold mb-5 text-center">🎰 Poker Mobile Dashboard</h1>
+      <h1 className="text-xl font-bold mb-5 text-center">📚 Poker Journey</h1>
 
       <Tabs value={tab} onValueChange={(v) => setTab(v as any)} className="flex-1 flex flex-col">
         <TabsList className="grid grid-cols-3 mb-3">
-          <TabsTrigger value="sessions">Sessions</TabsTrigger>
-          <TabsTrigger value="calendar">Calendar</TabsTrigger>
-          <TabsTrigger value="plan">Plan</TabsTrigger>
+          <TabsTrigger value="sessions" className="font-bold">
+            Sessions
+          </TabsTrigger>
+          <TabsTrigger value="calendar" className="font-bold">
+            Stats
+          </TabsTrigger>
+          <TabsTrigger value="plan" className="font-bold">
+            Plan
+          </TabsTrigger>
         </TabsList>
 
         {/* TAB 1 - SESSIONS */}
@@ -208,7 +230,7 @@ export default function PokerMobile() {
         {/* TAB 2 - CALENDAR */}
         <TabsContent value="calendar" className="flex-1 overflow-y-auto">
           <div className="flex flex-col items-center">
-            <div className="flex gap-2">
+            {/* <div className="flex gap-2">
               <p>
                 <span className="font-semibold mr-1">Monthly Stats:</span>
                 <Tag color="green" style={{ fontSize: '18px' }}>
@@ -221,6 +243,89 @@ export default function PokerMobile() {
               >
                 Sync
               </button>
+            </div> */}
+            <div className="w-full space-y-2">
+              <div className="flex justify-between items-center">
+                <h3 className="font-semibold text-base">📊 Monthly Stats</h3>
+                <button
+                  onClick={syncPageData}
+                  className="px-3 py-1 bg-blue-400 text-white rounded-md hover:opacity-90 active:scale-95 transition"
+                >
+                  Sync
+                </button>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <div
+                  className={cx('rounded-lg p-2 text-center', {
+                    'bg-[#1e293b]': theme === 'dark',
+                    'bg-[#f0efef]': theme === 'light',
+                  })}
+                >
+                  <p
+                    className={cx('text-xs', {
+                      'text-gray-400': theme === 'dark',
+                      'text-black': theme === 'light',
+                    })}
+                  >
+                    Profit
+                  </p>
+                  <p
+                    className={`text-lg font-semibold ${
+                      dataMonth?.dayProfit ? 'text-green-400' : 'text-red-400'
+                    }`}
+                  >
+                    {dataMonth?.profit ?? '--'}
+                  </p>
+                </div>
+
+                <div
+                  className={cx('rounded-lg p-2 text-center', {
+                    'bg-[#1e293b]': theme === 'dark',
+                    'bg-[#f0efef]': theme === 'light',
+                  })}
+                >
+                  <p
+                    className={cx('text-xs', {
+                      'text-gray-400': theme === 'dark',
+                      'text-black': theme === 'light',
+                    })}
+                  >
+                    Hands
+                  </p>
+                  <p
+                    className={cx(`text-lg font-semibold`, {
+                      'text-white': theme === 'dark',
+                      'text-[#0b71d6]': theme === 'light',
+                    })}
+                  >
+                    {dataMonth?.hands ?? '--'}
+                  </p>
+                </div>
+
+                <div
+                  className={cx('rounded-lg p-2 text-center', {
+                    'bg-[#1e293b]': theme === 'dark',
+                    'bg-[#f0efef]': theme === 'light',
+                  })}
+                >
+                  <p
+                    className={cx('text-xs', {
+                      'text-gray-400': theme === 'dark',
+                      'text-black': theme === 'light',
+                    })}
+                  >
+                    Winrate
+                  </p>
+                  <p
+                    className={cx(`text-lg font-semibold`, {
+                      'text-white': theme === 'dark',
+                      'text-[#0b71d6]': theme === 'light',
+                    })}
+                  >
+                    {dataMonth?.winrate ?? '--'}
+                  </p>
+                </div>
+              </div>
             </div>
 
             <CustomDayPicker
@@ -231,12 +336,108 @@ export default function PokerMobile() {
               getDataMonthTrade={getDataMonthSession}
             />
 
-            <h2 className="mt-4 font-semibold">
+            {/* <h2 className="mt-4 font-semibold">
               {`${sessionsOfSelectedDate.length} session${
                 sessionsOfSelectedDate.length > 1 ? 's' : ''
               }`}{' '}
               {selectedDate ? format(selectedDate, 'dd/MM/yyyy') : '...'} ({totalResultOfDay}$)
-            </h2>
+            </h2> */}
+
+            <motion.div
+              key={selectedDate ? selectedDate.toISOString() : 'no-date'}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.5 }}
+              // className="bg-[#1e293b] rounded-xl px-4 py-3 mt-3 text-white shadow-sm flex items-center justify-between w-full"
+              className={cx(
+                'rounded-xl px-4 py-3 mt-3 shadow-sm flex items-center justify-between w-full',
+                {
+                  'bg-[#f0efef]': theme === 'light',
+                  'bg-[#1e293b]': theme === 'dark',
+                },
+              )}
+            >
+              {/* Ngày */}
+              <div className="flex flex-col items-start">
+                <p
+                  className={cx('text-xs', {
+                    'text-black': theme === 'light',
+                    'text-gray-400': theme === 'dark',
+                  })}
+                >
+                  Date
+                </p>
+                <p
+                  className={cx(`text-base font-semibold `, {
+                    'text-black': theme === 'light',
+                    'text-[#0b71d6]': theme === 'dark',
+                  })}
+                >
+                  {selectedDate ? format(selectedDate, 'dd/MM/yyyy') : '—'}
+                </p>
+              </div>
+
+              {/* Số trade */}
+              <div className="flex flex-col items-center">
+                <p
+                  className={cx('text-xs', {
+                    'text-black': theme === 'light',
+                    'text-gray-400': theme === 'dark',
+                  })}
+                >
+                  Sessions
+                </p>
+                <p
+                  className={cx(`text-base font-semibold`, {
+                    'text-white': theme === 'dark',
+                    'text-[#0b71d6]': theme === 'light',
+                  })}
+                >
+                  {sessionsOfSelectedDate.length}{' '}
+                  {sessionsOfSelectedDate.length > 1 ? 'sessions' : 'session'}
+                </p>
+              </div>
+
+              {/* Winrate & Reward */}
+              <div className="flex flex-col items-end">
+                <p
+                  className={cx('text-xs', {
+                    'text-black': theme === 'light',
+                    'text-gray-400': theme === 'dark',
+                  })}
+                >
+                  Hands
+                </p>
+                <p
+                  className={cx(`text-base font-semibold`, {
+                    'text-white': theme === 'dark',
+                    'text-[#0b71d6]': theme === 'light',
+                  })}
+                >
+                  {totalHandsOfDay}
+                </p>
+              </div>
+              <div className="flex flex-col items-end">
+                <p
+                  className={cx('text-xs', {
+                    'text-black': theme === 'light',
+                    'text-gray-400': theme === 'dark',
+                  })}
+                >
+                  Winrate
+                </p>
+                <p
+                  className={cx(`text-base font-semibold`, {
+                    'text-white': theme === 'dark',
+                    'text-[#0b71d6]': theme === 'light',
+                  })}
+                >
+                  {winrateByDate}bb/100
+                </p>
+              </div>
+            </motion.div>
+
             <div className="space-y-3 w-full mt-3">
               <PokerList
                 sessions={sessions}
@@ -310,14 +511,17 @@ export default function PokerMobile() {
 
       {/* MODAL ADD/EDIT SESSION */}
       <Dialog open={isOpenModal} onOpenChange={setIsOpenModal}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto max-w-[100vh]">
+        <DialogContent
+          onOpenAutoFocus={(e) => e.preventDefault()}
+          className="max-h-[90vh] overflow-y-auto max-w-[100vh]"
+        >
           <DialogHeader>
             <DialogTitle className="text-xl font-semibold">
               {isEdit ? 'Edit Session' : 'Add New Poker Session'}
             </DialogTitle>
           </DialogHeader>
 
-          <div className="grid grid-cols-2 gap-4 mt-4">
+          <div className="grid grid-cols-2 gap-4 mt-2">
             <div>
               <Label>Blind *</Label>
               <Input
@@ -328,7 +532,7 @@ export default function PokerMobile() {
             </div>
 
             <div>
-              <Label>Format *</Label>
+              <Label className="text-sm font-medium mb-1 block">Format *</Label>
               <Input
                 placeholder="e.g. 8-max, straddle"
                 value={formData.format}
@@ -337,7 +541,7 @@ export default function PokerMobile() {
             </div>
 
             <div>
-              <Label>Total Before *</Label>
+              <Label className="text-sm font-medium mb-1 block">Total Before *</Label>
               <Input
                 type="number"
                 value={formData.totalBefore}
@@ -346,7 +550,7 @@ export default function PokerMobile() {
             </div>
 
             <div>
-              <Label>Total After</Label>
+              <Label className="text-sm font-medium mb-1 block">Total After</Label>
               <Input
                 type="number"
                 value={formData.totalAfter}
@@ -355,7 +559,7 @@ export default function PokerMobile() {
             </div>
 
             <div>
-              <Label>Start Time *</Label>
+              <Label className="text-sm font-medium mb-1 block">Start Time *</Label>
               <Datetime
                 value={formData.startTime ? moment(formData.startTime) : undefined}
                 onChange={(v) => setFormData({ ...formData, startTime: moment(v).toDate() })}
@@ -366,7 +570,7 @@ export default function PokerMobile() {
             </div>
 
             <div>
-              <Label>End Time</Label>
+              <Label className="text-sm font-medium mb-1 block">End Time</Label>
               <Datetime
                 value={formData.endTime ? moment(formData.endTime) : undefined}
                 onChange={(v) => setFormData({ ...formData, endTime: moment(v).toDate() })}
@@ -377,7 +581,7 @@ export default function PokerMobile() {
             </div>
 
             <div>
-              <Label>Result ($)</Label>
+              <Label className="text-sm font-medium mb-1 block">Result ($)</Label>
               <Input
                 type="number"
                 value={formData.result}
@@ -386,7 +590,7 @@ export default function PokerMobile() {
             </div>
 
             <div>
-              <Label>Rating</Label>
+              <Label className="text-sm font-medium mb-1 block">Rating</Label>
               <Rate
                 onChange={(v) => setFormData({ ...formData, rating: v })}
                 value={formData.rating}
@@ -394,13 +598,13 @@ export default function PokerMobile() {
               />
             </div>
           </div>
-
-          <div className="mt-4">
-            <Label>Your Thought</Label>
+          <div className="mt-2">
+            <Label className="text-sm font-medium mb-1 block">Your Thought</Label>
             <Textarea
               placeholder="Thoughts about your session..."
               value={formData.yourThought}
               onChange={(e) => setFormData({ ...formData, yourThought: e.target.value })}
+              rows={4}
             />
           </div>
 
