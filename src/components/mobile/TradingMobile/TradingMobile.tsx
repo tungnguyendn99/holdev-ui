@@ -205,23 +205,39 @@ export default function TradingMobile() {
   }, [tradesOfSelectedDate]);
 
   // ==== Tab Plan ====
-  const [planData, setPlanData] = useState({
-    type: 'TRADING',
-    identity: 'REAL',
-    profit: 0,
-    plan: '',
-    target: '',
-    risk: 4,
-  });
-  const [editPlan, setEditPlan] = useState(false);
+  const [planData, setPlanData] = useState<any>({});
+  // const [editPlan, setEditPlan] = useState(false);
 
-  const handleSavePlan = async () => {
+  const getUserSettingTrading = async () => {
     try {
-      await API.post('/plan', planData);
-      setEditPlan(false);
+      dispatch(showLoading());
+      // Simulate API call (replace with actual API request)
+      const { data } = await API.post('/users/get-setting', {
+        type: 'TRADING',
+      });
+      setPlanData(data);
+    } catch (err) {
+      console.log('error123', err);
+      setPlanData(null);
+    } finally {
+      dispatch(hideLoading()); // tắt loading dù có lỗi hay không
+    }
+  };
+
+  const handleSavePlan = async (data: any, isEdit: boolean) => {
+    try {
+      dispatch(showLoading());
+      if (isEdit) {
+        await API.post('/users/update-setting', { ...data, type: 'TRADING' });
+      } else {
+        await API.post('/users/setting', { ...data, type: 'TRADING' });
+      }
+      getUserSettingTrading();
       openNotification('success', { message: 'Lưu kế hoạch thành công' });
     } catch {
       openNotification('error', { message: 'Lỗi khi lưu kế hoạch' });
+    } finally {
+      dispatch(hideLoading());
     }
   };
 
@@ -259,37 +275,6 @@ export default function TradingMobile() {
         {/* TAB 2 - CALENDAR */}
         <TabsContent value="calendar" className="flex-1 overflow-y-auto">
           <div className="flex flex-col items-center">
-            {/* <div className="flex gap-2">
-              <p className="">
-                <span style={{ fontWeight: 700 }} className="mr-1">
-                  Monthly stats:
-                </span>{' '}
-                <Tag
-                  color={`${dataMonth?.dayProfit ? 'green' : 'red'}`}
-                  style={{ fontSize: '18px' }}
-                >
-                  {dataMonth?.profit}
-                </Tag>
-                <Tag
-                  color={`${dataMonth?.dayProfit ? 'green' : 'red'}`}
-                  style={{ fontSize: '18px' }}
-                >
-                  {dataMonth?.winrate}
-                </Tag>
-                <Tag
-                  color={`${dataMonth?.dayProfit ? 'green' : 'red'}`}
-                  style={{ fontSize: '18px' }}
-                >
-                  {dataMonth?.reward}
-                </Tag>
-              </p>
-              <button
-                onClick={syncPageData}
-                className="w-20 h-6 bg-indigo-500 text-blue-50 rounded-lg cursor-pointer hover:opacity-90"
-              >
-                Sync
-              </button>
-            </div> */}
             <div className="w-full space-y-2">
               <div className="flex justify-between items-center">
                 <h3 className="font-semibold text-base">📊 Monthly Stats</h3>
@@ -300,7 +285,7 @@ export default function TradingMobile() {
                   Sync
                 </button>
               </div>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-4 gap-2">
                 <div
                   className={cx('rounded-lg p-2 text-center', {
                     'bg-[#1e293b]': theme === 'dark',
@@ -317,10 +302,41 @@ export default function TradingMobile() {
                   </p>
                   <p
                     className={`text-lg font-semibold ${
-                      dataMonth?.dayProfit ? 'text-green-400' : 'text-red-400'
+                      dataMonth?.dayProfit === undefined
+                        ? 'text-blue-500'
+                        : dataMonth?.dayProfit
+                          ? 'text-green-400'
+                          : 'text-red-400'
                     }`}
                   >
-                    {dataMonth?.profit ?? '--'}
+                    {dataMonth?.profit ? `${dataMonth?.profit}$` : '--'}
+                  </p>
+                </div>
+
+                <div
+                  className={cx('rounded-lg p-2 text-center', {
+                    'bg-[#1e293b]': theme === 'dark',
+                    'bg-[#f0efef]': theme === 'light',
+                  })}
+                >
+                  <p
+                    className={cx('text-xs', {
+                      'text-gray-400': theme === 'dark',
+                      'text-black': theme === 'light',
+                    })}
+                  >
+                    Trades
+                  </p>
+                  <p
+                    className={`text-lg font-semibold ${
+                      dataMonth?.dayProfit === undefined
+                        ? 'text-blue-500'
+                        : dataMonth?.dayProfit
+                          ? 'text-green-400'
+                          : 'text-red-400'
+                    }`}
+                  >
+                    {dataMonth?.trades ? dataMonth?.trades : '--'}
                   </p>
                 </div>
 
@@ -340,10 +356,14 @@ export default function TradingMobile() {
                   </p>
                   <p
                     className={`text-lg font-semibold ${
-                      dataMonth?.dayProfit ? 'text-green-400' : 'text-red-400'
+                      dataMonth?.dayProfit === undefined
+                        ? 'text-blue-500'
+                        : dataMonth?.dayProfit
+                          ? 'text-green-400'
+                          : 'text-red-400'
                     }`}
                   >
-                    {dataMonth?.winrate ?? '--'}
+                    {dataMonth?.winrate ? `${dataMonth?.winrate}` : '--'}
                   </p>
                 </div>
 
@@ -363,10 +383,14 @@ export default function TradingMobile() {
                   </p>
                   <p
                     className={`text-lg font-semibold ${
-                      dataMonth?.dayProfit ? 'text-green-400' : 'text-red-400'
+                      dataMonth?.dayProfit === undefined
+                        ? 'text-blue-500'
+                        : dataMonth?.dayProfit
+                          ? 'text-green-400'
+                          : 'text-red-400'
                     }`}
                   >
-                    {dataMonth?.reward ?? '--'}
+                    {dataMonth?.reward ? `${dataMonth?.reward}R` : '--'}
                   </p>
                 </div>
               </div>
@@ -477,7 +501,15 @@ export default function TradingMobile() {
                   Winrate
                 </p>
                 <p className="text-base font-semibold">
-                  <span className={winrateByDate >= 50 ? 'text-green-400' : 'text-red-400'}>
+                  <span
+                    className={
+                      rewardOfDay === 0
+                        ? 'text-blue-500'
+                        : rewardOfDay > 0
+                          ? 'text-green-400'
+                          : 'text-red-400'
+                    }
+                  >
                     {winrateByDate}%
                   </span>{' '}
                 </p>
@@ -492,7 +524,15 @@ export default function TradingMobile() {
                   Reward
                 </p>
                 <p className="text-base font-semibold">
-                  <span className={rewardOfDay >= 0 ? 'text-green-400' : 'text-red-400'}>
+                  <span
+                    className={
+                      rewardOfDay === 0
+                        ? 'text-blue-500'
+                        : rewardOfDay > 0
+                          ? 'text-green-400'
+                          : 'text-red-400'
+                    }
+                  >
                     {rewardOfDay}R
                   </span>
                 </p>
@@ -598,7 +638,11 @@ export default function TradingMobile() {
           </div>
         </TabsContent> */}
         <TabsContent value="plan" className="flex-1 overflow-y-auto">
-          <PlanSettings />
+          <PlanSettings
+            planData={planData}
+            getUserSettingTrading={getUserSettingTrading}
+            handleSavePlan={handleSavePlan}
+          />
         </TabsContent>
       </Tabs>
 

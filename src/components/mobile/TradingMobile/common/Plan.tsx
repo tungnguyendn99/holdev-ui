@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   Dialog,
@@ -21,15 +21,33 @@ import {
 } from '@/components/ui/select';
 import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { Plus, Pencil, Save, Target, Flame } from 'lucide-react';
+import { Plus, Pencil, Save, Target, Flame, User2, Badge, ShieldAlert } from 'lucide-react';
 import clsx from 'clsx';
+import cx from 'classnames';
+import API from '../../../../utils/api';
+import { Tag } from 'antd';
+import { useTheme } from 'next-themes';
 
-export default function PlanSettings() {
-  const [planData, setPlanData] = useState<any>(null);
+export default function PlanSettings({ planData, getUserSettingTrading, handleSavePlan }: any) {
+  // const [planData, setPlanData] = useState<any>(null);
+  const { theme } = useTheme();
   const [open, setOpen] = useState(false);
+  const [isEdit, setIsEdit] = useState(true);
 
-  const handleSavePlan = () => {
-    if (!planData) return;
+  console.log('planData', planData);
+  useEffect(() => {
+    // Fetch plan data from API or props
+    // For demo, we assume planData is passed as prop
+    getUserSettingTrading();
+    if (planData) {
+      setIsEdit(true);
+    } else {
+      setIsEdit(false);
+    }
+  }, []);
+
+  const handleSubmitPlan = async (data: any) => {
+    await handleSavePlan(data, isEdit);
     setOpen(false);
   };
 
@@ -46,13 +64,19 @@ export default function PlanSettings() {
             <p className="text-sm text-muted-foreground mb-3">
               You don’t have any trading plan yet.
             </p>
-            <Dialog open={open} onOpenChange={setOpen}>
+            <Dialog
+              open={open}
+              onOpenChange={() => {
+                setOpen(true);
+                setIsEdit(false);
+              }}
+            >
               <DialogTrigger asChild>
                 <Button className="flex items-center gap-2">
                   <Plus size={16} /> Create Plan
                 </Button>
               </DialogTrigger>
-              <PlanDialog planData={planData} setPlanData={setPlanData} onSave={handleSavePlan} />
+              <PlanDialog planData={planData} onSave={handleSavePlan} />
             </Dialog>
           </motion.div>
         ) : (
@@ -63,7 +87,7 @@ export default function PlanSettings() {
             className="space-y-4"
           >
             {/* Thông tin tổng quan */}
-            <div className="p-4 flex flex-col items-start text-sm space-y-1">
+            {/* <div className="p-4 flex flex-col items-start text-sm space-y-1">
               <p>
                 <strong>Identity:</strong>{' '}
                 <span
@@ -79,16 +103,56 @@ export default function PlanSettings() {
               </p>
               <p>
                 <strong>Monthly Target:</strong>{' '}
-                <span className="text-purple-500 font-semibold">{planData.monthlyTarget} USD</span>
+                <span className="text-purple-500 font-semibold">{planData?.monthlyTarget} USD</span>
               </p>
               <p>
                 <strong>Risk:</strong>{' '}
-                <span className="text-orange-500 font-semibold">{planData.risk}%</span>
+                <span className="text-orange-500 font-semibold">{planData?.risk}$</span>
               </p>
-            </div>
+            </div> */}
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className={cx(
+                'w-full rounded-2xl bg-gradient-to-br from-[#3a3554] to-[#29293a] p-4 shadow-md',
+                {
+                  'from-gray-100 to-[#d6e1ff] text-gray-900': theme === 'light',
+                  'from-[#3a3554] to-[#29293a] text-white': theme === 'dark',
+                },
+              )}
+              // className="w-full rounded-2xl bg-linear-to-br from-white to-gray-50 text-gray-900 p-4 shadow-md"
+            >
+              <div className="flex justify-between items-center mb-3">
+                <div className="flex items-center gap-2">
+                  <User2 size={16} />
+                  <span className="text-xs uppercase tracking-wide">Identity</span>
+                </div>
+                <Tag color="geekblue" className="font-bold px-2! py-px! leading-none!">
+                  {planData.identity}
+                </Tag>
+              </div>
+
+              <div className="flex justify-between items-center mb-3">
+                <div className="flex items-center gap-2">
+                  <Target size={16} />
+                  <span className="text-xs uppercase tracking-wide">Monthly Target</span>
+                </div>
+                <span className="text-purple-400 font-semibold text-base">
+                  {planData.monthTarget} USD
+                </span>
+              </div>
+
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-2">
+                  <ShieldAlert size={16} />
+                  <span className="text-xs uppercase tracking-wide">Risk</span>
+                </div>
+                <span className="text-orange-400 font-semibold text-base">{planData.risk}$</span>
+              </div>
+            </motion.div>
 
             {/* My Goal Section */}
-            <Card className="p-5 bg-[#1E1B2E] text-white rounded-2xl shadow-md relative">
+            <Card className="p-5 bg-[#273047] text-white rounded-2xl shadow-md relative">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
                   <Target className="text-purple-400" size={20} />
@@ -100,17 +164,18 @@ export default function PlanSettings() {
                       <Pencil size={16} />
                     </button>
                   </DialogTrigger>
-                  <PlanDialog
-                    planData={planData}
-                    setPlanData={setPlanData}
-                    onSave={handleSavePlan}
-                  />
+                  <PlanDialog planData={planData} onSave={handleSavePlan} />
                 </Dialog>
               </div>
 
               <p className="text-sm text-purple-300 mb-1">Monthly Target</p>
               <p className="text-2xl font-bold text-purple-400 mb-3">
-                {planData.monthlyTarget.toFixed(1)} USD
+                {planData?.monthTarget?.toFixed(0)} USD
+              </p>
+
+              <p className="text-sm text-purple-300 mb-1">Just earning each trading day</p>
+              <p className="text-2xl font-bold text-purple-400 mb-3">
+                {planData?.dayTarget?.toFixed(0)} USD
               </p>
 
               <div className="space-y-1 text-sm text-gray-300">
@@ -120,7 +185,7 @@ export default function PlanSettings() {
             </Card>
 
             {/* Risk Management Section */}
-            <Card className="p-5 bg-[#1E1B2E] text-white rounded-2xl shadow-md relative">
+            <Card className="p-5 bg-[#273047] text-white rounded-2xl shadow-md relative">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
                   <Flame className="text-purple-400" size={20} />
@@ -132,11 +197,7 @@ export default function PlanSettings() {
                       <Pencil size={16} />
                     </button>
                   </DialogTrigger>
-                  <PlanDialog
-                    planData={planData}
-                    setPlanData={setPlanData}
-                    onSave={handleSavePlan}
-                  />
+                  <PlanDialog planData={planData} onSave={handleSavePlan} />
                 </Dialog>
               </div>
 
@@ -146,18 +207,24 @@ export default function PlanSettings() {
                   <p className="text-purple-400 font-bold">1 : 2</p>
                 </div>
                 <div>
-                  <p className="text-xs uppercase tracking-wide">Max Daily Drawdown</p>
+                  <p className="text-xs uppercase tracking-wide">Risk per trade</p>
                   <p className="text-purple-400 font-bold">{planData.risk} USD</p>
                 </div>
               </div>
 
-              <div className="space-y-1 text-sm text-gray-300">
-                {planData.rule ? (
-                  <p>{planData.rule}</p>
-                ) : (
-                  <p className="italic text-gray-500">No risk rules defined.</p>
-                )}
-                {planData.note && <p>{planData.note}</p>}
+              <div className="flex flex-col gap-2 space-y-1 text-sm text-gray-300">
+                <div>
+                  <p className="text-xs uppercase tracking-wide text-purple-300">Rule</p>
+                  {planData.rule ? (
+                    <p className="whitespace-pre-wrap">{planData.rule}</p>
+                  ) : (
+                    <p className="italic text-gray-500">No risk rules defined.</p>
+                  )}
+                </div>
+                <div>
+                  <p className="text-xs uppercase tracking-wide text-purple-300">Note</p>
+                  {planData.note && <p className="whitespace-pre-wrap">{planData.note}</p>}
+                </div>
               </div>
             </Card>
           </motion.div>
@@ -169,7 +236,7 @@ export default function PlanSettings() {
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button className="w-full h-12 text-base font-semibold">
-              {planData ? (
+              {isEdit ? (
                 <>
                   <Pencil size={18} className="mr-2" /> Edit Plan
                 </>
@@ -180,7 +247,7 @@ export default function PlanSettings() {
               )}
             </Button>
           </DialogTrigger>
-          <PlanDialog planData={planData} setPlanData={setPlanData} onSave={handleSavePlan} />
+          <PlanDialog planData={planData} onSave={handleSubmitPlan} />
         </Dialog>
       </div>
     </div>
@@ -188,7 +255,7 @@ export default function PlanSettings() {
 }
 
 /* 🧱 Component: Dialog form để tạo / chỉnh sửa Plan */
-function PlanDialog({ planData, setPlanData, onSave }: any) {
+function PlanDialog({ planData, onSave }: any) {
   const initialData = planData || {
     identity: 'REAL',
     // monthlyTarget: '',
@@ -198,7 +265,7 @@ function PlanDialog({ planData, setPlanData, onSave }: any) {
     note: '',
   };
 
-  const [localData, setLocalData] = useState(initialData);
+  const [localData, setLocalData] = useState<any>(planData);
 
   return (
     <DialogContent className="max-w-11/12">
@@ -222,15 +289,9 @@ function PlanDialog({ planData, setPlanData, onSave }: any) {
 
         <Input
           type="number"
-          value={localData.monthlyTarget}
-          onChange={(e) => setLocalData({ ...localData, monthlyTarget: Number(e.target.value) })}
+          value={localData.monthTarget}
+          onChange={(e) => setLocalData({ ...localData, monthTarget: Number(e.target.value) })}
           placeholder="Monthly Target ($)"
-        />
-
-        <Input
-          value={localData.plan}
-          onChange={(e) => setLocalData({ ...localData, plan: e.target.value })}
-          placeholder="Plan description"
         />
 
         <Input
@@ -238,6 +299,12 @@ function PlanDialog({ planData, setPlanData, onSave }: any) {
           value={localData.risk}
           onChange={(e) => setLocalData({ ...localData, risk: e.target.value })}
           placeholder="Risk (R)"
+        />
+
+        <Input
+          value={localData.plan}
+          onChange={(e) => setLocalData({ ...localData, plan: e.target.value })}
+          placeholder="Plan description"
         />
 
         {/* <Input
@@ -268,8 +335,8 @@ function PlanDialog({ planData, setPlanData, onSave }: any) {
       <DialogFooter>
         <Button
           onClick={() => {
-            setPlanData(localData);
-            onSave();
+            // setPlanData(localData);
+            onSave(localData);
           }}
           className="w-full"
         >

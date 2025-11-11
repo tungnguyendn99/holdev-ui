@@ -214,13 +214,15 @@ const Trading = () => {
             <span
               className={cx(`font-semibold ${data.dayProfit ? 'text-green-500' : 'text-red-400'}`)}
             >
-              {data?.profit}
+              {data?.profit}$
             </span>{' '}
             {/* ({data?.reward}) */}
           </p>
-          <p className={cx(`${theme === 'light' && 'text-[#737373]'}`)}>{data?.trades}</p>
           <p className={cx(`${theme === 'light' && 'text-[#737373]'}`)}>
-            {data?.winrate} ({data?.reward})
+            {data?.trades} {data?.trades > 1 ? 'trades' : 'trade'}
+          </p>
+          <p className={cx(`${theme === 'light' && 'text-[#737373]'}`)}>
+            {data?.winrate} ({data?.reward}R)
           </p>
         </div>
       );

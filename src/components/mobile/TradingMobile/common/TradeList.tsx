@@ -13,6 +13,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import moment from 'moment';
+import { Tag } from 'antd';
 
 export default function TradeList({ trades, onDelete, handleOpenTrade }: any) {
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
@@ -104,12 +105,22 @@ function SwipeToRevealDelete({ trade, onConfirmDelete, handleOpenTrade }: any) {
       >
         <Card className="flex justify-between items-center px-3 py-2">
           <div>
-            <p className="font-medium">{trade.symbol}</p>
-            <p className="text-xs text-muted-foreground">
-              {moment(trade.closeTime || trade.entryTime).format('DD/MM/YYYY')} ·{' '}
-              <span className={trade.tradeSide === 'BUY' ? 'text-green-500' : 'text-red-500'}>
+            <p className="font-medium">
+              <span>{trade.symbol}</span>
+              <span
+                className={`ml-3 ${trade.tradeSide === 'BUY' ? 'text-green-500' : 'text-red-500'}`}
+              >
                 {trade.tradeSide}
               </span>
+            </p>
+            <p className="flex gap-2 items-center text-xs text-muted-foreground">
+              <span>{moment(trade.closeTime || trade.entryTime).format('DD/MM/YYYY')}</span>
+              <span>•</span>
+              <span>{trade.duration}</span>
+              <span>•</span>
+              {/* <span className={trade.tradeSide === 'BUY' ? 'text-green-500' : 'text-red-500'}> */}
+              {handleClosedBy(trade.closedBy)}
+              {/* </span> */}
             </p>
           </div>
           <div className="text-right">
@@ -131,3 +142,44 @@ function SwipeToRevealDelete({ trade, onConfirmDelete, handleOpenTrade }: any) {
     </div>
   );
 }
+
+const handleClosedBy = (closedBy: string | undefined) => {
+  switch (closedBy) {
+    case 'SL':
+    case 'SO':
+      return (
+        <Tag color="red" className="text-[12px]! font-bold px-2! py-px! rounded-md! leading-none!">
+          {closedBy}
+        </Tag>
+      );
+    case 'TP':
+      return (
+        <Tag
+          color="green"
+          className="text-[12px]! font-bold px-2! py-px! rounded-md! leading-none!"
+        >
+          {closedBy}
+        </Tag>
+      );
+    case 'MA':
+      return (
+        <Tag
+          color="geekblue"
+          className="text-[12px]! font-bold px-2! py-px! rounded-md! leading-none!"
+        >
+          {closedBy}
+        </Tag>
+      );
+    case 'BE':
+      return (
+        <Tag
+          color="yellow"
+          className="text-[12px]! font-bold px-2! py-px! rounded-md! leading-none!"
+        >
+          {closedBy}
+        </Tag>
+      );
+    default:
+      return null;
+  }
+};
