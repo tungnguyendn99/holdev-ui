@@ -128,7 +128,7 @@ export default function PlanSettings({ planData, getUserSettingTrading, handleSa
                   <span className="text-xs uppercase tracking-wide">Identity</span>
                 </div>
                 <Tag color="geekblue" className="font-bold px-2! py-px! leading-none!">
-                  {planData.identity}
+                  {planData?.identity}
                 </Tag>
               </div>
 
@@ -138,7 +138,7 @@ export default function PlanSettings({ planData, getUserSettingTrading, handleSa
                   <span className="text-xs uppercase tracking-wide">Monthly Target</span>
                 </div>
                 <span className="text-purple-400 font-semibold text-base">
-                  {planData.monthTarget} USD
+                  {planData?.monthTarget} USD
                 </span>
               </div>
 
@@ -147,7 +147,7 @@ export default function PlanSettings({ planData, getUserSettingTrading, handleSa
                   <ShieldAlert size={16} />
                   <span className="text-xs uppercase tracking-wide">Risk</span>
                 </div>
-                <span className="text-orange-400 font-semibold text-base">{planData.risk}$</span>
+                <span className="text-orange-400 font-semibold text-base">{planData?.risk}$</span>
               </div>
             </motion.div>
 
@@ -275,7 +275,7 @@ function PlanDialog({ planData, onSave }: any) {
 
       <div className="space-y-3 py-2">
         <Select
-          value={localData.identity}
+          value={localData?.identity}
           onValueChange={(v) => setLocalData({ ...localData, identity: v })}
         >
           <SelectTrigger className="w-full">
@@ -289,20 +289,20 @@ function PlanDialog({ planData, onSave }: any) {
 
         <Input
           type="number"
-          value={localData.monthTarget}
+          value={localData?.monthTarget}
           onChange={(e) => setLocalData({ ...localData, monthTarget: Number(e.target.value) })}
           placeholder="Monthly Target ($)"
         />
 
         <Input
           type="number"
-          value={localData.risk}
+          value={localData?.risk}
           onChange={(e) => setLocalData({ ...localData, risk: e.target.value })}
           placeholder="Risk (R)"
         />
 
         <Input
-          value={localData.plan}
+          value={localData?.plan}
           onChange={(e) => setLocalData({ ...localData, plan: e.target.value })}
           placeholder="Plan description"
         />
@@ -314,7 +314,7 @@ function PlanDialog({ planData, onSave }: any) {
         /> */}
         <Textarea
           placeholder="Rule"
-          value={localData.rule}
+          value={localData?.rule}
           onChange={(e) => setLocalData({ ...localData, rule: e.target.value })}
           rows={4}
         />
@@ -326,7 +326,7 @@ function PlanDialog({ planData, onSave }: any) {
         /> */}
         <Textarea
           placeholder="Note"
-          value={localData.note}
+          value={localData?.note}
           onChange={(e) => setLocalData({ ...localData, note: e.target.value })}
           rows={4}
         />
