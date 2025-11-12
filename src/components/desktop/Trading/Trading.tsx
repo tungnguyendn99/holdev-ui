@@ -15,6 +15,7 @@ import {
   Input,
   InputNumber,
   Modal,
+  notification,
   Radio,
   Rate,
   Row,
@@ -33,6 +34,8 @@ import API from '../../../utils/api';
 import TradingMobile from '../../mobile/TradingMobile/TradingMobile';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { hideLoading, showLoading } from '../../../store/slices/user.slice';
+import { openNotification } from '../../../common/utils.notification';
+import { Label } from '../../../../components/ui/label';
 
 const getMonthData = (value: Dayjs) => {
   if (value.month() === 8) {
@@ -317,7 +320,7 @@ const Trading = () => {
           // }}
           className={cx(`font-bold ${pnl >= 0 ? 'text-green-500' : 'text-red-400'}`)}
         >
-          {!pnl
+          {pnl === null || pnl === undefined
             ? undefined
             : pnl >= 0
               ? `$${pnl.toLocaleString()}`
@@ -330,6 +333,48 @@ const Trading = () => {
   // if (isMobile) {
   //   return <TradingMobile />;
   // }
+
+  //upload excel
+  const [file, setFile] = useState(null);
+  const [fileName, setFileName] = useState<string>('');
+  const [api, contextHolder] = notification.useNotification();
+
+  const handleFileChange = (e: any) => {
+    setFile(e.target.files[0]);
+    if (e.target.files?.length) {
+      setFileName(e.target.files[0].name);
+    }
+  };
+
+  const handleUpload = async () => {
+    if (!file) {
+      return;
+    }
+
+    const formData = new FormData();
+    // Tên 'file' phải khớp với tên trong FileInterceptor('file') của NestJS
+    formData.append('file', file);
+
+    try {
+      // Thay đổi URL API của bạn
+      const response = await API.post('/trading/upload-excel', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      api.success({
+        message: 'Success!',
+        description: response.data.message,
+      });
+      setFile(null);
+      setFileName('');
+    } catch (error) {
+      api.error({
+        message: 'Error!',
+        description: 'error upload excel',
+      });
+    }
+  };
 
   return (
     <div className="trading">
@@ -362,7 +407,7 @@ const Trading = () => {
                     columns={columns}
                     dataSource={dataRecent}
                     pagination={false}
-                    scroll={{ y: 240 }}
+                    scroll={{ y: 440 }}
                     size="small"
                     className="table-trades"
                   />
@@ -387,6 +432,37 @@ const Trading = () => {
             ]}
           />
         </Card>
+        <div className="mt-3 p-4 w-full! flex items-center justify-between gap-3 shadow-sm border border-border bg-white rounded-xl">
+          {/* File input */}
+          {contextHolder}
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <Label
+              htmlFor="excel-upload"
+              className="cursor-pointer bg-indigo-50 text-indigo-600 font-medium px-3 py-2 rounded-lg border border-indigo-200 hover:bg-indigo-100 transition"
+            >
+              Chọn file
+            </Label>
+            <input
+              id="excel-upload"
+              type="file"
+              onChange={handleFileChange}
+              accept=".xlsx"
+              className="hidden"
+            />
+            <span className="text-sm text-muted-foreground truncate">
+              {fileName || 'Chưa có file nào được chọn'}
+            </span>
+          </div>
+
+          {/* Upload button */}
+          <Button
+            onClick={handleUpload}
+            disabled={!file}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white w-full sm:w-36"
+          >
+            Upload & Save
+          </Button>
+        </div>
       </div>
       <div className="calendar">
         <div className="calendar-title">
@@ -489,9 +565,9 @@ const Trading = () => {
               </Col>
               <Col span={12}>
                 <Form.Item
-                  label="Volume"
-                  name="volume"
-                  rules={[{ required: true, message: 'Please input volume!' }]}
+                  label="lots"
+                  name="lots"
+                  rules={[{ required: true, message: 'Please input lots!' }]}
                 >
                   <InputNumber
                     min={0}

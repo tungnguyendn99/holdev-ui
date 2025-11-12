@@ -29,7 +29,7 @@ export default function LayoutMobile({ children }: { children: React.ReactNode }
         <div className="flex gap-4 items-center">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="p-2 rounded-md hover:bg-accent transition-colors"
+            className="btn-theme p-2 rounded-md hover:bg-accent transition-colors"
           >
             <Menu size={24} />
           </button>

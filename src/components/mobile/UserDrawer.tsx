@@ -63,7 +63,7 @@ export default function UserDrawer({ onClose }: { onClose: () => void }) {
 
         <button
           onClick={handleLogout}
-          className="flex items-center gap-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-950 px-3 py-2 rounded-md transition-colors"
+          className="btn-theme flex items-center gap-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-950 px-3 py-2 rounded-md transition-colors"
         >
           <LogOut size={18} />
           Logout

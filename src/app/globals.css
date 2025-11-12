@@ -57,6 +57,14 @@ body {
   @apply bg-[#151c26] text-gray-200;
 }
 
+.dark .btn-theme {
+  @apply bg-[#584ff1] text-[#e7f1f3];
+}
+
+.light .btn-theme {
+  @apply bg-[#487efb] text-white;
+}
+
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);

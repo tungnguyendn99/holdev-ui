@@ -30,7 +30,7 @@ const CustomDayPicker = ({
         Day: (props) => {
           const date = props.day.date; // ✅ react-day-picker v9 props
           const dateStr = format(date, 'yyyy-MM-dd');
-          const profit = profitByDate[dateStr];
+          const profit = profitByDate[dateStr]?.toFixed(2);
 
           const isProfit = profit > 0;
           const isLoss = profit < 0;

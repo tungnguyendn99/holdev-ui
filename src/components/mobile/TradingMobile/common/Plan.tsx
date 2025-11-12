@@ -21,7 +21,17 @@ import {
 } from '@/components/ui/select';
 import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { Plus, Pencil, Save, Target, Flame, User2, Badge, ShieldAlert } from 'lucide-react';
+import {
+  Plus,
+  Pencil,
+  Save,
+  Target,
+  Flame,
+  User2,
+  Badge,
+  ShieldAlert,
+  Monitor,
+} from 'lucide-react';
 import clsx from 'clsx';
 import cx from 'classnames';
 import API from '../../../../utils/api';
@@ -114,14 +124,23 @@ export default function PlanSettings({ planData, getUserSettingTrading, handleSa
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               className={cx(
-                'w-full rounded-2xl bg-gradient-to-br from-[#3a3554] to-[#29293a] p-4 shadow-md',
+                'w-full font-semibold rounded-2xl bg-gradient-to-br from-[#3a3554] to-[#29293a] p-4 shadow-md',
                 {
-                  'from-gray-100 to-[#d6e1ff] text-gray-900': theme === 'light',
+                  'from-[#706cdd] to-[#313f67] text-gray-200': theme === 'light',
                   'from-[#3a3554] to-[#29293a] text-white': theme === 'dark',
                 },
               )}
               // className="w-full rounded-2xl bg-linear-to-br from-white to-gray-50 text-gray-900 p-4 shadow-md"
             >
+              <div className="flex justify-between items-center mb-3">
+                <div className="flex items-center gap-2">
+                  {/* <Target size={16} /> */}
+                  <Monitor size={16} />
+                  <span className="text-xs uppercase tracking-wide">Category</span>
+                </div>
+                <span className="text-blue-400 font-semibold text-base">{planData?.type}</span>
+              </div>
+
               <div className="flex justify-between items-center mb-3">
                 <div className="flex items-center gap-2">
                   <User2 size={16} />
@@ -132,23 +151,13 @@ export default function PlanSettings({ planData, getUserSettingTrading, handleSa
                 </Tag>
               </div>
 
-              <div className="flex justify-between items-center mb-3">
-                <div className="flex items-center gap-2">
-                  <Target size={16} />
-                  <span className="text-xs uppercase tracking-wide">Monthly Target</span>
-                </div>
-                <span className="text-purple-400 font-semibold text-base">
-                  {planData?.monthTarget} USD
-                </span>
-              </div>
-
-              <div className="flex justify-between items-center">
+              {/* <div className="flex justify-between items-center">
                 <div className="flex items-center gap-2">
                   <ShieldAlert size={16} />
                   <span className="text-xs uppercase tracking-wide">Risk</span>
                 </div>
                 <span className="text-orange-400 font-semibold text-base">{planData?.risk}$</span>
-              </div>
+              </div> */}
             </motion.div>
 
             {/* My Goal Section */}
@@ -156,7 +165,9 @@ export default function PlanSettings({ planData, getUserSettingTrading, handleSa
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
                   <Target className="text-purple-400" size={20} />
-                  <h3 className="font-semibold text-base">My Goal</h3>
+                  <h3 className="font-semibold text-base">
+                    {planData.plan || 'No specific plan yet.'}
+                  </h3>
                 </div>
                 <Dialog open={open} onOpenChange={setOpen}>
                   <DialogTrigger asChild>
@@ -167,8 +178,21 @@ export default function PlanSettings({ planData, getUserSettingTrading, handleSa
                   <PlanDialog planData={planData} onSave={handleSavePlan} />
                 </Dialog>
               </div>
-
-              <p className="text-sm text-purple-300 mb-1">Monthly Target</p>
+              <div className="flex justify-between">
+                <div>
+                  <p className="text-sm text-purple-300 mb-1">Monthly Target</p>
+                  <p className="text-2xl font-bold text-purple-400 mb-3">
+                    {planData?.monthTarget?.toFixed(0)} USD
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-purple-300 mb-1">Just earning each trading day</p>
+                  <p className="text-2xl font-bold text-purple-400 mb-3">
+                    {planData?.dayTarget?.toFixed(0)} USD
+                  </p>
+                </div>
+              </div>
+              {/* <p className="text-sm text-purple-300 mb-1">Monthly Target</p>
               <p className="text-2xl font-bold text-purple-400 mb-3">
                 {planData?.monthTarget?.toFixed(0)} USD
               </p>
@@ -176,12 +200,12 @@ export default function PlanSettings({ planData, getUserSettingTrading, handleSa
               <p className="text-sm text-purple-300 mb-1">Just earning each trading day</p>
               <p className="text-2xl font-bold text-purple-400 mb-3">
                 {planData?.dayTarget?.toFixed(0)} USD
-              </p>
+              </p> */}
 
-              <div className="space-y-1 text-sm text-gray-300">
+              {/* <div className="space-y-1 text-sm text-gray-300">
                 <p>{planData.plan || 'No specific plan yet.'}</p>
                 <p className="text-purple-400 mt-2 cursor-pointer">+ Add a new rule</p>
-              </div>
+              </div> */}
             </Card>
 
             {/* Risk Management Section */}
@@ -203,18 +227,23 @@ export default function PlanSettings({ planData, getUserSettingTrading, handleSa
 
               <div className="flex justify-between text-sm text-gray-300 mb-3">
                 <div>
-                  <p className="text-xs uppercase tracking-wide">Minimum Risk:Reward</p>
+                  <p
+                    // className="text-xs uppercase tracking-wide"
+                    className="text-sm text-purple-300 mb-1 uppercase"
+                  >
+                    Minimum Risk:Reward
+                  </p>
                   <p className="text-purple-400 font-bold">1 : 2</p>
                 </div>
                 <div>
-                  <p className="text-xs uppercase tracking-wide">Risk per trade</p>
+                  <p className="text-sm text-purple-300 mb-1 uppercase">Risk per trade</p>
                   <p className="text-purple-400 font-bold">{planData.risk} USD</p>
                 </div>
               </div>
 
               <div className="flex flex-col gap-2 space-y-1 text-sm text-gray-300">
                 <div>
-                  <p className="text-xs uppercase tracking-wide text-purple-300">Rule</p>
+                  <p className="text-sm text-purple-300 mb-1 uppercase">Rule</p>
                   {planData.rule ? (
                     <p className="whitespace-pre-wrap">{planData.rule}</p>
                   ) : (
@@ -222,7 +251,7 @@ export default function PlanSettings({ planData, getUserSettingTrading, handleSa
                   )}
                 </div>
                 <div>
-                  <p className="text-xs uppercase tracking-wide text-purple-300">Note</p>
+                  <p className="text-sm text-purple-300 mb-1 uppercase">Note</p>
                   {planData.note && <p className="whitespace-pre-wrap">{planData.note}</p>}
                 </div>
               </div>
@@ -235,7 +264,7 @@ export default function PlanSettings({ planData, getUserSettingTrading, handleSa
       <div className="fixed bottom-0 left-0 right-0 px-4 pb-[env(safe-area-inset-bottom)] bg-gradient-to-t from-background via-background/95 to-transparent pt-3">
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button className="w-full h-12 text-base font-semibold">
+            <Button className="btn-theme w-full h-12 text-base font-semibold">
               {isEdit ? (
                 <>
                   <Pencil size={18} className="mr-2" /> Edit Plan
@@ -338,7 +367,7 @@ function PlanDialog({ planData, onSave }: any) {
             // setPlanData(localData);
             onSave(localData);
           }}
-          className="w-full"
+          className="btn-theme w-full"
         >
           <Save size={16} className="mr-2" /> Save Plan
         </Button>

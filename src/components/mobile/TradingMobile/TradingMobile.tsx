@@ -154,7 +154,7 @@ export default function TradingMobile() {
     } else {
       setFormData({
         symbol: '',
-        volume: '',
+        lots: '',
         entryPrice: '',
         closePrice: '',
         stopLoss: '',
@@ -187,6 +187,8 @@ export default function TradingMobile() {
     (t) => moment(t.closeTime).format('YYYY-MM-DD') === moment(selectedDate).format('YYYY-MM-DD'),
   );
 
+  console.log('tradesOfSelectedDate', tradesOfSelectedDate);
+
   const winrateByDate = useMemo(() => {
     const winCount = tradesOfSelectedDate.filter((t) => t.result > 0).length;
     console.log('trades', trades);
@@ -196,13 +198,15 @@ export default function TradingMobile() {
     return winrate;
   }, [tradesOfSelectedDate]);
 
-  const rewardOfDay = useMemo(() => {
+  const rewardOfDay: any = useMemo(() => {
     let total = 0;
     tradesOfSelectedDate.forEach((t) => {
       total += t.reward || 0;
     });
-    return total;
+    return total.toFixed(1);
   }, [tradesOfSelectedDate]);
+
+  console.log('rewardOfDay', rewardOfDay);
 
   // ==== Tab Plan ====
   const [planData, setPlanData] = useState<any>({});
@@ -262,7 +266,7 @@ export default function TradingMobile() {
         {/* TAB 1 - TRADES */}
         <TabsContent value="trades" className="flex-1 overflow-y-auto">
           <div className="flex justify-between mb-3">
-            <Button onClick={() => handleOpenTrade()} className="w-full">
+            <Button onClick={() => handleOpenTrade()} className="w-full btn-theme">
               <Plus size={20} className="mr-2" /> Add Trade
             </Button>
           </div>
@@ -669,13 +673,13 @@ export default function TradingMobile() {
               />
             </div>
 
-            {/* Volume */}
+            {/* lots */}
             <div>
-              <Label className="text-sm font-medium mb-1 block">Volume *</Label>
+              <Label className="text-sm font-medium mb-1 block">lots *</Label>
               <Input
                 placeholder="e.g. 0.5"
-                value={formData.volume}
-                onChange={(e) => setFormData({ ...formData, volume: e.target.value })}
+                value={formData.lots}
+                onChange={(e) => setFormData({ ...formData, lots: e.target.value })}
               />
             </div>
 
