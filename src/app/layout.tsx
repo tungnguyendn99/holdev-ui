@@ -30,6 +30,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="apple-touch-icon" sizes="180x180" href="/146e2842-fd5a-4cd2-92f3-338f3c7f3aeb.png" />
+      </head>
       <body className={`antialiased app`}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
           <Provider store={store}>
