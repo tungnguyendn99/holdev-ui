@@ -675,7 +675,7 @@ export default function TradingMobile() {
 
             {/* lots */}
             <div>
-              <Label className="text-sm font-medium mb-1 block">lots *</Label>
+              <Label className="text-sm font-medium mb-1 block">Lots *</Label>
               <Input
                 placeholder="e.g. 0.5"
                 value={formData.lots}

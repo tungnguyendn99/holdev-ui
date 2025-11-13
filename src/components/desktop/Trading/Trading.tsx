@@ -565,7 +565,7 @@ const Trading = () => {
               </Col>
               <Col span={12}>
                 <Form.Item
-                  label="lots"
+                  label="Lots"
                   name="lots"
                   rules={[{ required: true, message: 'Please input lots!' }]}
                 >
