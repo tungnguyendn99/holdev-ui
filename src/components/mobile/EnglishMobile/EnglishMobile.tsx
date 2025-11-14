@@ -73,12 +73,7 @@ export default function EngLishMobile() {
       });
       return data;
     } catch (err) {
-      // fallback to mock (for demo)
-      console.warn('Fetch word failed, using fallback', err);
-      api.error({
-        message: 'Success!',
-        description: 'Add new word error.',
-      });
+      throw err;
     }
   };
 
@@ -88,11 +83,14 @@ export default function EngLishMobile() {
     dispatch(showLoading());
     try {
       const data = await fetchWord(w);
-      setWords((prev) => [data, ...prev]);
       setSelected(data);
       setQuery('');
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      api.error({
+        message: 'Success!',
+        description: err?.response?.data?.message || 'Add new word error.',
+      });
     } finally {
       dispatch(hideLoading());
     }
@@ -225,7 +223,7 @@ export default function EngLishMobile() {
               <AnimatePresence initial={false}>
                 {words.map((w) => (
                   <WordCard
-                    key={w.word}
+                    key={w?.word}
                     w={w}
                     speak={speak}
                     handleDeleteWord={handleDeleteWord}
