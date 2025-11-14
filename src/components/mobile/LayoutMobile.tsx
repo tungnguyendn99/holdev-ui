@@ -23,12 +23,12 @@ export default function LayoutMobile({ children }: { children: React.ReactNode }
   }
 
   return (
-    <div className="flex w-full flex-col transition-colors duration-300">
+    <div className="flex w-full flex-col transition-colors duration-300 overflow-y-auto relative">
       {/* 🔝 Topbar */}
-      <header className="flex justify-between items-center px-4 py-3 border-b border-border bg-card shadow-sm">
+      <header className="fixed top-0 w-full z-20 flex justify-between items-center px-4 py-3 border-b border-border bg-card shadow-sm">
         <div className="flex gap-4 items-center">
           <button
-            onClick={() => setSidebarOpen(true)}
+            onClick={() => setSidebarOpen((prev) => !prev)}
             className="btn-theme p-2 rounded-md hover:bg-accent transition-colors"
           >
             <Menu size={24} />
@@ -50,7 +50,7 @@ export default function LayoutMobile({ children }: { children: React.ReactNode }
 
           {/* User Avatar */}
           <button
-            onClick={() => setUserDrawerOpen(true)}
+            onClick={() => setUserDrawerOpen((prev) => !prev)}
             className="p-1 rounded-full border border-border"
           >
             <User size={22} />
@@ -59,7 +59,7 @@ export default function LayoutMobile({ children }: { children: React.ReactNode }
       </header>
 
       {/* 📄 Main Content */}
-      <main className="flex-1 overflow-y-auto p-3">{children}</main>
+      <main className="flex-1 p-3 pb-2 mt-16">{children}</main>
 
       {/* 🧭 Sidebar */}
       <AnimatePresence>

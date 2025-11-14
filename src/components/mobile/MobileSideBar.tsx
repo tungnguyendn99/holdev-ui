@@ -8,6 +8,7 @@ import {
   ListTodo,
   Wallet,
   User,
+  NotebookPen,
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import Link from 'next/link';
@@ -19,6 +20,7 @@ export default function MobileSidebar({ onClose }: { onClose: () => void }) {
     // { name: "Tổng quan", path: "/dashboard" },
     { id: 'trade', name: 'Trading', path: '/trading', icon: <ChartCandlestick /> },
     { id: 'poker', name: 'Poker', path: '/poker', icon: <Spade /> },
+    { id: 'english', name: 'English', path: '/english', icon: <NotebookPen /> },
     { id: 'todo', name: 'To Do List', path: '/to-do', icon: <ListTodo /> },
     { id: 'expense', name: 'Expense Management', path: '/expense', icon: <Wallet /> },
     { id: 'user', name: 'User', path: '/user', icon: <User /> },

@@ -7,6 +7,7 @@ import API, { setAuthToken } from '../../utils/api';
 import { useRouter } from 'next/navigation';
 import { useAppDispatch } from '../../store/hooks';
 import { hideLoading, setUserInfo, showLoading } from '../../store/slices/user.slice';
+import { notification } from 'antd';
 
 export default function Login({
   children,
@@ -17,6 +18,7 @@ export default function Login({
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [api, contextHolder] = notification.useNotification();
 
   const router = useRouter();
   console.log('123123');
@@ -48,7 +50,10 @@ export default function Login({
       router.push('/');
     } catch (err) {
       console.log('error123', err);
-
+      api.error({
+        message: 'error!',
+        description: '',
+      });
       setError('Invalid login credentials.');
     } finally {
       dispatch(hideLoading());
@@ -57,6 +62,7 @@ export default function Login({
 
   return (
     <div className="flex h-screen items-center justify-center bg-gray-500">
+      {contextHolder}
       <div className="w-full max-w-sm bg-white p-6 rounded-lg shadow-md">
         <h2 className="text-xl font-bold text-center mb-4 text-blue-500">Login</h2>
 

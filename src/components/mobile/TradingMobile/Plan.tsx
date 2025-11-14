@@ -34,7 +34,6 @@ import {
 } from 'lucide-react';
 import clsx from 'clsx';
 import cx from 'classnames';
-import API from '../../../../utils/api';
 import { Tag } from 'antd';
 import { useTheme } from 'next-themes';
 
@@ -261,7 +260,7 @@ export default function PlanSettings({ planData, getUserSettingTrading, handleSa
       </div>
 
       {/* ✅ Button fixed ở cuối */}
-      <div className="fixed bottom-0 left-0 right-0 px-4 pb-[env(safe-area-inset-bottom)] bg-gradient-to-t from-background via-background/95 to-transparent pt-3">
+      {/* <div className="fixed bottom-0 left-0 right-0 px-4 pb-[env(safe-area-inset-bottom)] bg-gradient-to-t from-background via-background/95 to-transparent pt-3">
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button className="btn-theme w-full h-12 text-base font-semibold">
@@ -278,7 +277,7 @@ export default function PlanSettings({ planData, getUserSettingTrading, handleSa
           </DialogTrigger>
           <PlanDialog planData={planData} onSave={handleSubmitPlan} />
         </Dialog>
-      </div>
+      </div> */}
     </div>
   );
 }

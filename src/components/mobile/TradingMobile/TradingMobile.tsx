@@ -37,10 +37,10 @@ import { hideLoading, showLoading } from '../../../store/slices/user.slice';
 import { Textarea } from '@/components/ui/textarea';
 import { useTheme } from 'next-themes';
 import cx from 'classnames';
-import TradeList from './common/TradeList';
+import TradeList from './TradeList';
 import CustomDayPicker from '../UI/CustomDatePicker';
 import { motion } from 'framer-motion';
-import PlanSettings from './common/Plan';
+import PlanSettings from './Plan';
 
 export default function TradingMobile() {
   const { theme } = useTheme();
@@ -271,7 +271,7 @@ export default function TradingMobile() {
             </Button>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-3 h-auto">
             <TradeList trades={trades} onDelete={deleteTrade} handleOpenTrade={handleOpenTrade} />
           </div>
         </TabsContent>

@@ -46,7 +46,7 @@ import moment from 'moment';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { hideLoading, showLoading } from '../../../store/slices/user.slice';
 import { LoadingOverlay } from '../../LoadingOverLay';
-import TodoList from './common/TodoList';
+import TodoList from './TodoList';
 
 interface TodoItem {
   id: string;
@@ -78,7 +78,10 @@ export default function TodoMobile() {
   const userInfo = useAppSelector((state) => state.user.userInfo);
   const loading = useAppSelector((state) => state.user.loading);
 
-  console.log('store', useAppSelector((state) => state));
+  console.log(
+    'store',
+    useAppSelector((state) => state),
+  );
   console.log('userInfo', userInfo);
 
   const getTodos = async () => {

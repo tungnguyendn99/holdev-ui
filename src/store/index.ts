@@ -9,7 +9,20 @@ const sagaMiddleware = createSagaMiddleware();
 export const store = configureStore({
   reducer: persistedReducer,
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware({ thunk: false }).concat(sagaMiddleware),
+    getDefaultMiddleware({
+      thunk: false,
+      serializableCheck: {
+        // ✅ Bỏ qua các action của redux-persist để tránh cảnh báo
+        ignoredActions: [
+          'persist/PERSIST',
+          'persist/REHYDRATE',
+          'persist/PAUSE',
+          'persist/FLUSH',
+          'persist/PURGE',
+          'persist/REGISTER',
+        ],
+      },
+    }).concat(sagaMiddleware),
 });
 
 sagaMiddleware.run(rootSaga);

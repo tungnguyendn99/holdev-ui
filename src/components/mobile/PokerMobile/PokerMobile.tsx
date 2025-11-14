@@ -27,7 +27,7 @@ import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { hideLoading, showLoading } from '../../../store/slices/user.slice';
 import CustomDayPicker from '../UI/CustomDatePicker';
 import { Textarea } from '@/components/ui/textarea';
-import PokerList from './common/PokerList';
+import PokerList from './PokerList';
 import { motion } from 'framer-motion';
 
 export default function PokerMobile() {
