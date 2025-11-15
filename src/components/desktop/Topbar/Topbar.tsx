@@ -7,12 +7,15 @@ import { Avatar, Dropdown, MenuProps, Tag } from 'antd';
 import { ChevronDown, ChevronUp, LogOut, Menu, Settings, User } from 'lucide-react';
 import ThemeToggle from './ThemeToggle/ThemeToggle';
 import { useTheme } from 'next-themes';
+import { useAppSelector } from '../../../store/hooks';
 
 const Topbar = ({ onToggleSidebar }: any) => {
   const { theme } = useTheme();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [username, setUsername] = useState('');
   const [open, setOpen] = useState(false);
+
+  const userInfo = useAppSelector((state) => state.user.userInfo);
 
   const pathname = usePathname();
   const router = useRouter();
@@ -112,12 +115,8 @@ const Topbar = ({ onToggleSidebar }: any) => {
             open={open}
           >
             <div className="flex items-center gap-2 cursor-pointer">
-              <Avatar
-                size="large"
-                src="https://scontent.fhan4-6.fna.fbcdn.net/v/t39.30808-6/568362169_122168092466450616_8160251649592974543_n.jpg?_nc_cat=108&ccb=1-7&_nc_sid=127cfc&_nc_ohc=pLdJ2ihqBxoQ7kNvwEKX4Fq&_nc_oc=AdmxgaGbB3Ws7oL_Cj0D19LiX2tUa0jJ7M98bX-s9u0aN9eQ_TLPdT8ZUsOKvyVsdss&_nc_zt=23&_nc_ht=scontent.fhan4-6.fna&_nc_gid=eH1VVEA5VYB_-Jtypd97Og&oh=00_Afd0V03EdyCadnWPoeDk-P1w3vA-stM4ll8zBQrq4OyvEQ&oe=690A54ED" // ảnh trong public
-                icon={<User />}
-              />
-              <span className="font-medium">{username}</span>
+              <Avatar size="large" src={userInfo.avatar} icon={<User />} />
+              <span className="font-medium">{userInfo.username}</span>
               <Tag color="#539dac" style={{ fontSize: '16px' }}>
                 DEMO
               </Tag>

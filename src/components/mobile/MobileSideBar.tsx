@@ -22,7 +22,7 @@ export default function MobileSidebar({ onClose }: { onClose: () => void }) {
     { id: 'poker', name: 'Poker', path: '/poker', icon: <Spade /> },
     { id: 'english', name: 'English', path: '/english', icon: <NotebookPen /> },
     { id: 'todo', name: 'To Do List', path: '/to-do', icon: <ListTodo /> },
-    { id: 'expense', name: 'Expense Management', path: '/expense', icon: <Wallet /> },
+    // { id: 'expense', name: 'Expense Management', path: '/expense', icon: <Wallet /> },
     { id: 'user', name: 'User', path: '/user', icon: <User /> },
     // { name: "Người dùng", path: "/dashboard/users" },
   ];

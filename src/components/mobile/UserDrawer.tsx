@@ -1,8 +1,10 @@
 'use client';
-import { X, LogOut } from 'lucide-react';
+import { Avatar } from 'antd';
+import { X, LogOut, User } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { useAppSelector } from '../../store/hooks';
 
 export default function UserDrawer({ onClose }: { onClose: () => void }) {
   const { theme } = useTheme();
@@ -12,6 +14,8 @@ export default function UserDrawer({ onClose }: { onClose: () => void }) {
 
   const pathname = usePathname();
   const router = useRouter();
+
+  const userInfo = useAppSelector((state) => state.user.userInfo);
 
   const checkAuthentication = () => {
     const token = localStorage.getItem('token');
@@ -56,8 +60,15 @@ export default function UserDrawer({ onClose }: { onClose: () => void }) {
       </div>
 
       <div className="flex flex-col p-4 space-y-4">
-        <div>
-          <p className="font-semibold text-base">{username}</p>
+        <div
+          className="flex gap-2 items-center"
+          onClick={() => {
+            router.push('/user');
+            onClose();
+          }}
+        >
+          <Avatar size="large" src={userInfo.avatar} icon={<User />} />
+          <p className="font-semibold text-base">{userInfo.username}</p>
           {/* <p className="text-sm text-muted-foreground">tungnguyen@example.com</p> */}
         </div>
 

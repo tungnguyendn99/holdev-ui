@@ -2,6 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export interface UserInfo {
   username: number;
+  avatar: string;
   features?: string[];
 }
 

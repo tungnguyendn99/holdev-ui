@@ -23,7 +23,7 @@ export default function LayoutMobile({ children }: { children: React.ReactNode }
   }
 
   return (
-    <div className="flex w-full flex-col transition-colors duration-300 overflow-y-auto relative">
+    <div className="flex w-full flex-col transition-colors duration-300 relative">
       {/* 🔝 Topbar */}
       <header className="fixed top-0 w-full z-20 flex justify-between items-center px-4 py-3 border-b border-border bg-card shadow-sm">
         <div className="flex gap-4 items-center">
@@ -59,7 +59,7 @@ export default function LayoutMobile({ children }: { children: React.ReactNode }
       </header>
 
       {/* 📄 Main Content */}
-      <main className="flex-1 p-3 pb-2 mt-16">{children}</main>
+      <main className="flex-1 p-3 pb-2 mt-[56px]">{children}</main>
 
       {/* 🧭 Sidebar */}
       <AnimatePresence>
