@@ -31,7 +31,7 @@ import { DayPicker } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
 import Datetime from 'react-datetime';
 import 'react-datetime/css/react-datetime.css';
-import { Rate, Tag } from 'antd';
+import { notification, Rate, Tag } from 'antd';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { hideLoading, showLoading } from '../../../store/slices/user.slice';
 import { Textarea } from '@/components/ui/textarea';
@@ -39,7 +39,7 @@ import { useTheme } from 'next-themes';
 import cx from 'classnames';
 import TradeList from './TradeList';
 import CustomDayPicker from '../UI/CustomDatePicker';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import PlanSettings from './Plan';
 
 export default function TradingMobile() {
@@ -58,6 +58,8 @@ export default function TradingMobile() {
   //store
   const dispatch = useAppDispatch();
   const userInfo = useAppSelector((state) => state.user.userInfo);
+
+  const [api, contextHolder] = notification.useNotification();
 
   const getRecentTrade = async () => {
     try {
@@ -150,6 +152,7 @@ export default function TradingMobile() {
         closeBy: trade.closedBy || '',
       });
       setCloseBy(trade.closedBy || '');
+      setPreviewURLs(trade.images);
       setIsEdit(true);
     } else {
       setFormData({
@@ -208,6 +211,49 @@ export default function TradingMobile() {
 
   console.log('rewardOfDay', rewardOfDay);
 
+  //upload images
+  const [localImages, setLocalImages] = useState<File[]>([]);
+  const [previewURLs, setPreviewURLs] = useState<string[]>([]);
+  const [selectedImage, setSelectedImage] = useState<any>();
+  // const [uploadedURLs, setUploadedURLs] = useState<string[]>([]); // URL từ server
+
+  console.log('previewURLs', previewURLs);
+
+  const handleSelectImages = (e: any) => {
+    const files = Array.from(e.target.files) as File[];
+    setLocalImages((prev) => [...prev, ...files]);
+
+    const urls = files.map((file) => URL.createObjectURL(file));
+    setPreviewURLs((prev) => [...prev, ...urls]);
+  };
+
+  const handleRemove = (index: number) => {
+    setPreviewURLs((prev) => prev.filter((_, i) => i !== index));
+    setLocalImages((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const uploadToServer = async () => {
+    try {
+      dispatch(showLoading());
+
+      const formData = new FormData();
+      localImages.forEach((f) => formData.append('files', f));
+      const { data } = await API.post('/images/upload-multiple', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      console.log('data', data);
+
+      setFormData({ ...formData, images: data });
+    } catch (error: any) {
+      api.error({
+        message: 'Error!',
+        description: error?.response?.data?.message || 'Error upload multiple images.',
+      });
+    } finally {
+      dispatch(hideLoading());
+    }
+  };
+
   // ==== Tab Plan ====
   const [planData, setPlanData] = useState<any>({});
   // const [editPlan, setEditPlan] = useState(false);
@@ -248,6 +294,7 @@ export default function TradingMobile() {
   return (
     <div className="h-full flex flex-col bg-background text-foreground px-3 pt-3 pb-16">
       {/* <LoadingOverlay show={loading} fullscreen /> */}
+      {contextHolder}
       <h1 className="text-xl font-bold mb-5 text-center">📚 Trading Journey</h1>
 
       <Tabs value={tab} onValueChange={(v) => setTab(v as any)} className="flex-1 flex flex-col">
@@ -850,6 +897,82 @@ export default function TradingMobile() {
               onChange={(e) => setFormData({ ...formData, yourThought: e.target.value })}
               rows={4}
             />
+          </div>
+
+          <div className="flex justify-between items-center mb-3">
+            {/* Image Preview Grid */}
+            <div className="flex gap-4 flex-wrap">
+              {previewURLs.map((url, idx) => (
+                <div key={idx} className="relative">
+                  <div className="w-20 h-20 rounded-xl overflow-hidden bordertransition cursor-pointer">
+                    <img
+                      src={url}
+                      className="w-full h-full object-cover"
+                      onClick={() => setSelectedImage(url)}
+                    />
+                  </div>
+
+                  {/* nút xóa */}
+                  <button
+                    onClick={() => handleRemove(idx)}
+                    className={cx(
+                      'absolute -top-2 -right-2  rounded-full w-4 h-4 text-xs flex items-center justify-center cursor-pointer',
+                      theme === 'dark' ? 'bg-gray-500' : 'bg-white',
+                    )}
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+
+              {/* + Upload box */}
+              <label className="w-20 h-20 flex items-center justify-center rounded-xl border-1 border-dashed border-gray-300 cursor-pointer hover:border-gray-500">
+                <span className="text-gray-500 font-bold">+ Upload</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleSelectImages}
+                  className="hidden!"
+                />
+              </label>
+
+              {/* Image Preview Modal */}
+              <AnimatePresence>
+                {selectedImage && (
+                  <motion.div
+                    className="fixed inset-0 bg-black/70 flex items-center justify-center backdrop-blur-sm z-50"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    onClick={() => setSelectedImage(null)}
+                  >
+                    <motion.img
+                      src={selectedImage}
+                      className="max-w-[80%] max-h-[80%] rounded-lg shadow-xl"
+                      initial={{ scale: 0.8 }}
+                      animate={{ scale: 1 }}
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Nút upload đến server */}
+            <button
+              type="button"
+              className={cx(
+                'text-xs p-2 cursor-pointer rounded-lg font-semibold transition text-white',
+                theme === 'dark'
+                  ? 'bg-indigo-400 hover:bg-indigo-700'
+                  : 'bg-blue-400 hover:bg-indigo-600',
+                localImages.length === 0 && 'bg-gray-400 hover:bg-gray-400!',
+              )}
+              onClick={uploadToServer}
+              disabled={localImages.length === 0}
+            >
+              Get Image Url
+            </button>
           </div>
 
           <DialogFooter>

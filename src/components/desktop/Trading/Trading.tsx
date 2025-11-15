@@ -36,6 +36,7 @@ import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { hideLoading, showLoading } from '../../../store/slices/user.slice';
 import { openNotification } from '../../../common/utils.notification';
 import { Label } from '../../../../components/ui/label';
+import { AnimatePresence, motion } from 'framer-motion';
 
 const getMonthData = (value: Dayjs) => {
   if (value.month() === 8) {
@@ -252,16 +253,6 @@ const Trading = () => {
     return info.originNode;
   };
 
-  const onFinish = (value: any) => {
-    console.log('test finish', value);
-    console.log('time', moment(value.entryTime.format()));
-    if (isOpenAddTrade.type === 'add') {
-      return addTrade(value);
-    } else {
-      return updateTrade(value);
-    }
-  };
-
   const columns: ColumnsType<any> = [
     {
       title: 'Close Date',
@@ -287,6 +278,7 @@ const Trading = () => {
               ...(record?.entryTime !== undefined && { entryTime: dayjs(record.entryTime) }),
               ...(record?.closeTime !== undefined && { closeTime: dayjs(record.closeTime) }),
             });
+            setPreviewURLs(record.images);
             setIsOpenAddTrade({ status: true, type: 'edit' });
           }}
         >
@@ -373,6 +365,79 @@ const Trading = () => {
         message: 'Error!',
         description: 'error upload excel',
       });
+    }
+  };
+
+  //upload images
+  const [localImages, setLocalImages] = useState<File[]>([]);
+  const [previewURLs, setPreviewURLs] = useState<string[]>([]);
+  const [selectedImage, setSelectedImage] = useState<any>();
+  const [uploadedURLs, setUploadedURLs] = useState<string[]>([]); // URL từ server
+
+  console.log('previewURLs', previewURLs);
+
+  const handleSelectImages = (e: any) => {
+    const files = Array.from(e.target.files) as File[];
+    setLocalImages((prev) => [...prev, ...files]);
+
+    const urls = files.map((file) => URL.createObjectURL(file));
+    setPreviewURLs((prev) => [...prev, ...urls]);
+  };
+
+  const handleRemove = (index: number) => {
+    setPreviewURLs((prev) => prev.filter((_, i) => i !== index));
+    setLocalImages((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  // useEffect(() => {
+  //   setPreviewURLs([]);
+  //   setLocalImages([]);
+  //   setUploadedURLs([]);
+  // }, [isOpenAddTrade]);
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setSelectedImage(null);
+      }
+    };
+
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, [selectedImage]);
+
+  const uploadToServer = async () => {
+    try {
+      dispatch(showLoading());
+
+      const formData = new FormData();
+      localImages.forEach((f) => formData.append('files', f));
+      const { data } = await API.post('/images/upload-multiple', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      console.log('data', data);
+
+      setUploadedURLs(data);
+      // form.setFieldValue('images', data);
+    } catch (error: any) {
+      api.error({
+        message: 'Error!',
+        description: error?.response?.data?.message || 'Error upload multiple images.',
+      });
+    } finally {
+      dispatch(hideLoading());
+    }
+  };
+
+  const onFinish = (value: any) => {
+    console.log('test finish', value);
+    console.log('time', moment(value.entryTime.format()));
+    const dataSubmit = { ...value, images: uploadedURLs };
+    console.log('dataSubmit', dataSubmit);
+
+    if (isOpenAddTrade.type === 'add') {
+      return addTrade(dataSubmit);
+    } else {
+      return updateTrade(dataSubmit);
     }
   };
 
@@ -538,6 +603,7 @@ const Trading = () => {
           // onOk={() => {
           //   () => setIsOpenAddTrade(false);
           // }}
+          keyboard={false}
           onCancel={() => {
             form.resetFields();
             setIsOpenAddTrade({ status: false });
@@ -752,6 +818,79 @@ const Trading = () => {
                 </Form.Item>
               </Col> */}
             </Row>
+
+            <div className="flex justify-between items-center mb-3">
+              {/* Image Preview Grid */}
+              <div className="flex gap-4 flex-wrap">
+                {previewURLs.map((url, idx) => (
+                  <div key={idx} className="relative">
+                    <div className="w-28 h-28 rounded-xl overflow-hidden border border-gray-300 hover:border-blue-500 transition cursor-pointer">
+                      <img
+                        src={url}
+                        className="w-full h-full object-cover"
+                        onClick={() => setSelectedImage(url)}
+                      />
+                    </div>
+
+                    {/* nút xóa */}
+                    <button
+                      onClick={() => handleRemove(idx)}
+                      className="absolute -top-2 -right-2 bg-white border border-gray-300 rounded-full w-6 h-6 text-xs flex items-center justify-center cursor-pointer"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+
+                {/* + Upload box */}
+                <label className="w-28 h-28 flex items-center justify-center rounded-xl border-2 border-dashed border-gray-300 cursor-pointer hover:border-gray-500">
+                  <span className="text-gray-500">+ Upload</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleSelectImages}
+                    className="hidden!"
+                  />
+                </label>
+
+                {/* Image Preview Modal */}
+                <AnimatePresence>
+                  {selectedImage && (
+                    <motion.div
+                      className="fixed inset-0 bg-black/70 flex items-center justify-center backdrop-blur-sm z-50"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      onClick={() => setSelectedImage(null)}
+                    >
+                      <motion.img
+                        src={selectedImage}
+                        className="max-w-[80%] max-h-[80%] rounded-lg shadow-xl"
+                        initial={{ scale: 0.8 }}
+                        animate={{ scale: 1 }}
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* Nút upload đến server */}
+              <button
+                type="button"
+                className={cx(
+                  'p-2 cursor-pointer rounded-lg font-semibold transition text-white',
+                  theme === 'dark'
+                    ? 'bg-indigo-400 hover:bg-indigo-700'
+                    : 'bg-blue-400 hover:bg-indigo-600',
+                  localImages.length === 0 && 'bg-gray-400 hover:bg-gray-400!',
+                )}
+                onClick={uploadToServer}
+                disabled={localImages.length === 0}
+              >
+                Get Image Url
+              </button>
+            </div>
 
             <Form.Item>
               <Button type="primary" htmlType="submit" block className="btn-submit-trade">
