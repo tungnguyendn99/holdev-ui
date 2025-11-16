@@ -190,8 +190,6 @@ export default function TradingMobile() {
     (t) => moment(t.closeTime).format('YYYY-MM-DD') === moment(selectedDate).format('YYYY-MM-DD'),
   );
 
-  console.log('tradesOfSelectedDate', tradesOfSelectedDate);
-
   const winrateByDate = useMemo(() => {
     const winCount = tradesOfSelectedDate.filter((t) => t.result > 0).length;
     console.log('trades', trades);
@@ -209,15 +207,11 @@ export default function TradingMobile() {
     return total.toFixed(1);
   }, [tradesOfSelectedDate]);
 
-  console.log('rewardOfDay', rewardOfDay);
-
   //upload images
   const [localImages, setLocalImages] = useState<File[]>([]);
   const [previewURLs, setPreviewURLs] = useState<string[]>([]);
   const [selectedImage, setSelectedImage] = useState<any>();
   // const [uploadedURLs, setUploadedURLs] = useState<string[]>([]); // URL từ server
-
-  console.log('previewURLs', previewURLs);
 
   const handleSelectImages = (e: any) => {
     const files = Array.from(e.target.files) as File[];
@@ -232,18 +226,32 @@ export default function TradingMobile() {
     setLocalImages((prev) => prev.filter((_, i) => i !== index));
   };
 
+  useEffect(() => {
+    setLocalImages([]);
+  }, [isOpenTradeModal]);
+
   const uploadToServer = async () => {
     try {
       dispatch(showLoading());
-
       const formData = new FormData();
       localImages.forEach((f) => formData.append('files', f));
+      formData.append('type', 'TRADING');
       const { data } = await API.post('/images/upload-multiple', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      console.log('data', data);
+      if (data) {
+        const filteredImages = previewURLs.filter((url) => !url.startsWith('blob:'));
+        const newDataImages = [...filteredImages, ...data];
 
-      setFormData({ ...formData, images: data });
+        setFormData({ ...formData, images: newDataImages });
+
+        setLocalImages([]);
+      } else {
+        api.error({
+          message: 'Error!',
+          description: 'Error upload multiple images.',
+        });
+      }
     } catch (error: any) {
       api.error({
         message: 'Error!',
@@ -895,7 +903,7 @@ export default function TradingMobile() {
               placeholder="Your thought..."
               value={formData.yourThought}
               onChange={(e) => setFormData({ ...formData, yourThought: e.target.value })}
-              rows={4}
+              rows={3}
             />
           </div>
 
@@ -971,7 +979,7 @@ export default function TradingMobile() {
               onClick={uploadToServer}
               disabled={localImages.length === 0}
             >
-              Get Image Url
+              Upload
             </button>
           </div>
 

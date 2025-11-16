@@ -37,6 +37,7 @@ import { hideLoading, showLoading } from '../../../store/slices/user.slice';
 import { openNotification } from '../../../common/utils.notification';
 import { Label } from '../../../../components/ui/label';
 import { AnimatePresence, motion } from 'framer-motion';
+import { Eye } from 'lucide-react';
 
 const getMonthData = (value: Dayjs) => {
   if (value.month() === 8) {
@@ -255,42 +256,35 @@ const Trading = () => {
 
   const columns: ColumnsType<any> = [
     {
-      title: 'Close Date',
-      dataIndex: 'closeTime',
-      key: 'closeTime',
-      width: 110,
-      render: (text) => <span>{moment(text).format('DD/MM/YYYY')}</span>,
-    },
-    {
       title: 'Symbol',
       dataIndex: 'symbol',
       key: 'symbol',
-      width: 100,
+      width: 80,
       align: 'center',
       render: (_, record) => (
         <span
-          className="cursor-pointer"
-          onClick={() => {
-            console.log('asd', { ...record });
-            setIdUpdate(record.id);
-            form.setFieldsValue({
-              ...record,
-              ...(record?.entryTime !== undefined && { entryTime: dayjs(record.entryTime) }),
-              ...(record?.closeTime !== undefined && { closeTime: dayjs(record.closeTime) }),
-            });
-            setPreviewURLs(record.images);
-            setIsOpenAddTrade({ status: true, type: 'edit' });
-          }}
+          className="font-bold"
+          // onClick={() => {
+          //   console.log('asd', { ...record });
+          //   setIdUpdate(record.id);
+          //   form.setFieldsValue({
+          //     ...record,
+          //     ...(record?.entryTime !== undefined && { entryTime: dayjs(record.entryTime) }),
+          //     ...(record?.closeTime !== undefined && { closeTime: dayjs(record.closeTime) }),
+          //   });
+          //   setPreviewURLs(record.images);
+          //   setIsOpenAddTrade({ status: true, type: 'edit' });
+          // }}
         >
           {record.symbol}
         </span>
       ),
     },
     {
-      title: 'Trade Side',
+      title: 'Side',
       dataIndex: 'tradeSide',
       key: 'tradeSide',
-      width: 80,
+      width: 60,
       align: 'center',
       render: (text) => (
         <span className={cx(`font-semibold ${text === 'BUY' ? 'text-green-500' : 'text-red-400'}`)}>
@@ -299,11 +293,27 @@ const Trading = () => {
       ),
     },
     {
+      title: 'Close Date',
+      dataIndex: 'closeTime',
+      key: 'closeTime',
+      align: 'center',
+      width: 90,
+      render: (text) => <span>{moment(text).format('DD/MM/YYYY')}</span>,
+    },
+    {
+      title: 'Time',
+      dataIndex: 'duration',
+      key: 'duration',
+      width: 80,
+      align: 'center',
+      render: (text) => <span className={cx(``)}>{text}</span>,
+    },
+    {
       title: 'Net P&L',
       dataIndex: 'result',
       key: 'result',
-      width: 100,
-      align: 'right',
+      width: 80,
+      align: 'center',
       render: (pnl: number) => (
         <span
           // style={{
@@ -317,6 +327,31 @@ const Trading = () => {
             : pnl >= 0
               ? `$${pnl.toLocaleString()}`
               : `-$${Math.abs(pnl).toLocaleString()}`}
+        </span>
+      ),
+    },
+    {
+      title: '',
+      dataIndex: 'view',
+      key: 'view',
+      width: 40,
+      align: 'center',
+      render: (_, record) => (
+        <span
+          className="cursor-pointer flex justify-center"
+          onClick={() => {
+            console.log('asd', { ...record });
+            setIdUpdate(record.id);
+            form.setFieldsValue({
+              ...record,
+              ...(record?.entryTime !== undefined && { entryTime: dayjs(record.entryTime) }),
+              ...(record?.closeTime !== undefined && { closeTime: dayjs(record.closeTime) }),
+            });
+            setPreviewURLs(record.images);
+            setIsOpenAddTrade({ status: true, type: 'edit' });
+          }}
+        >
+          <Eye />
         </span>
       ),
     },
@@ -389,11 +424,9 @@ const Trading = () => {
     setLocalImages((prev) => prev.filter((_, i) => i !== index));
   };
 
-  // useEffect(() => {
-  //   setPreviewURLs([]);
-  //   setLocalImages([]);
-  //   setUploadedURLs([]);
-  // }, [isOpenAddTrade]);
+  useEffect(() => {
+    setLocalImages([]);
+  }, [isOpenAddTrade]);
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -407,17 +440,27 @@ const Trading = () => {
 
   const uploadToServer = async () => {
     try {
-      dispatch(showLoading());
+      console.log('localImages', localImages);
 
+      dispatch(showLoading());
       const formData = new FormData();
       localImages.forEach((f) => formData.append('files', f));
+      formData.append('type', 'TRADING');
       const { data } = await API.post('/images/upload-multiple', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      console.log('data', data);
+      if (data) {
+        const filteredImages = previewURLs.filter((url) => !url.startsWith('blob:'));
+        const newDataImages = [...filteredImages, ...data];
 
-      setUploadedURLs(data);
-      // form.setFieldValue('images', data);
+        setUploadedURLs(newDataImages);
+        setLocalImages([]);
+      } else {
+        api.error({
+          message: 'Error!',
+          description: 'Error upload multiple images.',
+        });
+      }
     } catch (error: any) {
       api.error({
         message: 'Error!',
@@ -429,10 +472,14 @@ const Trading = () => {
   };
 
   const onFinish = (value: any) => {
-    console.log('test finish', value);
-    console.log('time', moment(value.entryTime.format()));
-    const dataSubmit = { ...value, images: uploadedURLs };
-    console.log('dataSubmit', dataSubmit);
+    let images = [];
+    if (uploadedURLs.length) {
+      images = uploadedURLs;
+    } else {
+      images = previewURLs;
+    }
+
+    const dataSubmit = { ...value, images };
 
     if (isOpenAddTrade.type === 'add') {
       return addTrade(dataSubmit);
@@ -456,7 +503,10 @@ const Trading = () => {
             boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
           }}
           // className="recent-trade"
-          className={`recent-trade ${theme === 'dark' && 'recent-trade-dark'}`}
+          className={cx(`recent-trade ${theme === 'dark' && 'recent-trade-dark'}`, {
+            '': theme === 'light',
+            'bg-[#222d3f]! text-white!': theme === 'dark',
+          })}
           // bodyStyle={{ padding: 16 }}
         >
           <Tabs
@@ -472,9 +522,13 @@ const Trading = () => {
                     columns={columns}
                     dataSource={dataRecent}
                     pagination={false}
-                    scroll={{ y: 440 }}
+                    scroll={{ y: 420 }}
                     size="small"
-                    className="table-trades"
+                    // className="table-trades"
+                    className={cx(`table-trades`, {
+                      '': theme === 'light',
+                      'dark-table': theme === 'dark',
+                    })}
                   />
                 ),
               },
@@ -834,6 +888,7 @@ const Trading = () => {
 
                     {/* nút xóa */}
                     <button
+                      type="button"
                       onClick={() => handleRemove(idx)}
                       className="absolute -top-2 -right-2 bg-white border border-gray-300 rounded-full w-6 h-6 text-xs flex items-center justify-center cursor-pointer"
                     >
@@ -880,15 +935,14 @@ const Trading = () => {
                 type="button"
                 className={cx(
                   'p-2 cursor-pointer rounded-lg font-semibold transition text-white',
-                  theme === 'dark'
-                    ? 'bg-indigo-400 hover:bg-indigo-700'
-                    : 'bg-blue-400 hover:bg-indigo-600',
-                  localImages.length === 0 && 'bg-gray-400 hover:bg-gray-400!',
+                  theme === 'dark' && 'bg-indigo-400 hover:bg-indigo-700',
+                  theme === 'light' && 'bg-blue-400 hover:bg-indigo-600',
+                  localImages.length === 0 && 'bg-gray-400! hover:bg-gray-400!',
                 )}
                 onClick={uploadToServer}
                 disabled={localImages.length === 0}
               >
-                Get Image Url
+                Upload
               </button>
             </div>
 

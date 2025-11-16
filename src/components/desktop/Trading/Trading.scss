@@ -1,10 +1,11 @@
 .trading {
   display: flex;
+  // flex-direction: column;
   gap: 1rem;
 }
 
 .add-trade {
-  width: 45%;
+  width: 44%;
   // padding: 8px 16px;
   .btn-add {
     width: 100%;
@@ -42,6 +43,34 @@
 .recent-trade-dark {
   .ant-card {
     background: #5f5cf0 !important;
+  }
+  .ant-tabs-tab {
+    color: white !important;
+  }
+  .ant-tabs-tab-active {
+    border-bottom: #5f5cf0 !important;
+  }
+  .ant-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+    color: rgb(124, 109, 239) !important;
+  }
+}
+
+.dark-table {
+  .ant-table {
+    border: 1px solid white !important;
+
+    background: #34516b !important;
+    color: white !important;
+  }
+  .ant-table-header .ant-table-thead {
+    th {
+      background: #5f5cf0 !important;
+      color: white;
+      font-weight: bold;
+    }
+  }
+  .ant-table-tbody > tr.ant-table-row:hover > td {
+    background: #6e8ca7 !important;
   }
 }
 
