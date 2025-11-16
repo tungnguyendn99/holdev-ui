@@ -38,6 +38,7 @@ import { openNotification } from '../../../common/utils.notification';
 import { Label } from '../../../../components/ui/label';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Eye } from 'lucide-react';
+import CustomCalendar from '../UI/CustomCalendar';
 
 const getMonthData = (value: Dayjs) => {
   if (value.month() === 8) {
@@ -61,7 +62,9 @@ const Trading = () => {
 
   const [dataDays, setDataDays] = useState<any>({});
   const [dataMonth, setDataMonth] = useState<any>({});
+  const [dataYear, setDataYear] = useState<any>({});
   const [dataRecent, setDataRecent] = useState<any>([]);
+  const [selectedDayTrades, setSelectedDayTrades] = useState<any>([]);
   const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
   const [openDetail, setOpenDetail] = useState<any>({
     open: false,
@@ -143,11 +146,42 @@ const Trading = () => {
       dispatch(hideLoading());
     }
   };
+
+  const getDataYearTrade = async () => {
+    try {
+      dispatch(showLoading());
+      // Simulate API call (replace with actual API request)
+      const { data } = await API.post('/trading/group', {
+        mode: 'year',
+        group: 'month',
+      });
+      setDataYear(data);
+    } catch (err) {
+      console.log('error123', err);
+    } finally {
+      dispatch(hideLoading());
+    }
+  };
   const getRecentTrade = async () => {
     try {
       // Simulate API call (replace with actual API request)
       const { data } = await API.post('/trading/list', { mode: 'month' });
       setDataRecent(data);
+    } catch (err) {
+      console.log('error123', err);
+    } finally {
+      dispatch(hideLoading());
+    }
+  };
+
+  const getSelectedDayTrades = async () => {
+    try {
+      // Simulate API call (replace with actual API request)
+      const { data } = await API.post('/trading/list', {
+        mode: 'day',
+        dateString: selectedDate.format('YYYY-MM-DD'),
+      });
+      setSelectedDayTrades(data);
     } catch (err) {
       console.log('error123', err);
     } finally {
@@ -162,6 +196,7 @@ const Trading = () => {
   useEffect(() => {
     getDataDaysTrade();
     getDataMonthTrade();
+    getSelectedDayTrades();
   }, [selectedDate]);
 
   // const syncPageData = async () => {
@@ -174,7 +209,12 @@ const Trading = () => {
     try {
       dispatch(showLoading());
       // Gọi 3 API song song
-      await Promise.all([getRecentTrade(), getDataDaysTrade(), getDataMonthTrade()]);
+      await Promise.all([
+        getRecentTrade(),
+        getDataDaysTrade(),
+        getDataMonthTrade(),
+        getDataYearTrade(),
+      ]);
     } catch (err) {
       console.error('Lỗi khi sync dữ liệu:', err);
     } finally {
@@ -214,6 +254,7 @@ const Trading = () => {
             data.dayProfit && 'profit',
             data.dayLoss && 'loss',
           )}
+          onClick={() => setSelectedDate(value)}
         >
           <p className="profit-cell">
             <span
@@ -235,13 +276,39 @@ const Trading = () => {
   };
 
   const monthCellRender = (value: Dayjs) => {
-    const num = getMonthData(value);
-    return num ? (
-      <div className="notes-month">
-        <section>{num}</section>
-        <span>Backlog number</span>
+    console.log('dataYear', dataYear);
+    const dateKey = value.format('YYYY-MM');
+    const monthData = dataYear[dateKey];
+
+    if (!monthData) return null;
+
+    return (
+      <div
+        className={cx(
+          'dayTrade font-semibold',
+          monthData.dayProfit && 'profit',
+          monthData.dayLoss && 'loss',
+        )}
+        onClick={() => setSelectedDate(value)}
+      >
+        <p className="profit-cell">
+          <span
+            className={cx(
+              `font-semibold ${monthData.dayProfit ? 'text-green-500' : 'text-red-400'}`,
+            )}
+          >
+            {monthData?.profit}$
+          </span>{' '}
+          {/* ({data?.reward}) */}
+        </p>
+        <p className={cx(`${theme === 'light' && 'text-[#737373]'}`)}>
+          {monthData?.trades} {monthData?.trades > 1 ? 'trades' : 'trade'}
+        </p>
+        <p className={cx(`${theme === 'light' && 'text-[#737373]'}`)}>
+          {monthData?.winrate} ({monthData?.reward}R)
+        </p>
       </div>
-    ) : null;
+    );
   };
 
   const cellRender: CalendarProps<Dayjs>['cellRender'] = (current, info) => {
@@ -252,6 +319,10 @@ const Trading = () => {
       return monthCellRender(current);
     }
     return info.originNode;
+  };
+
+  const handleSelectDate = (date: Dayjs) => {
+    setSelectedDate(date);
   };
 
   const columns: ColumnsType<any> = [
@@ -489,14 +560,88 @@ const Trading = () => {
   };
 
   return (
-    <div className="trading">
-      <div className="add-trade">
-        <Button
-          className="btn-add"
-          onClick={() => setIsOpenAddTrade({ status: true, type: 'add' })}
-        >
-          <PlusOutlined /> Add New Trade
-        </Button>
+    <div className="trading pb-16">
+      {/* CALENDAR */}
+      <div className="mb-4">
+        {/* <Card
+                //   className={`shadow-sm ${theme === 'dark' ? 'bg-neutral-900' : 'bg-white'}`}
+                style={{ borderRadius: 12 }}
+              > */}
+        <div className="flex justify-between mb-3">
+          {/* <DatePicker
+            picker="month"
+            onChange={handleMonthYearChange}
+            className="datepicker"
+            defaultValue={dayjs()}
+            placeholder="Chọn tháng và năm"
+            cellRender={(current: any) => <div>Tháng {current.format('MM')}</div>}
+          /> */}
+          <div className="flex gap-2 w-[75%]">
+            <Button
+              className="btn-add"
+              onClick={() => {
+                setIsOpenAddTrade({ status: true, type: 'add' });
+                setPreviewURLs([]);
+              }}
+            >
+              <PlusOutlined /> Add New Trade
+            </Button>
+            <div className="flex w-[50%] items-center justify-between gap-3 shadow-sm border border-border bg-white rounded-xl">
+              {/* File input */}
+              {contextHolder}
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <Label
+                  htmlFor="excel-upload"
+                  className="cursor-pointer bg-indigo-50 text-indigo-600 font-medium px-3 py-2 rounded-lg border border-indigo-200 hover:bg-indigo-100 transition"
+                >
+                  Chọn file
+                </Label>
+                <input
+                  id="excel-upload"
+                  type="file"
+                  onChange={handleFileChange}
+                  accept=".xlsx"
+                  className="hidden"
+                />
+                <span className="text-sm text-muted-foreground truncate">
+                  {fileName || 'Chưa có file nào được chọn'}
+                </span>
+              </div>
+
+              {/* Upload button */}
+              <Button
+                onClick={handleUpload}
+                disabled={!file}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white w-full sm:w-36"
+              >
+                Upload & Save
+              </Button>
+            </div>
+          </div>
+          <div className="flex">
+            <p className="mt-2">
+              <span style={{ fontWeight: 700 }}>Monthly stats:</span>{' '}
+              <Tag color="green" style={{ fontSize: '18px' }}>
+                {dataMonth?.profit}
+              </Tag>
+            </p>
+            <button
+              onClick={syncPageData}
+              className="w-20 h-6 mt-2 bg-indigo-500 text-blue-50 rounded-lg cursor-pointer hover:opacity-90"
+            >
+              Sync
+            </button>
+          </div>
+        </div>
+        <CustomCalendar
+          dateCellRender={dateCellRender}
+          monthCellRender={monthCellRender}
+          handleSelectDate={handleSelectDate}
+          selectedDate={selectedDate}
+        />
+        {/* </Card> */}
+      </div>
+      <div className="">
         <Card
           style={{
             borderRadius: 12,
@@ -515,7 +660,7 @@ const Trading = () => {
             items={[
               {
                 key: 'recent',
-                label: 'Recent trades',
+                label: 'Recent Trades',
                 children: (
                   <Table
                     rowKey={(r) => r.id}
@@ -530,6 +675,34 @@ const Trading = () => {
                       'dark-table': theme === 'dark',
                     })}
                   />
+                ),
+              },
+              {
+                key: 'selecteDay',
+                label: 'Selected Day Trades',
+                children: (
+                  <>
+                    <p
+                      className={cx('font-bold text-center mb-3', {
+                        'text-white': theme === 'dark',
+                      })}
+                    >
+                      {selectedDate.format('YYYY-MM-DD')}
+                    </p>
+                    <Table
+                      rowKey={(r) => r.id}
+                      columns={columns}
+                      dataSource={selectedDayTrades}
+                      pagination={false}
+                      scroll={{ y: 420 }}
+                      size="small"
+                      // className="table-trades"
+                      className={cx(`table-trades`, {
+                        '': theme === 'light',
+                        'dark-table': theme === 'dark',
+                      })}
+                    />
+                  </>
                 ),
               },
               {
@@ -551,82 +724,6 @@ const Trading = () => {
             ]}
           />
         </Card>
-        <div className="mt-3 p-4 w-full! flex items-center justify-between gap-3 shadow-sm border border-border bg-white rounded-xl">
-          {/* File input */}
-          {contextHolder}
-          <div className="flex items-center gap-2 w-full sm:w-auto">
-            <Label
-              htmlFor="excel-upload"
-              className="cursor-pointer bg-indigo-50 text-indigo-600 font-medium px-3 py-2 rounded-lg border border-indigo-200 hover:bg-indigo-100 transition"
-            >
-              Chọn file
-            </Label>
-            <input
-              id="excel-upload"
-              type="file"
-              onChange={handleFileChange}
-              accept=".xlsx"
-              className="hidden"
-            />
-            <span className="text-sm text-muted-foreground truncate">
-              {fileName || 'Chưa có file nào được chọn'}
-            </span>
-          </div>
-
-          {/* Upload button */}
-          <Button
-            onClick={handleUpload}
-            disabled={!file}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white w-full sm:w-36"
-          >
-            Upload & Save
-          </Button>
-        </div>
-      </div>
-      <div className="calendar">
-        <div className="calendar-title">
-          <DatePicker
-            picker="month"
-            onChange={handleMonthYearChange}
-            className="datepicker"
-            defaultValue={dayjs()}
-            placeholder="Chọn tháng và năm"
-            cellRender={(current: any) => <div>Tháng {current.format('MM')}</div>}
-          />
-          <div className="flex">
-            <p className="mt-2">
-              <span style={{ fontWeight: 700 }}>Monthly stats:</span>{' '}
-              <Tag color="green" style={{ fontSize: '18px' }}>
-                {dataMonth?.profit}
-              </Tag>
-            </p>
-            <button
-              onClick={syncPageData}
-              className="w-20 h-6 mt-2 bg-indigo-500 text-blue-50 rounded-lg cursor-pointer hover:opacity-90"
-            >
-              Sync
-            </button>
-          </div>
-        </div>
-        <Calendar
-          // className="calendarContainer"
-          className={cx(
-            // base style
-            'calendarContainer',
-            // '[&_.ant-picker-cell-inner]:flex [&_.ant-picker-cell-inner]:items-center [&_.ant-picker-cell-inner]:justify-center',
-
-            // dark mode custom
-            {
-              'calendar-dark': theme === 'dark', // custom class khi dark
-            },
-          )}
-          locale={locale}
-          headerRender={customHeaderRender}
-          cellRender={cellRender}
-          disabledDate={disabledDate}
-          value={selectedDate}
-          // onSelect={handleDateChange}
-        />
       </div>
       {isOpenAddTrade.status && (
         <Modal

@@ -233,7 +233,7 @@ export default function TodoMobile() {
   // console.log('isSubscribed', isSubscribed);
 
   return (
-    <div className="h-full flex flex-col bg-background text-foreground px-3 pt-3 pb-16">
+    <div className="h-full flex flex-col bg-background text-foreground px-3 pt-3 pb-16 md:w-[60%] mx-auto">
       <LoadingOverlay show={loading} fullscreen />
       <div>
         {/* <h1 className="text-xl font-bold">🔔 Web Push Notification</h1> */}

@@ -43,13 +43,13 @@
 
   .ant-picker-cell {
     .ant-picker-calendar-date-value {
-      color: #5c6370;
+      color: #9aafd7;
     }
   }
 
   .ant-picker-cell-in-view {
     .ant-picker-calendar-date-value {
-      color: #b2bed1 !important;
+      // color: #b2bed1 !important;
       font-weight: bold !important;
     }
   }
@@ -88,10 +88,20 @@
   border-radius: 8px;
 }
 
+.ant-picker-calendar-date-value {
+  color: rgb(162, 164, 229) !important;
+}
 /* Ô được chọn hoặc hover */
-.calendar-dark .ant-picker-cell-selected .ant-picker-cell-inner,
-.calendar-dark .ant-picker-cell-inner:hover {
-  background-color: #1f3553 !important;
+.ant-picker-cell-selected .ant-picker-cell-inner,
+.ant-picker-cell-inner:hover {
+  // background-color: #1f3553 !important;
+  // background-color: #46625f !important;
+  color: white !important;
+  .ant-picker-calendar-date-value {
+    color: #3f67be !important;
+    text-decoration: underline;
+    font-weight: bold;
+  }
 }
 
 /* Select trong dark theme */

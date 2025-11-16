@@ -156,7 +156,7 @@ export default function EngLishMobile() {
   return (
     <main className="min-h-screen bg-gradient-to-b p-4">
       {contextHolder}
-      <div className="max-w-xl mx-auto">
+      <div className="md:w-[60%] mx-auto">
         {/* Header / motivational */}
         <div className="mb-4">
           <h1
@@ -219,7 +219,7 @@ export default function EngLishMobile() {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
               <AnimatePresence initial={false}>
                 {words.map((w) => (
                   <WordCard
@@ -311,14 +311,20 @@ export default function EngLishMobile() {
                   <motion.button
                     whileTap={{ scale: 0.9 }}
                     onClick={() => speak(selected?.word)}
-                    className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+                    className={cx('p-2 rounded-lg transition', {
+                      'hover:bg-gray-100': theme === 'light',
+                      'hover:bg-gray-800': theme === 'dark',
+                    })}
                   >
                     <Volume2 size={18} />
                   </motion.button>
                   <motion.button
                     whileTap={{ scale: 0.9 }}
                     onClick={() => setSelected(null)}
-                    className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+                    className={cx('p-2 rounded-l transition', {
+                      'hover:bg-gray-100': theme === 'light',
+                      'hover:bg-gray-800': theme === 'dark',
+                    })}
                   >
                     <X size={18} />
                   </motion.button>
