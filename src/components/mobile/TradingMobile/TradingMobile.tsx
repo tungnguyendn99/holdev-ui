@@ -41,6 +41,7 @@ import TradeList from './TradeList';
 import CustomDayPicker from '../UI/CustomDatePicker';
 import { AnimatePresence, motion } from 'framer-motion';
 import PlanSettings from './Plan';
+import { ImagesTab } from '../../desktop/User/User';
 
 export default function TradingMobile() {
   const { theme } = useTheme();
@@ -702,6 +703,10 @@ export default function TradingMobile() {
             getUserSettingTrading={getUserSettingTrading}
             handleSavePlan={handleSavePlan}
           />
+          <div>
+            <p className="mb-3 font-bold text-xl">Images</p>
+            <ImagesTab theme={theme} type="TRADING" active={tab === 'plan'} />
+          </div>
         </TabsContent>
       </Tabs>
 

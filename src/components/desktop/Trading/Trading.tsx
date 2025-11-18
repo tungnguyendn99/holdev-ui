@@ -39,6 +39,7 @@ import { Label } from '../../../../components/ui/label';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Eye } from 'lucide-react';
 import CustomCalendar from '../UI/CustomCalendar';
+import { ImagesTab } from '../User/User';
 
 const getMonthData = (value: Dayjs) => {
   if (value.month() === 8) {
@@ -74,7 +75,7 @@ const Trading = () => {
     status: false,
     type: 'add',
   });
-  const [activeKey, setActiveKey] = useState('recent');
+  const [activeKey, setActiveKey] = useState('selecteDay');
   const [closedBy, setClosedBy] = useState(closeByList[0].value);
   const [rating, setRating] = useState(0);
   const [idUpdate, setIdUpdate] = useState('');
@@ -454,6 +455,7 @@ const Trading = () => {
     formData.append('file', file);
 
     try {
+      dispatch(showLoading());
       // Thay đổi URL API của bạn
       const response = await API.post('/trading/upload-excel', formData, {
         headers: {
@@ -466,11 +468,14 @@ const Trading = () => {
       });
       setFile(null);
       setFileName('');
+      syncPageData();
     } catch (error) {
       api.error({
         message: 'Error!',
         description: 'error upload excel',
       });
+    } finally {
+      dispatch(hideLoading());
     }
   };
 
@@ -659,25 +664,6 @@ const Trading = () => {
             onChange={setActiveKey}
             items={[
               {
-                key: 'recent',
-                label: 'Recent Trades',
-                children: (
-                  <Table
-                    rowKey={(r) => r.id}
-                    columns={columns}
-                    dataSource={dataRecent}
-                    pagination={false}
-                    scroll={{ y: 420 }}
-                    size="small"
-                    // className="table-trades"
-                    className={cx(`table-trades`, {
-                      '': theme === 'light',
-                      'dark-table': theme === 'dark',
-                    })}
-                  />
-                ),
-              },
-              {
                 key: 'selecteDay',
                 label: 'Selected Day Trades',
                 children: (
@@ -703,6 +689,32 @@ const Trading = () => {
                       })}
                     />
                   </>
+                ),
+              },
+              {
+                key: 'recent',
+                label: 'Recent Trades',
+                children: (
+                  <Table
+                    rowKey={(r) => r.id}
+                    columns={columns}
+                    dataSource={dataRecent}
+                    pagination={false}
+                    scroll={{ y: 420 }}
+                    size="small"
+                    // className="table-trades"
+                    className={cx(`table-trades`, {
+                      '': theme === 'light',
+                      'dark-table': theme === 'dark',
+                    })}
+                  />
+                ),
+              },
+              {
+                key: 'images',
+                label: 'Images',
+                children: (
+                  <ImagesTab theme={theme} type="TRADING" active={activeKey === 'images'} />
                 ),
               },
               {

@@ -48,6 +48,10 @@
 body {
   @apply bg-[#f2f4f6] text-gray-900 transition-colors duration-300;
   height: 100%;
+
+  @media only screen and (min-width: 768px) {
+    overflow-y: hidden;
+  }
 }
 
 .dark body {

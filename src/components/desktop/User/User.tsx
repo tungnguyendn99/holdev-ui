@@ -8,6 +8,7 @@ import API from '../../../utils/api';
 import { notification } from 'antd';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { hideLoading, setUserInfo, showLoading } from '../../../store/slices/user.slice';
+import moment from 'moment';
 
 //
 // MOCK DATA (bạn replace bằng API real)
@@ -25,15 +26,10 @@ const tradingPlan = {
   note: '1. Trade 5 days...\n2. (D/H4/H1)...',
 };
 
-const imagesMock = ['/mock1.png', '/mock2.png', '/mock3.png'];
-
-//
-// MAIN COMPONENT
-//
 export default function UserProfile() {
   const { theme } = useTheme();
   const [activeTab, setActiveTab] = useState('About');
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  // const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
 
   const userInfo = useAppSelector((state) => state.user.userInfo);
@@ -453,8 +449,8 @@ function PlansTab({ theme, userInfo }: any) {
 //
 // ======================= TAB: IMAGES =======================
 //
-function ImagesTab({ theme }: any) {
-  const [images, setImages] = useState([]);
+export function ImagesTab({ theme, type, active }: any) {
+  const [images, setImages] = useState<any>([]);
   const [selectedImage, setSelectedImage] = useState<any>();
   const [imageToDelete, setImageToDelete] = useState<any>(null);
 
@@ -462,14 +458,24 @@ function ImagesTab({ theme }: any) {
 
   const getListImages = async () => {
     try {
-      const { data } = await API.get('/images');
+      dispatch(showLoading());
+      const { data } = await API.get(`/images${type ? `?type=${type}` : ''}`);
       setImages(data);
-    } catch (error) {}
+    } catch (error) {
+    } finally {
+      dispatch(hideLoading());
+    }
   };
 
   useEffect(() => {
     getListImages();
   }, []);
+
+  useEffect(() => {
+    if (active === true) {
+      getListImages();
+    }
+  }, [active]);
 
   async function handleDeleteImage(img: any) {
     try {
@@ -482,49 +488,145 @@ function ImagesTab({ theme }: any) {
       dispatch(hideLoading());
     }
   }
+
+  const [touchStartX, setTouchStartX] = useState(0);
+
+  // ===============================
+  // GROUP IMAGES BY DATE
+  // ===============================
+  const groupImagesByDay = (imgs: any[]) => {
+    const groups: Record<string, any[]> = {};
+
+    imgs.forEach((img) => {
+      // const dateKey = new Date(img.createdAt).toLocaleDateString('en-GB');
+      const dateKey = moment(img.createdAt).format('DD/MM/YYYY');
+      if (!groups[dateKey]) groups[dateKey] = [];
+      groups[dateKey].push(img);
+    });
+
+    return Object.entries(groups).sort((a, b) => {
+      const da = new Date(a[0].split('/').reverse().join('-')).getTime();
+      const db = new Date(b[0].split('/').reverse().join('-')).getTime();
+      return db - da;
+    });
+  };
+
+  const grouped = groupImagesByDay(images);
+
+  console.log('grouped', grouped);
+
+  // ===============================
+  // PREVIEW KEYBOARD NAVIGATION
+  // ===============================
+
+  const currentIndex = selectedImage
+    ? images.findIndex((img: any) => img.url === selectedImage)
+    : -1;
+
+  const showNextImage = () => {
+    if (currentIndex < 0) return;
+    const next = (currentIndex + 1) % images.length;
+    setSelectedImage(images[next].url);
+  };
+
+  const showPrevImage = () => {
+    if (currentIndex < 0) return;
+    const prev = (currentIndex - 1 + images.length) % images.length;
+    setSelectedImage(images[prev].url);
+  };
+
+  useEffect(() => {
+    if (!selectedImage) return;
+
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setSelectedImage(null);
+      if (e.key === 'ArrowRight') showNextImage();
+      if (e.key === 'ArrowLeft') showPrevImage();
+    };
+
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [selectedImage, currentIndex]);
+
+  // ===============================
+  // MOBILE SWIPE
+  // ===============================
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStartX(e.touches[0].clientX);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const endX = e.changedTouches[0].clientX;
+    const diff = endX - touchStartX;
+
+    if (Math.abs(diff) < 50) return;
+
+    if (diff < 0)
+      showNextImage(); // swipe trái
+    else showPrevImage(); // swipe phải
+  };
+
+  // ===============================
+  // IMAGE ITEM COMPONENT
+  // ===============================
+  const ImageItem = ({ img }: any) => (
+    <motion.div
+      key={img._id}
+      className="relative group"
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+    >
+      {/* Image */}
+      <motion.img
+        src={img.url}
+        className="w-full h-28 object-cover rounded-lg shadow cursor-pointer"
+        whileHover={{ scale: 1.05 }}
+        onClick={() => setSelectedImage(img.url)}
+      />
+
+      {/* Delete Button */}
+      <button
+        className="
+          cursor-pointer absolute top-1 right-1 opacity-0 group-hover:opacity-100
+          transition bg-black/60 hover:bg-red-600 text-white p-1 rounded-full
+        "
+        onClick={(e) => {
+          e.stopPropagation();
+          setImageToDelete(img);
+        }}
+      >
+        <Trash size={14} />
+      </button>
+    </motion.div>
+  );
+
   return (
     <>
-      {/* Image Grid */}
-      <motion.div
-        key="images"
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -10 }}
-        className="grid grid-cols-3 md:grid-cols-6 gap-3"
-      >
-        {images.map((img: any) => (
-          <motion.div
-            key={img._id}
-            className="relative group"
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
+      {/* =============================== */}
+      {/* GROUPED IMAGE LIST */}
+      {/* =============================== */}
+      {grouped.map(([date, imgs]) => (
+        <div key={date} className="mb-6">
+          <h3
+            className={cx(
+              'font-bold text-sm mb-2',
+              theme === 'dark' ? 'text-white' : 'text-gray-800',
+            )}
           >
-            {/* Image */}
-            <motion.img
-              src={img.url}
-              className="w-full h-28 object-cover rounded-lg shadow cursor-pointer"
-              whileHover={{ scale: 1.05 }}
-              onClick={() => setSelectedImage(img.url)}
-            />
+            {date}
+          </h3>
 
-            {/* Delete Button (shows on hover) */}
-            <button
-              className="
-                cursor-pointer absolute top-1 right-1 opacity-0 group-hover:opacity-100
-                transition bg-black/60 hover:bg-red-600 text-white p-1 rounded-full
-                "
-              onClick={(e) => {
-                e.stopPropagation();
-                setImageToDelete(img);
-              }}
-            >
-              <Trash size={14} />
-            </button>
-          </motion.div>
-        ))}
-      </motion.div>
+          <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
+            {imgs.map((img) => (
+              <ImageItem key={img._id} img={img} />
+            ))}
+          </div>
+        </div>
+      ))}
 
-      {/* Image Preview Modal */}
+      {/* =============================== */}
+      {/* PREVIEW MODAL */}
+      {/* =============================== */}
       <AnimatePresence>
         {selectedImage && (
           <motion.div
@@ -533,10 +635,12 @@ function ImagesTab({ theme }: any) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setSelectedImage(null)}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
           >
             <motion.img
               src={selectedImage}
-              className="max-w-[80%] max-h-[80%] rounded-lg shadow-xl"
+              className="max-w-[90%] max-h-[90%] rounded-lg shadow-xl"
               initial={{ scale: 0.8 }}
               animate={{ scale: 1 }}
             />
@@ -544,7 +648,9 @@ function ImagesTab({ theme }: any) {
         )}
       </AnimatePresence>
 
-      {/* Delete Confirm Modal */}
+      {/* =============================== */}
+      {/* DELETE CONFIRM MODAL */}
+      {/* =============================== */}
       <AnimatePresence>
         {imageToDelete && (
           <motion.div

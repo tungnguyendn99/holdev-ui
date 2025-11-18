@@ -29,6 +29,7 @@ import CustomDayPicker from '../UI/CustomDatePicker';
 import { Textarea } from '@/components/ui/textarea';
 import PokerList from './PokerList';
 import { motion } from 'framer-motion';
+import { ImagesTab } from '../../desktop/User/User';
 
 export default function PokerMobile() {
   const { theme } = useTheme();
@@ -450,7 +451,7 @@ export default function PokerMobile() {
 
         {/* TAB 3 - PLAN */}
         <TabsContent value="plan" className="flex-1 overflow-y-auto">
-          <div className="space-y-3">
+          {/* <div className="space-y-3">
             <p>
               <strong>Type:</strong> {planData.type}
             </p>
@@ -505,6 +506,10 @@ export default function PokerMobile() {
                 </DialogFooter>
               </DialogContent>
             </Dialog>
+          </div> */}
+          <div>
+            <p className="mb-3 font-bold text-xl">Images</p>
+            <ImagesTab theme={theme} type="TRADING" active={tab === 'plan'} />
           </div>
         </TabsContent>
       </Tabs>

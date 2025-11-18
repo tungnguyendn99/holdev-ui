@@ -16,6 +16,7 @@ import {
   Rate,
   Calendar,
   Select,
+  notification,
 } from 'antd';
 import { PlusOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import dayjs, { Dayjs } from 'dayjs';
@@ -27,6 +28,10 @@ import { useTheme } from 'next-themes';
 import cx from 'classnames';
 import CustomCalendar from '../UI/CustomCalendar';
 import './Poker.scss';
+import { AnimatePresence, motion } from 'framer-motion';
+import { ColumnsType } from 'antd/es/table';
+import { Eye } from 'lucide-react';
+import { ImagesTab } from '../User/User';
 
 const Poker = () => {
   const dispatch = useAppDispatch();
@@ -136,11 +141,6 @@ const Poker = () => {
     }
   };
 
-  const onFinish = (value: any) => {
-    if (isOpen.type === 'add') addSession(value);
-    else updateSession(value);
-  };
-
   // ======== CALENDAR CELL RENDER ========
   const dateCellRender = (value: Dayjs) => {
     const dateKey = value.format('YYYY-MM-DD');
@@ -207,7 +207,7 @@ const Poker = () => {
   };
 
   // ======== TABLE COLUMNS ========
-  const columns = [
+  const columns: ColumnsType<any> = [
     {
       title: 'Start Time',
       dataIndex: 'startTime',
@@ -257,14 +257,124 @@ const Poker = () => {
         </span>
       ),
     },
+    {
+      title: '',
+      dataIndex: 'view',
+      key: 'view',
+      width: 40,
+      align: 'center',
+      render: (_, record) => (
+        <span
+          className="cursor-pointer flex justify-center"
+          onClick={() => {
+            console.log('asd', { ...record });
+            setIdUpdate(record.id);
+            form.setFieldsValue({
+              ...record,
+              ...(record?.startTime !== undefined && { startTime: dayjs(record.startTime) }),
+              ...(record?.endTime !== undefined && { endTime: dayjs(record.endTime) }),
+            });
+            setPreviewURLs(record.images);
+            setIsOpen({ status: true, type: 'edit' });
+          }}
+        >
+          <Eye />
+        </span>
+      ),
+    },
   ];
+
+  //upload images
+  const [api, contextHolder] = notification.useNotification();
+  const [localImages, setLocalImages] = useState<File[]>([]);
+  const [previewURLs, setPreviewURLs] = useState<string[]>([]);
+  const [selectedImage, setSelectedImage] = useState<any>();
+  const [uploadedURLs, setUploadedURLs] = useState<string[]>([]); // URL từ server
+
+  console.log('previewURLs', previewURLs);
+
+  const handleSelectImages = (e: any) => {
+    const files = Array.from(e.target.files) as File[];
+    setLocalImages((prev) => [...prev, ...files]);
+
+    const urls = files.map((file) => URL.createObjectURL(file));
+    setPreviewURLs((prev) => [...prev, ...urls]);
+  };
+
+  const handleRemove = (index: number) => {
+    setPreviewURLs((prev) => prev.filter((_, i) => i !== index));
+    setLocalImages((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  useEffect(() => {
+    setLocalImages([]);
+  }, [isOpen]);
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setSelectedImage(null);
+      }
+    };
+
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, [selectedImage]);
+
+  const uploadToServer = async () => {
+    try {
+      console.log('localImages', localImages);
+
+      dispatch(showLoading());
+      const formData = new FormData();
+      localImages.forEach((f) => formData.append('files', f));
+      formData.append('type', 'POKER');
+      const { data } = await API.post('/images/upload-multiple', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      if (data) {
+        const filteredImages = previewURLs.filter((url) => !url.startsWith('blob:'));
+        const newDataImages = [...filteredImages, ...data];
+
+        setUploadedURLs(newDataImages);
+        setLocalImages([]);
+      } else {
+        api.error({
+          message: 'Error!',
+          description: 'Error upload multiple images.',
+        });
+      }
+    } catch (error: any) {
+      api.error({
+        message: 'Error!',
+        description: error?.response?.data?.message || 'Error upload multiple images.',
+      });
+    } finally {
+      dispatch(hideLoading());
+    }
+  };
+
+  const onFinish = (value: any) => {
+    let images = [];
+    if (uploadedURLs.length) {
+      images = uploadedURLs;
+    } else {
+      images = previewURLs;
+    }
+    const dataSubmit = { ...value, images };
+    if (isOpen.type === 'add') addSession(dataSubmit);
+    else updateSession(dataSubmit);
+  };
 
   return (
     <div className="poker-session flex-col">
       {/* HEADER */}
+      {contextHolder}
       <div className="flex justify-between items-center mb-4">
         <Button
-          onClick={() => setIsOpen({ status: true, type: 'add' })}
+          onClick={() => {
+            setIsOpen({ status: true, type: 'add' });
+            setPreviewURLs([]);
+          }}
           icon={<PlusOutlined />}
           type="primary"
         >
@@ -327,6 +437,11 @@ const Poker = () => {
                     // size="small"
                   />
                 ),
+              },
+              {
+                key: 'images',
+                label: 'Images',
+                children: <ImagesTab theme={theme} type="POKER" />,
               },
             ]}
           />
@@ -430,6 +545,79 @@ const Poker = () => {
             <Form.Item label="Your Thought" name="yourThought">
               <Input.TextArea rows={3} placeholder="What went well or badly this session?" />
             </Form.Item>
+
+            <div className="flex justify-between items-center mb-3">
+              {/* Image Preview Grid */}
+              <div className="flex gap-4 flex-wrap">
+                {previewURLs.map((url, idx) => (
+                  <div key={idx} className="relative">
+                    <div className="w-28 h-28 rounded-xl overflow-hidden border border-gray-300 hover:border-blue-500 transition cursor-pointer">
+                      <img
+                        src={url}
+                        className="w-full h-full object-cover"
+                        onClick={() => setSelectedImage(url)}
+                      />
+                    </div>
+
+                    {/* nút xóa */}
+                    <button
+                      type="button"
+                      onClick={() => handleRemove(idx)}
+                      className="absolute -top-2 -right-2 bg-white border border-gray-300 rounded-full w-6 h-6 text-xs flex items-center justify-center cursor-pointer"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+
+                {/* + Upload box */}
+                <label className="w-28 h-28 flex items-center justify-center rounded-xl border-2 border-dashed border-gray-300 cursor-pointer hover:border-gray-500">
+                  <span className="text-gray-500">+ Upload</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleSelectImages}
+                    className="hidden!"
+                  />
+                </label>
+
+                {/* Image Preview Modal */}
+                <AnimatePresence>
+                  {selectedImage && (
+                    <motion.div
+                      className="fixed inset-0 bg-black/70 flex items-center justify-center backdrop-blur-sm z-50"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      onClick={() => setSelectedImage(null)}
+                    >
+                      <motion.img
+                        src={selectedImage}
+                        className="max-w-[80%] max-h-[80%] rounded-lg shadow-xl"
+                        initial={{ scale: 0.8 }}
+                        animate={{ scale: 1 }}
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* Nút upload đến server */}
+              <button
+                type="button"
+                className={cx(
+                  'p-2 cursor-pointer rounded-lg font-semibold transition text-white',
+                  theme === 'dark' && 'bg-indigo-400 hover:bg-indigo-700',
+                  theme === 'light' && 'bg-blue-400 hover:bg-indigo-600',
+                  localImages.length === 0 && 'bg-gray-400! hover:bg-gray-400!',
+                )}
+                onClick={uploadToServer}
+                disabled={localImages.length === 0}
+              >
+                Upload
+              </button>
+            </div>
 
             <Form.Item>
               <Button type="primary" htmlType="submit" block>
