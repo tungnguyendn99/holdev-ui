@@ -51,20 +51,20 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   }
 
   return (
-    <>
+    <div className="flex h-screen overflow-hidden">
       <LoadingOverlay show={loading} fullscreen />
       {hideLayout ? (
         <main className="flex-1 bg-gray-100 p-6 overflow-y-auto">{children}</main>
       ) : (
         <>
           <Sidebar isCollapsed={isCollapsed} />
-          <div className="main">
+          <div className="main flex flex-col flex-1 h-full w-[84%]">
             <Topbar onToggleSidebar={() => setIsCollapsed(!isCollapsed)} />
             <main className="flex-1 p-6 overflow-y-auto">{children}</main>
           </div>
         </>
       )}
-    </>
+    </div>
   );
 };
 

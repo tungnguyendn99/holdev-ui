@@ -215,6 +215,7 @@ const Trading = () => {
         getDataDaysTrade(),
         getDataMonthTrade(),
         getDataYearTrade(),
+        getSelectedDayTrades(),
       ]);
     } catch (err) {
       console.error('Lỗi khi sync dữ liệu:', err);
@@ -259,13 +260,13 @@ const Trading = () => {
         >
           <p className="profit-cell">
             <span
-              className={cx(`font-semibold ${data.dayProfit ? 'text-green-500' : 'text-red-400'}`)}
+              className={cx(`font-semibold ${data.dayProfit ? 'text-green-600' : 'text-red-400'}`)}
             >
               {data?.profit}$
             </span>{' '}
             {/* ({data?.reward}) */}
           </p>
-          <p className={cx(`${theme === 'light' && 'text-[#737373]'}`)}>
+          <p className={cx(`${'text-[#4b3db6]'}`)}>
             {data?.trades} {data?.trades > 1 ? 'trades' : 'trade'}
           </p>
           <p className={cx(`${theme === 'light' && 'text-[#737373]'}`)}>
@@ -531,6 +532,10 @@ const Trading = () => {
 
         setUploadedURLs(newDataImages);
         setLocalImages([]);
+        api.success({
+          message: 'Success!',
+          description: 'Upload image successfully!',
+        });
       } else {
         api.error({
           message: 'Error!',

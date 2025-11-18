@@ -697,13 +697,13 @@ export default function TradingMobile() {
             </Dialog>
           </div>
         </TabsContent> */}
-        <TabsContent value="plan" className="flex-1 overflow-y-auto">
+        <TabsContent value="plan" className="flex-1 overflow-y-auto pb-12">
           <PlanSettings
             planData={planData}
             getUserSettingTrading={getUserSettingTrading}
             handleSavePlan={handleSavePlan}
           />
-          <div>
+          <div className="mt-12">
             <p className="mb-3 font-bold text-xl">Images</p>
             <ImagesTab theme={theme} type="TRADING" active={tab === 'plan'} />
           </div>

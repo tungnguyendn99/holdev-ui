@@ -61,7 +61,7 @@ export default function PlanSettings({ planData, getUserSettingTrading, handleSa
   };
 
   return (
-    <div className="relative flex flex-col flex-1 pb-24">
+    <div className="relative flex flex-col flex-1">
       <div className="space-y-4">
         {!planData ? (
           // ✅ Chưa có plan

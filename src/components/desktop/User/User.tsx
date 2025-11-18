@@ -548,6 +548,18 @@ export function ImagesTab({ theme, type, active }: any) {
     return () => window.removeEventListener('keydown', handleKey);
   }, [selectedImage, currentIndex]);
 
+  useEffect(() => {
+    if (selectedImage) {
+      document.body.style.overflow = 'hidden'; // khóa scroll body
+    } else {
+      document.body.style.overflow = ''; // mở scroll lại
+    }
+
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [selectedImage]);
+
   // ===============================
   // MOBILE SWIPE
   // ===============================
@@ -634,16 +646,30 @@ export function ImagesTab({ theme, type, active }: any) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setSelectedImage(null)}
-            onTouchStart={handleTouchStart}
-            onTouchEnd={handleTouchEnd}
+            onClick={() => setSelectedImage(null)} // CLICK OUTSIDE
           >
-            <motion.img
-              src={selectedImage}
-              className="max-w-[90%] max-h-[90%] rounded-lg shadow-xl"
-              initial={{ scale: 0.8 }}
-              animate={{ scale: 1 }}
-            />
+            {/* Container cho image — chặn click ra ngoài */}
+            <div
+              className="flex items-center justify-center w-full h-full"
+              // onClick={(e) => e.stopPropagation()} // STOP CLICK FROM CLOSING
+            >
+              <motion.img
+                key={selectedImage}
+                src={selectedImage}
+                className="max-w-[90%] max-h-[90%] rounded-lg shadow-xl"
+                initial={{ opacity: 0, scale: 0.85 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.85 }}
+                // SWIPE
+                drag="x"
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={0.2}
+                onDragEnd={(e, info) => {
+                  if (info.offset.x < -80) showNextImage();
+                  if (info.offset.x > 80) showPrevImage();
+                }}
+              />
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
