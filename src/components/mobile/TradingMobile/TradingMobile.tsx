@@ -703,7 +703,7 @@ export default function TradingMobile() {
             getUserSettingTrading={getUserSettingTrading}
             handleSavePlan={handleSavePlan}
           />
-          <div className="mt-12">
+          <div className="mt-8">
             <p className="mb-3 font-bold text-xl">Images</p>
             <ImagesTab theme={theme} type="TRADING" active={tab === 'plan'} />
           </div>

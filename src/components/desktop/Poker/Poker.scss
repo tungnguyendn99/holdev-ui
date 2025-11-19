@@ -39,3 +39,64 @@
   border: 1px solid #f0c8c7 !important;
   border-top: 1px solid #f0c8c7 !important;
 }
+
+.recent-session {
+  width: 100%;
+  margin-top: 1rem;
+  .ant-card-body {
+    padding: 12px 24px;
+  }
+  .ant-tabs-tab {
+    padding: 8px;
+  }
+  .ant-tabs-tab-btn {
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .table-trades {
+    width: 100%;
+  }
+}
+
+.recent-session-dark {
+  .ant-card {
+    background: #5f5cf0 !important;
+  }
+  .ant-tabs-tab {
+    color: white !important;
+  }
+  .ant-tabs-tab-active {
+    border-bottom: #5f5cf0 !important;
+    // border-bottom: #3169d9 !important;
+  }
+  .ant-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+    // color: rgb(124, 109, 239) !important;
+    color: rgb(74, 114, 225) !important;
+  }
+}
+
+.dark-table {
+  .ant-table {
+    border: 1px solid white !important;
+
+    background: #34516b !important;
+    color: white !important;
+  }
+  .ant-table-header .ant-table-thead {
+    th {
+      background: #5f5cf0 !important;
+      color: white;
+      font-weight: bold;
+    }
+  }
+  .ant-table-tbody > tr.ant-table-row:hover > td {
+    background: #6e8ca7 !important;
+  }
+
+  .ant-table-placeholder {
+    background-color: unset !important;
+    .ant-empty-description {
+      color: white !important;
+    }
+  }
+}

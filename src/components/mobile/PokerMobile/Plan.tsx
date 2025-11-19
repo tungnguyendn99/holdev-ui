@@ -97,28 +97,28 @@ export default function PlanSettings({ planData, getUserSettingTrading, handleSa
           >
             {/* Thông tin tổng quan */}
             {/* <div className="p-4 flex flex-col items-start text-sm space-y-1">
-              <p>
-                <strong>Identity:</strong>{' '}
-                <span
-                  className={clsx(
-                    'px-2 py-0.5 rounded text-xs font-semibold',
-                    planData.identity === 'REAL'
-                      ? 'bg-green-100 text-green-700'
-                      : 'bg-gray-100 text-gray-700',
-                  )}
-                >
-                  {planData.identity}
-                </span>
-              </p>
-              <p>
-                <strong>Monthly Target:</strong>{' '}
-                <span className="text-purple-500 font-semibold">{planData?.monthlyTarget} USD</span>
-              </p>
-              <p>
-                <strong>Risk:</strong>{' '}
-                <span className="text-orange-500 font-semibold">{planData?.risk}$</span>
-              </p>
-            </div> */}
+                <p>
+                  <strong>Identity:</strong>{' '}
+                  <span
+                    className={clsx(
+                      'px-2 py-0.5 rounded text-xs font-semibold',
+                      planData.identity === 'REAL'
+                        ? 'bg-green-100 text-green-700'
+                        : 'bg-gray-100 text-gray-700',
+                    )}
+                  >
+                    {planData.identity}
+                  </span>
+                </p>
+                <p>
+                  <strong>Monthly Target:</strong>{' '}
+                  <span className="text-purple-500 font-semibold">{planData?.monthlyTarget} USD</span>
+                </p>
+                <p>
+                  <strong>Risk:</strong>{' '}
+                  <span className="text-orange-500 font-semibold">{planData?.risk}$</span>
+                </p>
+              </div> */}
             <motion.div
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
@@ -137,7 +137,7 @@ export default function PlanSettings({ planData, getUserSettingTrading, handleSa
                   <Monitor size={16} />
                   <span className="text-xs uppercase tracking-wide">Category</span>
                 </div>
-                <span className="text-blue-400 font-semibold text-base">{planData?.type}</span>
+                <span className="text-blue-400 font-semibold text-base mr-2">{planData?.type}</span>
               </div>
 
               <div className="flex justify-between items-center mb-3">
@@ -151,12 +151,12 @@ export default function PlanSettings({ planData, getUserSettingTrading, handleSa
               </div>
 
               {/* <div className="flex justify-between items-center">
-                <div className="flex items-center gap-2">
-                  <ShieldAlert size={16} />
-                  <span className="text-xs uppercase tracking-wide">Risk</span>
-                </div>
-                <span className="text-orange-400 font-semibold text-base">{planData?.risk}$</span>
-              </div> */}
+                  <div className="flex items-center gap-2">
+                    <ShieldAlert size={16} />
+                    <span className="text-xs uppercase tracking-wide">Risk</span>
+                  </div>
+                  <span className="text-orange-400 font-semibold text-base">{planData?.risk}$</span>
+                </div> */}
             </motion.div>
 
             {/* My Goal Section */}
@@ -218,7 +218,7 @@ export default function PlanSettings({ planData, getUserSettingTrading, handleSa
                       'text-purple-400': theme === 'dark',
                     })}
                   >
-                    Just earning each trading day
+                    Just earning each poker day
                   </p>
                   <p className="text-2xl font-bold text-purple-400 mb-3">
                     {planData?.dayTarget?.toFixed(0)} USD
@@ -226,19 +226,19 @@ export default function PlanSettings({ planData, getUserSettingTrading, handleSa
                 </div>
               </div>
               {/* <p className="text-sm text-purple-300 mb-1">Monthly Target</p>
-              <p className="text-2xl font-bold text-purple-400 mb-3">
-                {planData?.monthTarget?.toFixed(0)} USD
-              </p>
-
-              <p className="text-sm text-purple-300 mb-1">Just earning each trading day</p>
-              <p className="text-2xl font-bold text-purple-400 mb-3">
-                {planData?.dayTarget?.toFixed(0)} USD
-              </p> */}
+                <p className="text-2xl font-bold text-purple-400 mb-3">
+                  {planData?.monthTarget?.toFixed(0)} USD
+                </p>
+  
+                <p className="text-sm text-purple-300 mb-1">Just earning each trading day</p>
+                <p className="text-2xl font-bold text-purple-400 mb-3">
+                  {planData?.dayTarget?.toFixed(0)} USD
+                </p> */}
 
               {/* <div className="space-y-1 text-sm text-gray-300">
-                <p>{planData.plan || 'No specific plan yet.'}</p>
-                <p className="text-purple-400 mt-2 cursor-pointer">+ Add a new rule</p>
-              </div> */}
+                  <p>{planData.plan || 'No specific plan yet.'}</p>
+                  <p className="text-purple-400 mt-2 cursor-pointer">+ Add a new rule</p>
+                </div> */}
             </Card>
 
             {/* Risk Management Section */}
@@ -279,9 +279,9 @@ export default function PlanSettings({ planData, getUserSettingTrading, handleSa
                       'text-purple-400': theme === 'dark',
                     })}
                   >
-                    Minimum Risk:Reward
+                    Minimum Risk
                   </p>
-                  <p className="text-purple-400 font-bold">1 : 2</p>
+                  <p className="text-purple-400 font-bold">2 Buy-In/Session</p>
                 </div>
                 <div>
                   <p
@@ -290,9 +290,9 @@ export default function PlanSettings({ planData, getUserSettingTrading, handleSa
                       'text-purple-400': theme === 'dark',
                     })}
                   >
-                    Risk per trade
+                    Risk per session
                   </p>
-                  <p className="text-purple-400 font-bold">{planData.risk} USD</p>
+                  <p className="text-purple-400 font-bold">{planData.risk}</p>
                 </div>
               </div>
 
@@ -338,23 +338,23 @@ export default function PlanSettings({ planData, getUserSettingTrading, handleSa
 
       {/* ✅ Button fixed ở cuối */}
       {/* <div className="fixed bottom-0 left-0 right-0 px-4 pb-[env(safe-area-inset-bottom)] bg-gradient-to-t from-background via-background/95 to-transparent pt-3">
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button className="btn-theme w-full h-12 text-base font-semibold">
-              {isEdit ? (
-                <>
-                  <Pencil size={18} className="mr-2" /> Edit Plan
-                </>
-              ) : (
-                <>
-                  <Plus size={18} className="mr-2" /> Create Plan
-                </>
-              )}
-            </Button>
-          </DialogTrigger>
-          <PlanDialog planData={planData} onSave={handleSubmitPlan} />
-        </Dialog>
-      </div> */}
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button className="btn-theme w-full h-12 text-base font-semibold">
+                {isEdit ? (
+                  <>
+                    <Pencil size={18} className="mr-2" /> Edit Plan
+                  </>
+                ) : (
+                  <>
+                    <Plus size={18} className="mr-2" /> Create Plan
+                  </>
+                )}
+              </Button>
+            </DialogTrigger>
+            <PlanDialog planData={planData} onSave={handleSubmitPlan} />
+          </Dialog>
+        </div> */}
     </div>
   );
 }
@@ -375,7 +375,7 @@ function PlanDialog({ planData, onSave }: any) {
   return (
     <DialogContent className="max-w-11/12 md:max-w-5/12 md:h-[60%]">
       <DialogHeader>
-        <DialogTitle>{planData ? 'Edit Trading Plan' : 'Create Trading Plan'}</DialogTitle>
+        <DialogTitle>{planData ? 'Edit Poker Plan' : 'Create Poker Plan'}</DialogTitle>
       </DialogHeader>
 
       <div className="space-y-3 py-2">
@@ -400,7 +400,7 @@ function PlanDialog({ planData, onSave }: any) {
         />
 
         <Input
-          type="number"
+          type="string"
           value={localData?.risk}
           onChange={(e) => setLocalData({ ...localData, risk: e.target.value })}
           placeholder="Risk (R)"
@@ -421,7 +421,7 @@ function PlanDialog({ planData, onSave }: any) {
           placeholder="Rule"
           value={localData?.rule}
           onChange={(e) => setLocalData({ ...localData, rule: e.target.value })}
-          rows={6}
+          rows={4}
         />
 
         {/* <Input
@@ -433,7 +433,7 @@ function PlanDialog({ planData, onSave }: any) {
           placeholder="Note"
           value={localData?.note}
           onChange={(e) => setLocalData({ ...localData, note: e.target.value })}
-          rows={6}
+          rows={4}
         />
       </div>
 

@@ -452,6 +452,7 @@ function PlansTab({ theme, userInfo }: any) {
 export function ImagesTab({ theme, type, active }: any) {
   const [images, setImages] = useState<any>([]);
   const [selectedImage, setSelectedImage] = useState<any>();
+  const [selectedTypeImage, setSelectedTypeImage] = useState<any>();
   const [imageToDelete, setImageToDelete] = useState<any>(null);
 
   const dispatch = useAppDispatch();
@@ -593,7 +594,10 @@ export function ImagesTab({ theme, type, active }: any) {
         src={img.url}
         className="w-full h-28 object-cover rounded-lg shadow cursor-pointer"
         whileHover={{ scale: 1.05 }}
-        onClick={() => setSelectedImage(img.url)}
+        onClick={() => {
+          setSelectedImage(img.url);
+          setSelectedTypeImage(img.type);
+        }}
       />
 
       {/* Delete Button */}
@@ -649,27 +653,53 @@ export function ImagesTab({ theme, type, active }: any) {
             onClick={() => setSelectedImage(null)} // CLICK OUTSIDE
           >
             {/* Container cho image — chặn click ra ngoài */}
-            <div
-              className="flex items-center justify-center w-full h-full"
-              // onClick={(e) => e.stopPropagation()} // STOP CLICK FROM CLOSING
-            >
-              <motion.img
-                key={selectedImage}
-                src={selectedImage}
-                className="max-w-[90%] max-h-[90%] rounded-lg shadow-xl"
-                initial={{ opacity: 0, scale: 0.85 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.85 }}
-                // SWIPE
-                drag="x"
-                dragConstraints={{ left: 0, right: 0 }}
-                dragElastic={0.2}
-                onDragEnd={(e, info) => {
-                  if (info.offset.x < -80) showNextImage();
-                  if (info.offset.x > 80) showPrevImage();
-                }}
-              />
-            </div>
+            {selectedTypeImage === 'POKER' ? (
+              <div
+                // className="flex items-center justify-center w-full h-full"
+                className="max-h-screen max-w-[90vw] overflow-auto"
+                // onClick={(e) => e.stopPropagation()} // STOP CLICK FROM CLOSING
+              >
+                <motion.img
+                  key={selectedImage}
+                  src={selectedImage}
+                  // className="max-w-[90%] max-h-[90%] rounded-lg shadow-xl"
+                  className="w-auto max-w-full h-auto max-h-none rounded-lg shadow-xl"
+                  initial={{ opacity: 0, scale: 0.85 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.85 }}
+                  // SWIPE
+                  drag="x"
+                  dragConstraints={{ left: 0, right: 0 }}
+                  dragElastic={0.2}
+                  onDragEnd={(e, info) => {
+                    if (info.offset.x < -80) showNextImage();
+                    if (info.offset.x > 80) showPrevImage();
+                  }}
+                />
+              </div>
+            ) : (
+              <div
+                className="flex items-center justify-center w-full h-full"
+                // onClick={(e) => e.stopPropagation()} // STOP CLICK FROM CLOSING
+              >
+                <motion.img
+                  key={selectedImage}
+                  src={selectedImage}
+                  className="max-w-[90%] max-h-[90%] rounded-lg shadow-xl"
+                  initial={{ opacity: 0, scale: 0.85 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.85 }}
+                  // SWIPE
+                  drag="x"
+                  dragConstraints={{ left: 0, right: 0 }}
+                  dragElastic={0.2}
+                  onDragEnd={(e, info) => {
+                    if (info.offset.x < -80) showNextImage();
+                    if (info.offset.x > 80) showPrevImage();
+                  }}
+                />
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

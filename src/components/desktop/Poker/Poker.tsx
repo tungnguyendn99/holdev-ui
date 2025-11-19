@@ -32,6 +32,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { ColumnsType } from 'antd/es/table';
 import { Eye } from 'lucide-react';
 import { ImagesTab } from '../User/User';
+import PlanSettings from '../../mobile/PokerMobile/Plan';
 
 const Poker = () => {
   const dispatch = useAppDispatch();
@@ -252,7 +253,7 @@ const Poker = () => {
       align: 'center' as const,
       width: 120,
       render: (val: number) => (
-        <span className={cx('font-semibold', val >= 0 ? 'text-green-500' : 'text-red-500')}>
+        <span className={cx('font-semibold', val >= 0 ? 'text-green-400' : 'text-red-500')}>
           {val >= 0 ? `$${val}` : `-$${Math.abs(val).toLocaleString()}`}
         </span>
       ),
@@ -337,6 +338,10 @@ const Poker = () => {
 
         setUploadedURLs(newDataImages);
         setLocalImages([]);
+        api.success({
+          message: 'Success!',
+          description: 'Upload image successfully!',
+        });
       } else {
         api.error({
           message: 'Error!',
@@ -363,6 +368,49 @@ const Poker = () => {
     const dataSubmit = { ...value, images };
     if (isOpen.type === 'add') addSession(dataSubmit);
     else updateSession(dataSubmit);
+  };
+
+  // ==== Tab Plan ====
+  const [planData, setPlanData] = useState<any>({});
+  // const [editPlan, setEditPlan] = useState(false);
+
+  const getUserSettingTrading = async () => {
+    try {
+      dispatch(showLoading());
+      // Simulate API call (replace with actual API request)
+      const { data } = await API.post('/users/get-setting', {
+        type: 'POKER',
+      });
+      setPlanData(data);
+    } catch (err) {
+      console.log('error123', err);
+      setPlanData(null);
+    } finally {
+      dispatch(hideLoading()); // tắt loading dù có lỗi hay không
+    }
+  };
+
+  const handleSavePlan = async (data: any, isEdit: boolean) => {
+    try {
+      dispatch(showLoading());
+      if (isEdit) {
+        await API.post('/users/update-setting', { ...data });
+      } else {
+        await API.post('/users/setting', { ...data, type: 'POKER' });
+      }
+      getUserSettingTrading();
+      api.success({
+        message: 'Success!',
+        description: 'Save plan successfully!',
+      });
+    } catch {
+      api.error({
+        message: 'Error!',
+        description: 'Error save plan.',
+      });
+    } finally {
+      dispatch(hideLoading());
+    }
   };
 
   return (
@@ -419,7 +467,11 @@ const Poker = () => {
             borderRadius: 12,
             boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
           }}
-          className={`recent-sessions mt-4 ${theme === 'dark' && 'recent-sessions-dark'}`}
+          // className={`recent-session mt-4 ${theme === 'dark' && 'recent-sessions-dark'}`}
+          className={cx(`recent-session ${theme === 'dark' && 'recent-session-dark'}`, {
+            '': theme === 'light',
+            'bg-[#222d3f]! text-white!': theme === 'dark',
+          })}
         >
           <Tabs
             defaultActiveKey="recent"
@@ -435,6 +487,10 @@ const Poker = () => {
                     pagination={false}
                     scroll={{ y: 240 }}
                     // size="small"
+                    className={cx(`w-full`, {
+                      '': theme === 'light',
+                      'dark-table': theme === 'dark',
+                    })}
                   />
                 ),
               },
@@ -442,6 +498,17 @@ const Poker = () => {
                 key: 'images',
                 label: 'Images',
                 children: <ImagesTab theme={theme} type="POKER" />,
+              },
+              {
+                key: 'plan',
+                label: 'Plan',
+                children: (
+                  <PlanSettings
+                    planData={planData}
+                    getUserSettingTrading={getUserSettingTrading}
+                    handleSavePlan={handleSavePlan}
+                  />
+                ),
               },
             ]}
           />
@@ -592,12 +659,14 @@ const Poker = () => {
                       exit={{ opacity: 0 }}
                       onClick={() => setSelectedImage(null)}
                     >
-                      <motion.img
-                        src={selectedImage}
-                        className="max-w-[80%] max-h-[80%] rounded-lg shadow-xl"
-                        initial={{ scale: 0.8 }}
-                        animate={{ scale: 1 }}
-                      />
+                      <div className="max-h-screen max-w-[90vw] overflow-auto">
+                        <motion.img
+                          src={selectedImage}
+                          className="w-auto max-w-full h-auto max-h-none rounded-lg shadow-xl"
+                          initial={{ scale: 0.8 }}
+                          animate={{ scale: 1 }}
+                        />
+                      </div>
                     </motion.div>
                   )}
                 </AnimatePresence>

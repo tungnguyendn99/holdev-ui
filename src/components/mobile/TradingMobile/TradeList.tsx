@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/dialog';
 import moment from 'moment';
 import { Tag } from 'antd';
+import { handleClosedBy } from '../UI/ClosedByTag';
 
 export default function TradeList({ trades, onDelete, handleOpenTrade }: any) {
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
@@ -142,44 +143,3 @@ function SwipeToRevealDelete({ trade, onConfirmDelete, handleOpenTrade }: any) {
     </div>
   );
 }
-
-const handleClosedBy = (closedBy: string | undefined) => {
-  switch (closedBy) {
-    case 'SL':
-    case 'SO':
-      return (
-        <Tag color="red" className="text-[12px]! font-bold px-2! py-px! rounded-md! leading-none!">
-          {closedBy}
-        </Tag>
-      );
-    case 'TP':
-      return (
-        <Tag
-          color="green"
-          className="text-[12px]! font-bold px-2! py-px! rounded-md! leading-none!"
-        >
-          {closedBy}
-        </Tag>
-      );
-    case 'MA':
-      return (
-        <Tag
-          color="geekblue"
-          className="text-[12px]! font-bold px-2! py-px! rounded-md! leading-none!"
-        >
-          {closedBy}
-        </Tag>
-      );
-    case 'BE':
-      return (
-        <Tag
-          color="yellow"
-          className="text-[12px]! font-bold px-2! py-px! rounded-md! leading-none!"
-        >
-          {closedBy}
-        </Tag>
-      );
-    default:
-      return null;
-  }
-};

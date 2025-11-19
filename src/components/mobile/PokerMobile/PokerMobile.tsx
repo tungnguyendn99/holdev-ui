@@ -13,7 +13,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Pencil, Plus, Save } from 'lucide-react';
-import { Rate, Tag } from 'antd';
+import { notification, Rate, Tag } from 'antd';
 import { useTheme } from 'next-themes';
 import moment from 'moment';
 import Datetime from 'react-datetime';
@@ -28,8 +28,9 @@ import { hideLoading, showLoading } from '../../../store/slices/user.slice';
 import CustomDayPicker from '../UI/CustomDatePicker';
 import { Textarea } from '@/components/ui/textarea';
 import PokerList from './PokerList';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { ImagesTab } from '../../desktop/User/User';
+import PlanSettings from './Plan';
 
 export default function PokerMobile() {
   const { theme } = useTheme();
@@ -42,6 +43,7 @@ export default function PokerMobile() {
   const [dataMonth, setDataMonth] = useState<any>({});
 
   const dispatch = useAppDispatch();
+  const [api, contextHolder] = notification.useNotification();
 
   // ==== FETCH DATA ====
   const getRecentSessions = async () => {
@@ -185,15 +187,97 @@ export default function PokerMobile() {
     return Math.round(winrate);
   }, [sessionsOfSelectedDate]);
 
-  // ==== PLAN ====
-  const [planData, setPlanData] = useState({
-    type: 'POKER',
-    identity: 'REAL',
-    profit: 0,
-    plan: '',
-    target: '',
-    risk: 2,
-  });
+  //upload images
+  const [localImages, setLocalImages] = useState<File[]>([]);
+  const [previewURLs, setPreviewURLs] = useState<string[]>([]);
+  const [selectedImage, setSelectedImage] = useState<any>();
+  // const [uploadedURLs, setUploadedURLs] = useState<string[]>([]); // URL từ server
+
+  const handleSelectImages = (e: any) => {
+    const files = Array.from(e.target.files) as File[];
+    setLocalImages((prev) => [...prev, ...files]);
+
+    const urls = files.map((file) => URL.createObjectURL(file));
+    setPreviewURLs((prev) => [...prev, ...urls]);
+  };
+
+  const handleRemove = (index: number) => {
+    setPreviewURLs((prev) => prev.filter((_, i) => i !== index));
+    setLocalImages((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  useEffect(() => {
+    setLocalImages([]);
+  }, [isOpenModal]);
+
+  const uploadToServer = async () => {
+    try {
+      dispatch(showLoading());
+      const formData = new FormData();
+      localImages.forEach((f) => formData.append('files', f));
+      formData.append('type', 'TRADING');
+      const { data } = await API.post('/images/upload-multiple', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      if (data) {
+        const filteredImages = previewURLs.filter((url) => !url.startsWith('blob:'));
+        const newDataImages = [...filteredImages, ...data];
+
+        setFormData({ ...formData, images: newDataImages });
+
+        setLocalImages([]);
+      } else {
+        api.error({
+          message: 'Error!',
+          description: 'Error upload multiple images.',
+        });
+      }
+    } catch (error: any) {
+      api.error({
+        message: 'Error!',
+        description: error?.response?.data?.message || 'Error upload multiple images.',
+      });
+    } finally {
+      dispatch(hideLoading());
+    }
+  };
+
+  // ==== Tab Plan ====
+  const [planData, setPlanData] = useState<any>({});
+  // const [editPlan, setEditPlan] = useState(false);
+
+  const getUserSettingTrading = async () => {
+    try {
+      dispatch(showLoading());
+      // Simulate API call (replace with actual API request)
+      const { data } = await API.post('/users/get-setting', {
+        type: 'POKER',
+      });
+      setPlanData(data);
+    } catch (err) {
+      console.log('error123', err);
+      setPlanData(null);
+    } finally {
+      dispatch(hideLoading()); // tắt loading dù có lỗi hay không
+    }
+  };
+
+  const handleSavePlan = async (data: any, isEdit: boolean) => {
+    try {
+      dispatch(showLoading());
+      if (isEdit) {
+        await API.post('/users/update-setting', { ...data });
+      } else {
+        await API.post('/users/setting', { ...data, type: 'POKER' });
+      }
+      getUserSettingTrading();
+      openNotification('success', { message: 'Lưu kế hoạch thành công' });
+    } catch {
+      openNotification('error', { message: 'Lỗi khi lưu kế hoạch' });
+    } finally {
+      dispatch(hideLoading());
+    }
+  };
 
   return (
     <div className="h-full flex flex-col bg-background text-foreground px-3 pt-3 pb-16">
@@ -507,9 +591,14 @@ export default function PokerMobile() {
               </DialogContent>
             </Dialog>
           </div> */}
-          <div>
+          <PlanSettings
+            planData={planData}
+            getUserSettingTrading={getUserSettingTrading}
+            handleSavePlan={handleSavePlan}
+          />
+          <div className="mt-8">
             <p className="mb-3 font-bold text-xl">Images</p>
-            <ImagesTab theme={theme} type="TRADING" active={tab === 'plan'} />
+            <ImagesTab theme={theme} type="POKER" active={tab === 'plan'} />
           </div>
         </TabsContent>
       </Tabs>
@@ -611,6 +700,82 @@ export default function PokerMobile() {
               onChange={(e) => setFormData({ ...formData, yourThought: e.target.value })}
               rows={4}
             />
+          </div>
+
+          <div className="flex justify-between items-center mb-3">
+            {/* Image Preview Grid */}
+            <div className="flex gap-4 flex-wrap">
+              {previewURLs.map((url, idx) => (
+                <div key={idx} className="relative">
+                  <div className="w-20 h-20 rounded-xl overflow-hidden bordertransition cursor-pointer">
+                    <img
+                      src={url}
+                      className="w-full h-full object-cover"
+                      onClick={() => setSelectedImage(url)}
+                    />
+                  </div>
+
+                  {/* nút xóa */}
+                  <button
+                    onClick={() => handleRemove(idx)}
+                    className={cx(
+                      'absolute -top-2 -right-2  rounded-full w-4 h-4 text-xs flex items-center justify-center cursor-pointer',
+                      theme === 'dark' ? 'bg-gray-500' : 'bg-white',
+                    )}
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+
+              {/* + Upload box */}
+              <label className="w-20 h-20 flex items-center justify-center rounded-xl border-1 border-dashed border-gray-300 cursor-pointer hover:border-gray-500">
+                <span className="text-gray-500 font-bold">+ Upload</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleSelectImages}
+                  className="hidden!"
+                />
+              </label>
+
+              {/* Image Preview Modal */}
+              <AnimatePresence>
+                {selectedImage && (
+                  <motion.div
+                    className="fixed inset-0 bg-black/70 flex items-center justify-center backdrop-blur-sm z-50"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    onClick={() => setSelectedImage(null)}
+                  >
+                    <motion.img
+                      src={selectedImage}
+                      className="max-w-[80%] max-h-[80%] rounded-lg shadow-xl"
+                      initial={{ scale: 0.8 }}
+                      animate={{ scale: 1 }}
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Nút upload đến server */}
+            <button
+              type="button"
+              className={cx(
+                'text-xs p-2 cursor-pointer rounded-lg font-semibold transition text-white',
+                theme === 'dark'
+                  ? 'bg-indigo-400 hover:bg-indigo-700'
+                  : 'bg-blue-400 hover:bg-indigo-600',
+                localImages.length === 0 && 'bg-gray-400 hover:bg-gray-400!',
+              )}
+              onClick={uploadToServer}
+              disabled={localImages.length === 0}
+            >
+              Upload
+            </button>
           </div>
 
           <DialogFooter>

@@ -40,6 +40,8 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Eye } from 'lucide-react';
 import CustomCalendar from '../UI/CustomCalendar';
 import { ImagesTab } from '../User/User';
+import PlanSettings from '../../mobile/TradingMobile/Plan';
+import { handleClosedBy } from '../../mobile/UI/ClosedByTag';
 
 const getMonthData = (value: Dayjs) => {
   if (value.month() === 8) {
@@ -371,7 +373,7 @@ const Trading = () => {
       key: 'closeTime',
       align: 'center',
       width: 90,
-      render: (text) => <span>{moment(text).format('DD/MM/YYYY')}</span>,
+      render: (text) => <span>{moment(text).format('HH:mm ~~ DD/MM/YYYY')}</span>,
     },
     {
       title: 'Time',
@@ -379,7 +381,15 @@ const Trading = () => {
       key: 'duration',
       width: 80,
       align: 'center',
-      render: (text) => <span className={cx(``)}>{text}</span>,
+      render: (text) => <span className={cx(``)}>⏳ {text}</span>,
+    },
+    {
+      title: 'Closed By',
+      dataIndex: 'closedBy',
+      key: 'closedBy',
+      width: 80,
+      align: 'center',
+      render: (text) => <>{handleClosedBy(text)}</>,
     },
     {
       title: 'Net P&L',
@@ -393,7 +403,7 @@ const Trading = () => {
           //   color: pnl >= 0 ? '#16a34a' : '#dc2626',
           //   fontWeight: 600,
           // }}
-          className={cx(`font-bold ${pnl >= 0 ? 'text-green-500' : 'text-red-400'}`)}
+          className={cx(`font-bold ${pnl >= 0 ? 'text-green-400' : 'text-red-400'}`)}
         >
           {pnl === null || pnl === undefined
             ? undefined
@@ -569,6 +579,43 @@ const Trading = () => {
     }
   };
 
+  // ==== Tab Plan ====
+  const [planData, setPlanData] = useState<any>({});
+  // const [editPlan, setEditPlan] = useState(false);
+
+  const getUserSettingTrading = async () => {
+    try {
+      dispatch(showLoading());
+      // Simulate API call (replace with actual API request)
+      const { data } = await API.post('/users/get-setting', {
+        type: 'TRADING',
+      });
+      setPlanData(data);
+    } catch (err) {
+      console.log('error123', err);
+      setPlanData(null);
+    } finally {
+      dispatch(hideLoading()); // tắt loading dù có lỗi hay không
+    }
+  };
+
+  const handleSavePlan = async (data: any, isEdit: boolean) => {
+    try {
+      dispatch(showLoading());
+      if (isEdit) {
+        await API.post('/users/update-setting', { ...data, type: 'TRADING' });
+      } else {
+        await API.post('/users/setting', { ...data, type: 'TRADING' });
+      }
+      getUserSettingTrading();
+      openNotification('success', { message: 'Lưu kế hoạch thành công' });
+    } catch {
+      openNotification('error', { message: 'Lỗi khi lưu kế hoạch' });
+    } finally {
+      dispatch(hideLoading());
+    }
+  };
+
   return (
     <div className="trading pb-16">
       {/* CALENDAR */}
@@ -678,21 +725,31 @@ const Trading = () => {
                         'text-white': theme === 'dark',
                       })}
                     >
-                      {selectedDate.format('YYYY-MM-DD')}
+                      {selectedDate.format('DD / MM / YYYY')}
                     </p>
-                    <Table
-                      rowKey={(r) => r.id}
-                      columns={columns}
-                      dataSource={selectedDayTrades}
-                      pagination={false}
-                      scroll={{ y: 420 }}
-                      size="small"
-                      // className="table-trades"
-                      className={cx(`table-trades`, {
-                        '': theme === 'light',
-                        'dark-table': theme === 'dark',
-                      })}
-                    />
+                    {!!selectedDayTrades.length ? (
+                      <Table
+                        rowKey={(r) => r.id}
+                        columns={columns}
+                        dataSource={selectedDayTrades}
+                        pagination={false}
+                        scroll={{ y: 420 }}
+                        size="small"
+                        // className="table-trades"
+                        className={cx(`w-full`, {
+                          '': theme === 'light',
+                          'dark-table': theme === 'dark',
+                        })}
+                      />
+                    ) : (
+                      <p
+                        className={cx('font-bold text-center mb-3 text-xl', {
+                          'text-white': theme === 'dark',
+                        })}
+                      >
+                        No Trade!
+                      </p>
+                    )}
                   </>
                 ),
               },
@@ -726,16 +783,11 @@ const Trading = () => {
                 key: 'plan',
                 label: 'Plan',
                 children: (
-                  <div
-                    style={{
-                      width: '100%',
-                      textAlign: 'center',
-                      padding: '40px 0',
-                      color: '#9ca3af',
-                    }}
-                  >
-                    Plan Setting
-                  </div>
+                  <PlanSettings
+                    planData={planData}
+                    getUserSettingTrading={getUserSettingTrading}
+                    handleSavePlan={handleSavePlan}
+                  />
                 ),
               },
             ]}

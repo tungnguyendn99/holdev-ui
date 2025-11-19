@@ -9,6 +9,7 @@ import { hideLoading, showLoading } from '../../../store/slices/user.slice';
 import { notification } from 'antd';
 import WordCard from './WordCard';
 import cx from 'classnames';
+import VocabList from './WordList';
 
 type WordResult = {
   definition?: string;
@@ -219,19 +220,25 @@ export default function EngLishMobile() {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-              <AnimatePresence initial={false}>
-                {words.map((w) => (
-                  <WordCard
-                    key={w?.word}
-                    w={w}
-                    speak={speak}
-                    handleDeleteWord={handleDeleteWord}
-                    setSelected={setSelected}
-                  />
-                ))}
-              </AnimatePresence>
-            </div>
+            // <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+            //   <AnimatePresence initial={false}>
+            //     {words.map((w) => (
+            //       <WordCard
+            //         key={w?.word}
+            //         w={w}
+            //         speak={speak}
+            //         handleDeleteWord={handleDeleteWord}
+            //         setSelected={setSelected}
+            //       />
+            //     ))}
+            //   </AnimatePresence>
+            // </div>
+            <VocabList
+              words={words}
+              speak={speak}
+              handleDeleteWord={handleDeleteWord}
+              setSelected={setSelected}
+            />
           )}
         </section>
 
