@@ -85,7 +85,7 @@ export default function PlanSettings({ planData, getUserSettingTrading, handleSa
                   <Plus size={16} /> Create Plan
                 </Button>
               </DialogTrigger>
-              <PlanDialog planData={planData} onSave={handleSavePlan} />
+              <PlanDialog planData={planData} onSave={handleSubmitPlan} />
             </Dialog>
           </motion.div>
         ) : (
