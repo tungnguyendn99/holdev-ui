@@ -6,8 +6,8 @@ import DailyQuote from '../components/DailyQuote';
 
 export default function Home() {
   return (
-    <div className="app text-xl flex flex-col items-center">
-      <h1 className="mt-2 mb-2">Welcome to The Journey of Discipline</h1>
+    <div className="text-xl flex flex-col items-center">
+      <h1 className="mt-6 mb-12">Welcome to The Journey of Discipline</h1>
       <DailyQuote />
     </div>
   );

@@ -90,7 +90,11 @@ export default function WordCard({ w, speak, handleDeleteWord, setSelected }: an
                 e.stopPropagation();
                 speak(w.word);
               }}
-              className="p-2 rounded-lg hover:bg-gray-100 hover:bg-gray-700"
+              // className="p-2 rounded-lg hover:bg-gray-100 hover:bg-gray-700"
+              className={cx('p-2 rounded-lg cursor-pointer', {
+                'hover:bg-gray-200': theme === 'light',
+                'hover:bg-gray-700': theme === 'dark',
+              })}
             >
               <Speaker size={18} />
             </button>

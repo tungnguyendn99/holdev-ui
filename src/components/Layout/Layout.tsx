@@ -5,8 +5,9 @@ import Topbar from '../desktop/Topbar/Topbar';
 import { usePathname } from 'next/navigation';
 import { useWindowResize } from '../../common/func';
 import LayoutMobile from '../mobile/LayoutMobile';
-import { useAppSelector } from '../../store/hooks';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { LoadingOverlay } from '../LoadingOverLay';
+import { hideLoading, showLoading } from '../../store/slices/user.slice';
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
@@ -20,14 +21,18 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
   const loading = useAppSelector((state) => state.user.loading);
   console.log('loading', loading);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
+    dispatch(showLoading());
     setMounted(true);
   }, []);
 
   // ✅ chỉ chạy khi đã mount
   useEffect(() => {
     if (!mounted) return;
+    dispatch(hideLoading());
+
     // const checkMobile = () => {
     //   setIsMobile(window.innerWidth < 576);
     // };

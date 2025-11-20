@@ -163,15 +163,15 @@ const Poker = () => {
         <span
           className={cx(
             'text-[18px] font-semibold',
-            dayData.dayProfit ? 'text-green-500' : 'text-red-500',
+            dayData.dayProfit ? 'text-green-600' : 'text-red-500',
           )}
         >
           {dayData.profit}
         </span>
-        <span className={cx(`${theme === 'light' && 'text-[#737373]'}`)}>
+        <span className={cx(`text-[#0D706E]`)}>
           {`${dayData.count} session${dayData.count > 1 ? 's' : ''}`} ({dayData.hands} hands)
         </span>
-        <span className={cx(`${theme === 'light' && 'text-[#737373]'}`)}>{winrate}</span>
+        <span className={cx(`text-[#0D706E]`)}>{winrate}</span>
       </div>
     );
   };
@@ -186,19 +186,26 @@ const Poker = () => {
     const winrate = monthData.winrate || 0;
 
     return (
-      <div className="flex flex-col text-center font-semibold h-full">
+      <div
+        // className="flex flex-col text-center font-semibold h-full"
+        className={cx(
+          'flex flex-col text-center font-semibold h-full',
+          monthData.dayProfit && 'profit',
+          monthData.dayLoss && 'loss',
+        )}
+      >
         <span
           className={cx(
             'text-[18px] font-semibold',
-            monthData.dayProfit ? 'text-green-500' : 'text-red-500',
+            monthData.dayProfit ? 'text-green-600' : 'text-red-500',
           )}
         >
           {monthData.profit}
         </span>
-        <span className="text-muted-foreground">
+        <span className="text-[#0D706E]">
           {`${monthData.count} session${monthData.count > 1 ? 's' : ''}`} ({monthData.hands} hands)
         </span>
-        <span className="text-muted-foreground">{winrate}</span>
+        <span className="text-[#0D706E]">{winrate}</span>
       </div>
     );
   };
@@ -210,12 +217,26 @@ const Poker = () => {
   // ======== TABLE COLUMNS ========
   const columns: ColumnsType<any> = [
     {
+      title: 'Format',
+      dataIndex: 'format',
+      key: 'format',
+      align: 'center' as const,
+      width: 120,
+    },
+    {
+      title: 'Blind',
+      dataIndex: 'blind',
+      key: 'blind',
+      align: 'center' as const,
+      width: 100,
+    },
+    {
       title: 'Start Time',
       dataIndex: 'startTime',
       key: 'startTime',
       align: 'center' as const,
       width: 120,
-      render: (text: string) => moment(text).format('DD/MM/YYYY'),
+      render: (text: string) => moment(text).format('DD/MM/YYYY ~~ HH:mm'),
     },
     {
       title: 'End Time',
@@ -223,28 +244,29 @@ const Poker = () => {
       key: 'endTime',
       align: 'center' as const,
       width: 120,
-      render: (text: string) => moment(text).format('DD/MM/YYYY'),
+      render: (text: string) => moment(text).format('DD/MM/YYYY ~~ HH:mm'),
     },
     {
       title: 'Duration',
       dataIndex: 'duration',
       key: 'duration',
       align: 'center' as const,
-      width: 110,
+      width: 80,
     },
     {
-      title: 'Blind',
-      dataIndex: 'blind',
-      key: 'blind',
+      title: 'Bbs',
+      dataIndex: 'resultBB',
+      key: 'resultBB',
       align: 'center' as const,
-      width: 110,
+      width: 90,
     },
     {
-      title: 'Format',
-      dataIndex: 'format',
-      key: 'format',
+      title: 'Winrate',
+      dataIndex: 'winrate',
+      key: 'winrate',
       align: 'center' as const,
-      width: 110,
+      width: 100,
+      render: (text: string) => <span>{text}bb/100</span>,
     },
     {
       title: 'Result',
@@ -538,7 +560,7 @@ const Poker = () => {
                   name="blind"
                   rules={[{ required: true, message: 'Please input blind!' }]}
                 >
-                  <Input placeholder="$1/$2" />
+                  <Input placeholder="0.01/0.02" />
                 </Form.Item>
               </Col>
               <Col span={12}>
@@ -689,7 +711,7 @@ const Poker = () => {
             </div>
 
             <Form.Item>
-              <Button type="primary" htmlType="submit" block>
+              <Button type="primary" htmlType="submit" block className="btn-submit-session">
                 {isOpen.type === 'add' ? 'Add Session' : 'Save Session'}
               </Button>
             </Form.Item>

@@ -6,42 +6,44 @@ import { useTheme } from 'next-themes';
 import { useEffect, useMemo, useState } from 'react';
 import API from '../utils/api';
 
-interface QuoteProps {
-  quote: {
-    quote: string;
-    author: string;
-    createdAt: string;
-    type?: string;
-  };
-}
-
 export default function DailyQuote() {
-  const [quote, setQuote] = useState<any>({});
+  const [quote, setQuote] = useState<any>(null);
   const { theme } = useTheme();
   const [timeOfDay, setTimeOfDay] = useState<'morning' | 'noon' | 'night'>('morning');
+  const [loadingNew, setLoadingNew] = useState(false);
 
   const getQuoteEveryday = async () => {
     try {
-      // Simulate API call (replace with actual API request)
       const { data } = await API.get('/english/quote');
       setQuote(data);
     } catch (err) {
       console.log('error123', err);
-    } finally {
-      // dispatch(hideLoading());
     }
   };
 
-  // 🕐 Xác định thời điểm trong ngày
+  const getNewQuoteToday = async () => {
+    try {
+      setLoadingNew(true);
+      await API.get('/english/proxy-get-quote');
+      getQuoteEveryday();
+    } catch (err) {
+      console.log('error-get-new', err);
+    } finally {
+      setLoadingNew(false);
+    }
+  };
+
+  // 🕐 Thời điểm trong ngày
   useEffect(() => {
     getQuoteEveryday();
+
     const hour = new Date().getHours();
     if (hour < 11) setTimeOfDay('morning');
     else if (hour < 17) setTimeOfDay('noon');
     else setTimeOfDay('night');
   }, []);
 
-  // 🌈 Gradient động tùy theo theme & thời gian
+  // 🌈 Gradient UI theo theme + thời điểm
   const gradient = useMemo(() => {
     if (theme === 'dark') {
       switch (timeOfDay) {
@@ -64,27 +66,41 @@ export default function DailyQuote() {
     }
   }, [theme, timeOfDay]);
 
+  // 🟦 Kiểm tra quote có phải ngày hôm nay không?
+  const isTodayQuote = useMemo(() => {
+    if (!quote?.createdAt) return false;
+
+    const qDate = new Date(quote.createdAt);
+    const now = new Date();
+
+    return (
+      qDate.getDate() === now.getDate() &&
+      qDate.getMonth() === now.getMonth() &&
+      qDate.getFullYear() === now.getFullYear()
+    );
+  }, [quote]);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
-      className={`relative w-full max-w-2xl mx-auto mt-6 md:mt-10 p-6 md:p-8 rounded-2xl shadow-md border
+      className={`relative w-full max-w-2xl mx-auto p-6 md:p-8 rounded-2xl shadow-md border
         ${theme === 'dark' ? 'border-gray-800' : 'border-gray-200'}
         bg-gradient-to-br ${gradient} animate-gradient bg-[length:400%_400%]`}
     >
-      {/* Icon lấp lánh */}
+      {/* Icon */}
       <div className="absolute top-3 right-3 text-indigo-400 dark:text-indigo-300">
         <Sparkles className="w-5 h-5 animate-pulse" />
       </div>
 
-      {/* Nội dung quote */}
+      {/* Quote Text */}
       <p
         className={`text-center italic font-medium leading-relaxed
           ${theme === 'dark' ? 'text-gray-200' : 'text-gray-700'}
           text-base md:text-lg`}
       >
-        “{quote.quote}”
+        “{quote?.quote ?? 'Loading…'}”
       </p>
 
       {/* Author */}
@@ -92,24 +108,26 @@ export default function DailyQuote() {
         className={`mt-4 text-center text-sm md:text-base
           ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}
       >
-        — {quote.author}
+        — {quote?.author}
       </p>
 
-      {/* Ngày */}
-      <p
-        className={`text-xs text-center mt-3 
+      {/* Date */}
+      {quote?.createdAt && (
+        <p
+          className={`text-xs text-center mt-3 
           ${theme === 'dark' ? 'text-indigo-400' : 'text-indigo-600'}`}
-      >
-        {new Date(quote.createdAt).toLocaleDateString('vi-VN', {
-          weekday: 'long',
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric',
-        })}
-      </p>
+        >
+          {new Date(quote.createdAt).toLocaleDateString('vi-VN', {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+          })}
+        </p>
+      )}
 
-      {/* Tag loại quote */}
-      {quote.type && (
+      {/* Tag */}
+      {quote?.type && (
         <motion.div
           initial={{ opacity: 0, y: 5 }}
           animate={{ opacity: 1, y: 0 }}
@@ -128,6 +146,23 @@ export default function DailyQuote() {
             {quote.type.replace(/-/g, ' ').replace(/\b\w/g, (c: any) => c.toUpperCase())}
           </span>
         </motion.div>
+      )}
+
+      {/* 🌟 NEW: Button lấy quote hôm nay */}
+      {!isTodayQuote && (
+        <button
+          onClick={getNewQuoteToday}
+          disabled={loadingNew}
+          className={`mt-6 w-full py-2.5 rounded-xl font-semibold transition active:scale-95
+            ${
+              theme === 'dark'
+                ? 'bg-indigo-700 hover:bg-indigo-600 text-white'
+                : 'bg-indigo-500 hover:bg-indigo-600 text-white'
+            }
+          `}
+        >
+          {loadingNew ? 'Wait a little bit...' : 'Get quote today'}
+        </button>
       )}
     </motion.div>
   );

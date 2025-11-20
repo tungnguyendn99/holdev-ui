@@ -271,7 +271,7 @@ const Trading = () => {
           <p className={cx(`${'text-[#4b3db6]'}`)}>
             {data?.trades} {data?.trades > 1 ? 'trades' : 'trade'}
           </p>
-          <p className={cx(`${theme === 'light' && 'text-[#737373]'}`)}>
+          <p className={cx(`text-[#0D706E]`)}>
             {data?.winrate} ({data?.reward}R)
           </p>
         </div>
@@ -356,6 +356,14 @@ const Trading = () => {
       ),
     },
     {
+      title: 'Lots',
+      dataIndex: 'lots',
+      key: 'lots',
+      width: 80,
+      align: 'center',
+      render: (text) => <span className={cx(``)}>{text}</span>,
+    },
+    {
       title: 'Side',
       dataIndex: 'tradeSide',
       key: 'tradeSide',
@@ -373,7 +381,7 @@ const Trading = () => {
       key: 'closeTime',
       align: 'center',
       width: 90,
-      render: (text) => <span>{moment(text).format('HH:mm ~~ DD/MM/YYYY')}</span>,
+      render: (text) => <span>{moment(text).format('DD/MM/YYYY ~~ HH:mm')}</span>,
     },
     {
       title: 'Time',
