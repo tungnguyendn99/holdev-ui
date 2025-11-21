@@ -5,12 +5,16 @@ import { Sparkles } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { useEffect, useMemo, useState } from 'react';
 import API from '../utils/api';
+import { useAppDispatch } from '../store/hooks';
+import { hideLoading, showLoading } from '../store/slices/user.slice';
 
 export default function DailyQuote() {
   const [quote, setQuote] = useState<any>(null);
   const { theme } = useTheme();
   const [timeOfDay, setTimeOfDay] = useState<'morning' | 'noon' | 'night'>('morning');
   const [loadingNew, setLoadingNew] = useState(false);
+
+  const dispatch = useAppDispatch();
 
   const getQuoteEveryday = async () => {
     try {
@@ -23,12 +27,14 @@ export default function DailyQuote() {
 
   const getNewQuoteToday = async () => {
     try {
+      dispatch(showLoading());
       setLoadingNew(true);
       await API.get('/english/proxy-get-quote');
       getQuoteEveryday();
     } catch (err) {
       console.log('error-get-new', err);
     } finally {
+      dispatch(hideLoading()); // tắt loading dù có lỗi hay không
       setLoadingNew(false);
     }
   };

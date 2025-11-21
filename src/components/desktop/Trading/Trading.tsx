@@ -660,9 +660,18 @@ const Trading = () => {
               </Button>
             </div>
           </div>
-          <div className="flex">
+          <div className="flex w-[40%] justify-end">
             <p className="mt-2">
               <span style={{ fontWeight: 700 }}>Monthly stats:</span>{' '}
+              <Tag color="geekblue" style={{ fontSize: '18px' }}>
+                {dataMonth?.trades} trades
+              </Tag>
+              <Tag color="geekblue" style={{ fontSize: '18px' }}>
+                {dataMonth.winrate}
+              </Tag>
+              <Tag color="geekblue" style={{ fontSize: '18px' }}>
+                {dataMonth?.reward}R
+              </Tag>
               <Tag color="green" style={{ fontSize: '18px' }}>
                 {dataMonth?.profit}
               </Tag>
@@ -1104,7 +1113,7 @@ const Trading = () => {
                     >
                       <motion.img
                         src={selectedImage}
-                        className="max-w-[80%] max-h-[80%] rounded-lg shadow-xl"
+                        className="max-w-[90%] max-h-[90%] rounded-lg shadow-xl"
                         initial={{ scale: 0.8 }}
                         animate={{ scale: 1 }}
                       />

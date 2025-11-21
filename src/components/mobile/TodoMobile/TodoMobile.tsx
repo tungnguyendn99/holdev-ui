@@ -470,7 +470,10 @@ export default function TodoMobile() {
                   <div>
                     <strong>Mô tả:</strong>{' '}
                     {selectedTodo.description ? (
-                      <div className="mt-1 text-sm" style={{ whiteSpace: 'pre-wrap' }}>
+                      <div
+                        className="mt-1 text-sm overflow-y-auto h-44"
+                        style={{ whiteSpace: 'pre-wrap' }}
+                      >
                         {selectedTodo.description}
                       </div>
                     ) : (

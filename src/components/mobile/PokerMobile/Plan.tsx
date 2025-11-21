@@ -85,7 +85,7 @@ export default function PlanSettings({ planData, getUserSettingTrading, handleSa
                   <Plus size={16} /> Create Plan
                 </Button>
               </DialogTrigger>
-              <PlanDialog planData={planData} onSave={handleSavePlan} />
+              <PlanDialog planData={planData} onSave={handleSubmitPlan} />
             </Dialog>
           </motion.div>
         ) : (
@@ -193,7 +193,7 @@ export default function PlanSettings({ planData, getUserSettingTrading, handleSa
                       <Pencil size={16} />
                     </button>
                   </DialogTrigger>
-                  <PlanDialog planData={planData} onSave={handleSavePlan} />
+                  <PlanDialog planData={planData} onSave={handleSubmitPlan} />
                 </Dialog>
               </div>
               <div className="flex justify-between">
@@ -265,7 +265,7 @@ export default function PlanSettings({ planData, getUserSettingTrading, handleSa
                       <Pencil size={16} />
                     </button>
                   </DialogTrigger>
-                  <PlanDialog planData={planData} onSave={handleSavePlan} />
+                  <PlanDialog planData={planData} onSave={handleSubmitPlan} />
                 </Dialog>
               </div>
 
@@ -361,16 +361,11 @@ export default function PlanSettings({ planData, getUserSettingTrading, handleSa
 
 /* 🧱 Component: Dialog form để tạo / chỉnh sửa Plan */
 function PlanDialog({ planData, onSave }: any) {
-  const initialData = planData || {
-    identity: 'REAL',
-    // monthlyTarget: '',
-    plan: '',
-    // risk: '',
-    rule: '',
-    note: '',
-  };
-
   const [localData, setLocalData] = useState<any>(planData);
+
+  useEffect(() => {
+    setLocalData(planData);
+  }, [planData]);
 
   return (
     <DialogContent className="max-w-11/12 md:max-w-5/12 md:h-[60%]">
