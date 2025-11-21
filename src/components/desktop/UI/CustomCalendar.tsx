@@ -14,7 +14,6 @@ const CustomCalendar = ({
   selectedDate,
 }: any) => {
   // const [selectedDate, setSelectedDate] = useState(dayjs());
-  console.log('selectedDate', selectedDate);
   const { theme } = useTheme();
   const [mode, setMode] = useState<'month' | 'year'>('month');
 

@@ -56,6 +56,10 @@
   }
 }
 
+.ant-table-row {
+  cursor: pointer;
+}
+
 .dark-table {
   .ant-table {
     border: 1px solid white !important;

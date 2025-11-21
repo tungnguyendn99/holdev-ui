@@ -222,6 +222,7 @@ const Poker = () => {
       key: 'format',
       align: 'center' as const,
       width: 120,
+      render: (_, record) => <span className="font-bold">{record.format}</span>,
     },
     {
       title: 'Blind',
@@ -229,6 +230,7 @@ const Poker = () => {
       key: 'blind',
       align: 'center' as const,
       width: 100,
+      render: (_, record) => <span className="font-bold">{record.blind}</span>,
     },
     {
       title: 'Start Time',
@@ -259,6 +261,22 @@ const Poker = () => {
       key: 'resultBB',
       align: 'center' as const,
       width: 90,
+      render: (val: number) =>
+        val >= 0 ? (
+          <Tag
+            color="green"
+            className="text-[14px]! font-bold px-2! py-px! rounded-md! leading-none!"
+          >
+            {val}
+          </Tag>
+        ) : (
+          <Tag
+            color="red"
+            className="text-[14px]! font-bold px-2! py-px! rounded-md! leading-none!"
+          >
+            {val}
+          </Tag>
+        ),
     },
     {
       title: 'Winrate',
@@ -266,7 +284,14 @@ const Poker = () => {
       key: 'winrate',
       align: 'center' as const,
       width: 100,
-      render: (text: string) => <span>{text}bb/100</span>,
+      render: (text: string) => (
+        <Tag
+          color="geekblue"
+          className="text-[14px]! font-bold px-2! py-px! rounded-md! leading-none!"
+        >
+          {text}bb/100
+        </Tag>
+      ),
     },
     {
       title: 'Result',
@@ -275,36 +300,38 @@ const Poker = () => {
       align: 'center' as const,
       width: 120,
       render: (val: number) => (
-        <span className={cx('font-semibold', val >= 0 ? 'text-green-400' : 'text-red-500')}>
+        <span
+          className={cx('text-[14px]! font-semibold', val >= 0 ? 'text-green-400' : 'text-red-500')}
+        >
           {val >= 0 ? `$${val}` : `-$${Math.abs(val).toLocaleString()}`}
         </span>
       ),
     },
-    {
-      title: '',
-      dataIndex: 'view',
-      key: 'view',
-      width: 40,
-      align: 'center',
-      render: (_, record) => (
-        <span
-          className="cursor-pointer flex justify-center"
-          onClick={() => {
-            console.log('asd', { ...record });
-            setIdUpdate(record.id);
-            form.setFieldsValue({
-              ...record,
-              ...(record?.startTime !== undefined && { startTime: dayjs(record.startTime) }),
-              ...(record?.endTime !== undefined && { endTime: dayjs(record.endTime) }),
-            });
-            setPreviewURLs(record.images);
-            setIsOpen({ status: true, type: 'edit' });
-          }}
-        >
-          <Eye />
-        </span>
-      ),
-    },
+    // {
+    //   title: '',
+    //   dataIndex: 'view',
+    //   key: 'view',
+    //   width: 40,
+    //   align: 'center',
+    //   render: (_, record) => (
+    //     <span
+    //       className="cursor-pointer flex justify-center"
+    //       onClick={() => {
+    //         console.log('asd', { ...record });
+    //         setIdUpdate(record.id);
+    //         form.setFieldsValue({
+    //           ...record,
+    //           ...(record?.startTime !== undefined && { startTime: dayjs(record.startTime) }),
+    //           ...(record?.endTime !== undefined && { endTime: dayjs(record.endTime) }),
+    //         });
+    //         setPreviewURLs(record.images);
+    //         setIsOpen({ status: true, type: 'edit' });
+    //       }}
+    //     >
+    //       <Eye />
+    //     </span>
+    //   ),
+    // },
   ];
 
   //upload images
@@ -512,6 +539,20 @@ const Poker = () => {
                     className={cx(`w-full`, {
                       '': theme === 'light',
                       'dark-table': theme === 'dark',
+                    })}
+                    onRow={(record) => ({
+                      onClick: () => {
+                        setIdUpdate(record.id);
+                        form.setFieldsValue({
+                          ...record,
+                          ...(record?.startTime !== undefined && {
+                            startTime: dayjs(record.startTime),
+                          }),
+                          ...(record?.endTime !== undefined && { endTime: dayjs(record.endTime) }),
+                        });
+                        setPreviewURLs(record.images);
+                        setIsOpen({ status: true, type: 'edit' });
+                      },
                     })}
                   />
                 ),

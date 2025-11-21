@@ -14,8 +14,6 @@ const CustomDayPicker = ({
   getDataMonthTrade,
 }: any) => {
   const { theme } = useTheme();
-  console.log('selectedDate', selectedDate);
-  console.log('month', month);
 
   return (
     <DayPicker

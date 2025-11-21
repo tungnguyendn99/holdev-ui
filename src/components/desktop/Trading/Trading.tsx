@@ -41,7 +41,7 @@ import { Eye } from 'lucide-react';
 import CustomCalendar from '../UI/CustomCalendar';
 import { ImagesTab } from '../User/User';
 import PlanSettings from '../../mobile/TradingMobile/Plan';
-import { handleClosedBy } from '../../mobile/UI/ClosedByTag';
+import { handleClosedByDesktop } from '../../mobile/UI/ClosedByTag';
 
 const getMonthData = (value: Dayjs) => {
   if (value.month() === 8) {
@@ -227,7 +227,6 @@ const Trading = () => {
   };
 
   const handleMonthYearChange = (date: any) => {
-    console.log('date', date);
     setSelectedDate(date); // Cập nhật ngày đã chọn
   };
   const handleDateChange = (date: any) => {
@@ -280,7 +279,6 @@ const Trading = () => {
   };
 
   const monthCellRender = (value: Dayjs) => {
-    console.log('dataYear', dataYear);
     const dateKey = value.format('YYYY-MM');
     const monthData = dataYear[dateKey];
 
@@ -336,24 +334,7 @@ const Trading = () => {
       key: 'symbol',
       width: 80,
       align: 'center',
-      render: (_, record) => (
-        <span
-          className="font-bold"
-          // onClick={() => {
-          //   console.log('asd', { ...record });
-          //   setIdUpdate(record.id);
-          //   form.setFieldsValue({
-          //     ...record,
-          //     ...(record?.entryTime !== undefined && { entryTime: dayjs(record.entryTime) }),
-          //     ...(record?.closeTime !== undefined && { closeTime: dayjs(record.closeTime) }),
-          //   });
-          //   setPreviewURLs(record.images);
-          //   setIsOpenAddTrade({ status: true, type: 'edit' });
-          // }}
-        >
-          {record.symbol}
-        </span>
-      ),
+      render: (_, record) => <span className="font-bold">{record.symbol}</span>,
     },
     {
       title: 'Lots',
@@ -397,7 +378,7 @@ const Trading = () => {
       key: 'closedBy',
       width: 80,
       align: 'center',
-      render: (text) => <>{handleClosedBy(text)}</>,
+      render: (text) => <>{handleClosedByDesktop(text)}</>,
     },
     {
       title: 'Net P&L',
@@ -411,7 +392,7 @@ const Trading = () => {
           //   color: pnl >= 0 ? '#16a34a' : '#dc2626',
           //   fontWeight: 600,
           // }}
-          className={cx(`font-bold ${pnl >= 0 ? 'text-green-400' : 'text-red-400'}`)}
+          className={cx(`text-[14px]! font-bold ${pnl >= 0 ? 'text-green-400' : 'text-red-400'}`)}
         >
           {pnl === null || pnl === undefined
             ? undefined
@@ -421,31 +402,31 @@ const Trading = () => {
         </span>
       ),
     },
-    {
-      title: '',
-      dataIndex: 'view',
-      key: 'view',
-      width: 40,
-      align: 'center',
-      render: (_, record) => (
-        <span
-          className="cursor-pointer flex justify-center"
-          onClick={() => {
-            console.log('asd', { ...record });
-            setIdUpdate(record.id);
-            form.setFieldsValue({
-              ...record,
-              ...(record?.entryTime !== undefined && { entryTime: dayjs(record.entryTime) }),
-              ...(record?.closeTime !== undefined && { closeTime: dayjs(record.closeTime) }),
-            });
-            setPreviewURLs(record.images);
-            setIsOpenAddTrade({ status: true, type: 'edit' });
-          }}
-        >
-          <Eye />
-        </span>
-      ),
-    },
+    // {
+    //   title: '',
+    //   dataIndex: 'view',
+    //   key: 'view',
+    //   width: 40,
+    //   align: 'center',
+    //   render: (_, record) => (
+    //     <span
+    //       className="cursor-pointer flex justify-center"
+    //       onClick={() => {
+    //         console.log('asd', { ...record });
+    //         setIdUpdate(record.id);
+    //         form.setFieldsValue({
+    //           ...record,
+    //           ...(record?.entryTime !== undefined && { entryTime: dayjs(record.entryTime) }),
+    //           ...(record?.closeTime !== undefined && { closeTime: dayjs(record.closeTime) }),
+    //         });
+    //         setPreviewURLs(record.images);
+    //         setIsOpenAddTrade({ status: true, type: 'edit' });
+    //       }}
+    //     >
+    //       <Eye />
+    //     </span>
+    //   ),
+    // },
   ];
 
   // if (isMobile) {
@@ -504,8 +485,6 @@ const Trading = () => {
   const [selectedImage, setSelectedImage] = useState<any>();
   const [uploadedURLs, setUploadedURLs] = useState<string[]>([]); // URL từ server
 
-  console.log('previewURLs', previewURLs);
-
   const handleSelectImages = (e: any) => {
     const files = Array.from(e.target.files) as File[];
     setLocalImages((prev) => [...prev, ...files]);
@@ -535,8 +514,6 @@ const Trading = () => {
 
   const uploadToServer = async () => {
     try {
-      console.log('localImages', localImages);
-
       dispatch(showLoading());
       const formData = new FormData();
       localImages.forEach((f) => formData.append('files', f));
@@ -748,6 +725,22 @@ const Trading = () => {
                           '': theme === 'light',
                           'dark-table': theme === 'dark',
                         })}
+                        onRow={(record) => ({
+                          onClick: () => {
+                            setIdUpdate(record.id);
+                            form.setFieldsValue({
+                              ...record,
+                              ...(record?.entryTime !== undefined && {
+                                entryTime: dayjs(record.entryTime),
+                              }),
+                              ...(record?.closeTime !== undefined && {
+                                closeTime: dayjs(record.closeTime),
+                              }),
+                            });
+                            setPreviewURLs(record.images);
+                            setIsOpenAddTrade({ status: true, type: 'edit' });
+                          },
+                        })}
                       />
                     ) : (
                       <p
@@ -776,6 +769,22 @@ const Trading = () => {
                     className={cx(`table-trades`, {
                       '': theme === 'light',
                       'dark-table': theme === 'dark',
+                    })}
+                    onRow={(record) => ({
+                      onClick: () => {
+                        setIdUpdate(record.id);
+                        form.setFieldsValue({
+                          ...record,
+                          ...(record?.entryTime !== undefined && {
+                            entryTime: dayjs(record.entryTime),
+                          }),
+                          ...(record?.closeTime !== undefined && {
+                            closeTime: dayjs(record.closeTime),
+                          }),
+                        });
+                        setPreviewURLs(record.images);
+                        setIsOpenAddTrade({ status: true, type: 'edit' });
+                      },
                     })}
                   />
                 ),
