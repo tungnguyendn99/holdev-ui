@@ -82,6 +82,9 @@ const Trading = () => {
   const [rating, setRating] = useState(0);
   const [idUpdate, setIdUpdate] = useState('');
 
+  const [mode, setMode] = useState<string>('month');
+  const [dataYearStats, setDataYearStats] = useState<any>({});
+
   const dispatch = useAppDispatch();
   const userInfo = useAppSelector((state) => state.user.userInfo);
 
@@ -133,20 +136,48 @@ const Trading = () => {
       console.log('error123', err);
     }
   };
-  const getDataMonthTrade = async () => {
+  // const getDataMonthTrade = async () => {
+  //   try {
+  //     dispatch(showLoading());
+  //     // Simulate API call (replace with actual API request)
+  //     const { data } = await API.post('/trading/group', {
+  //       mode: 'month',
+  //       group: 'month',
+  //       dateString: selectedDate.format('YYYY-MM'),
+  //     });
+  //     setDataMonth(data[selectedDate.format('YYYY-MM')]);
+  //   } catch (err) {
+  //     console.log('error123', err);
+  //   } finally {
+  //     dispatch(hideLoading());
+  //   }
+  // };
+  const getDataYearStats = async () => {
     try {
       dispatch(showLoading());
       // Simulate API call (replace with actual API request)
       const { data } = await API.post('/trading/group', {
-        mode: 'month',
-        group: 'month',
-        dateString: selectedDate.format('YYYY-MM'),
+        mode: 'year',
+        group: 'year',
+        dateString: selectedDate.format('YYYY'),
       });
-      setDataMonth(data[selectedDate.format('YYYY-MM')]);
+      setDataYearStats(data[selectedDate.format('YYYY')]);
     } catch (err) {
       console.log('error123', err);
     } finally {
       dispatch(hideLoading());
+    }
+  };
+
+  const handleChangeViewMode = async (mode: string) => {
+    console.log('modeee', mode);
+
+    setMode(mode);
+    if (mode === 'month') {
+      getDataYearTrade();
+    } else {
+      getDataYearStats();
+      getDataYearTrade();
     }
   };
 
@@ -159,6 +190,7 @@ const Trading = () => {
         group: 'month',
       });
       setDataYear(data);
+      setDataMonth(data[selectedDate.format('YYYY-MM')]);
     } catch (err) {
       console.log('error123', err);
     } finally {
@@ -198,8 +230,10 @@ const Trading = () => {
 
   useEffect(() => {
     getDataDaysTrade();
-    getDataMonthTrade();
+    // getDataMonthTrade();
+    getDataYearTrade();
     getSelectedDayTrades();
+    getDataYearStats();
   }, [selectedDate]);
 
   // const syncPageData = async () => {
@@ -215,9 +249,10 @@ const Trading = () => {
       await Promise.all([
         getRecentTrade(),
         getDataDaysTrade(),
-        getDataMonthTrade(),
+        // getDataMonthTrade(),
         getDataYearTrade(),
         getSelectedDayTrades(),
+        getDataYearStats(),
       ]);
     } catch (err) {
       console.error('Lỗi khi sync dữ liệu:', err);
@@ -288,15 +323,15 @@ const Trading = () => {
       <div
         className={cx(
           'dayTrade font-semibold',
-          monthData.dayProfit && 'profit',
-          monthData.dayLoss && 'loss',
+          monthData?.dayProfit && 'profit',
+          monthData?.dayLoss && 'loss',
         )}
         onClick={() => setSelectedDate(value)}
       >
         <p className="profit-cell">
           <span
             className={cx(
-              `font-semibold ${monthData.dayProfit ? 'text-green-500' : 'text-red-400'}`,
+              `font-semibold ${monthData?.dayProfit ? 'text-green-500' : 'text-red-400'}`,
             )}
           >
             {monthData?.profit}$
@@ -661,21 +696,66 @@ const Trading = () => {
             </div>
           </div>
           <div className="flex w-[40%] justify-end">
-            <p className="mt-2">
-              <span style={{ fontWeight: 700 }}>Monthly stats:</span>{' '}
-              <Tag color="geekblue" style={{ fontSize: '18px' }}>
-                {dataMonth?.trades} trades
-              </Tag>
-              <Tag color="geekblue" style={{ fontSize: '18px' }}>
-                {dataMonth.winrate}
-              </Tag>
-              <Tag color="geekblue" style={{ fontSize: '18px' }}>
-                {dataMonth?.reward}R
-              </Tag>
-              <Tag color="green" style={{ fontSize: '18px' }}>
-                {dataMonth?.profit}
-              </Tag>
-            </p>
+            {mode === 'month'
+              ? dataMonth && (
+                  <p className="mt-2">
+                    <span style={{ fontWeight: 700 }}>Monthly stats:</span>{' '}
+                    <Tag color="geekblue" style={{ fontSize: '18px' }}>
+                      {dataMonth?.trades} trades
+                    </Tag>
+                    <Tag color="geekblue" style={{ fontSize: '18px' }}>
+                      {dataMonth?.winrate}
+                    </Tag>
+                    <Tag color="geekblue" style={{ fontSize: '18px' }}>
+                      {dataMonth?.reward}R
+                    </Tag>
+                    <Tag
+                      color={dataMonth?.dayProfit ? 'green' : 'red'}
+                      style={{ fontSize: '18px' }}
+                    >
+                      {dataMonth?.profit}$
+                    </Tag>
+                  </p>
+                )
+              : dataYearStats && (
+                  <p className="mt-2">
+                    <span style={{ fontWeight: 700 }}>Yearly stats:</span>{' '}
+                    <Tag color="geekblue" style={{ fontSize: '18px' }}>
+                      {dataYearStats?.trades} trades
+                    </Tag>
+                    <Tag color="geekblue" style={{ fontSize: '18px' }}>
+                      {dataYearStats?.winrate}
+                    </Tag>
+                    <Tag color="geekblue" style={{ fontSize: '18px' }}>
+                      {dataYearStats?.reward}R
+                    </Tag>
+                    <Tag
+                      color={dataYearStats?.dayProfit ? 'green' : 'red'}
+                      style={{ fontSize: '18px' }}
+                    >
+                      {dataYearStats?.profit}$
+                    </Tag>
+                  </p>
+                )}
+            {/* {dataMonth && (
+              <p className="mt-2">
+                <span style={{ fontWeight: 700 }}>
+                  {mode === 'month' ? 'Monthly' : 'Yearly'} stats:
+                </span>{' '}
+                <Tag color="geekblue" style={{ fontSize: '18px' }}>
+                  {dataMonth?.trades} trades
+                </Tag>
+                <Tag color="geekblue" style={{ fontSize: '18px' }}>
+                  {dataMonth?.winrate}
+                </Tag>
+                <Tag color="geekblue" style={{ fontSize: '18px' }}>
+                  {dataMonth?.reward}R
+                </Tag>
+                <Tag color={dataMonth?.dayProfit ? 'green' : 'red'} style={{ fontSize: '18px' }}>
+                  {dataMonth?.profit}$
+                </Tag>
+              </p>
+            )} */}
             <button
               onClick={syncPageData}
               className="w-20 h-6 mt-2 bg-indigo-500 text-blue-50 rounded-lg cursor-pointer hover:opacity-90"
@@ -689,6 +769,7 @@ const Trading = () => {
           monthCellRender={monthCellRender}
           handleSelectDate={handleSelectDate}
           selectedDate={selectedDate}
+          handleChangeViewMode={handleChangeViewMode}
         />
         {/* </Card> */}
       </div>

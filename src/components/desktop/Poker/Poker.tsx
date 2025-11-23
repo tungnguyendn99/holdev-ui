@@ -40,9 +40,10 @@ const Poker = () => {
   const [form] = Form.useForm();
 
   const [sessions, setSessions] = useState<any[]>([]);
-  const [selectedDate, setSelectedDate] = useState(dayjs());
+  const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
   const [dataDays, setDataDays] = useState<Record<string, any>>({});
-  const [dataMonths, setDataMonths] = useState<Record<string, any>>({});
+  // const [dataMonths, setDataMonths] = useState<Record<string, any>>({});
+  const [dataYear, setDataYear] = useState<any>({});
   const [detailMonth, setDetailMonth] = useState<Record<string, any>>({});
   const [isOpen, setIsOpen] = useState<{ status: boolean; type: 'add' | 'edit' }>({
     status: false,
@@ -50,6 +51,9 @@ const Poker = () => {
   });
   const [idUpdate, setIdUpdate] = useState('');
   const [rating, setRating] = useState(0);
+
+  const [mode, setMode] = useState<string>('month');
+  const [dataYearStats, setDataYearStats] = useState<any>({});
 
   const locale: any = {
     lang: {
@@ -81,15 +85,61 @@ const Poker = () => {
     }
   };
 
-  const getDataMonths = async () => {
+  // const getDataMonths = async () => {
+  //   try {
+  //     dispatch(showLoading());
+  //     const { data } = await API.post('/poker/group', {
+  //       mode: 'year',
+  //       group: 'month',
+  //       //   dateString: selectedDate.format('YYYY-MM'),
+  //     });
+  //     setDataMonths(data);
+  //     setDetailMonth(data[selectedDate.format('YYYY-MM')]);
+  //   } catch (err) {
+  //     console.log('error123', err);
+  //   } finally {
+  //     dispatch(hideLoading());
+  //   }
+  // };
+
+  const getDataYearStats = async () => {
     try {
       dispatch(showLoading());
+      // Simulate API call (replace with actual API request)
+      const { data } = await API.post('/poker/group', {
+        mode: 'year',
+        group: 'year',
+        dateString: selectedDate.format('YYYY'),
+      });
+      setDataYearStats(data[selectedDate.format('YYYY')]);
+    } catch (err) {
+      console.log('error123', err);
+    } finally {
+      dispatch(hideLoading());
+    }
+  };
+
+  const handleChangeViewMode = async (mode: string) => {
+    console.log('modeee', mode);
+
+    setMode(mode);
+    if (mode === 'month') {
+      getDataYearSession();
+    } else {
+      getDataYearStats();
+      getDataYearSession();
+    }
+  };
+
+  const getDataYearSession = async () => {
+    try {
+      dispatch(showLoading());
+      // Simulate API call (replace with actual API request)
       const { data } = await API.post('/poker/group', {
         mode: 'year',
         group: 'month',
-        //   dateString: selectedDate.format('YYYY-MM'),
       });
-      setDataMonths(data);
+      setDataYear(data);
       setDetailMonth(data[selectedDate.format('YYYY-MM')]);
     } catch (err) {
       console.log('error123', err);
@@ -101,7 +151,13 @@ const Poker = () => {
   const syncPageData = async () => {
     try {
       dispatch(showLoading());
-      await Promise.all([getRecentSessions(), getDataDays(), getDataMonths()]);
+      await Promise.all([
+        getRecentSessions(),
+        getDataDays(),
+        // getDataMonths(),
+        getDataYearSession(),
+        getDataYearStats(),
+      ]);
     } catch (err) {
       console.error(err);
     } finally {
@@ -110,7 +166,10 @@ const Poker = () => {
   };
 
   useEffect(() => {
-    syncPageData();
+    getDataDays();
+    // getDataMonths();
+    getDataYearSession();
+    getDataYearStats();
   }, [selectedDate]);
 
   // ======== ADD/UPDATE SESSION ========
@@ -166,7 +225,7 @@ const Poker = () => {
             dayData.dayProfit ? 'text-green-600' : 'text-red-500',
           )}
         >
-          {dayData.profit}
+          {dayData.profit}$
         </span>
         <span className={cx(`text-[#0D706E]`)}>
           {`${dayData.count} session${dayData.count > 1 ? 's' : ''}`} ({dayData.hands} hands)
@@ -178,34 +237,32 @@ const Poker = () => {
 
   const monthCellRender = (value: Dayjs) => {
     const dateKey = value.format('YYYY-MM');
-    const monthData = dataMonths[dateKey];
+    const monthData = dataYear[dateKey];
 
     if (!monthData) return null;
-
-    const profit = monthData.profit || 0;
-    const winrate = monthData.winrate || 0;
 
     return (
       <div
         // className="flex flex-col text-center font-semibold h-full"
         className={cx(
           'flex flex-col text-center font-semibold h-full',
-          monthData.dayProfit && 'profit',
-          monthData.dayLoss && 'loss',
+          monthData?.dayProfit && 'profit',
+          monthData?.dayLoss && 'loss',
         )}
       >
         <span
           className={cx(
             'text-[18px] font-semibold',
-            monthData.dayProfit ? 'text-green-600' : 'text-red-500',
+            monthData?.dayProfit ? 'text-green-600' : 'text-red-500',
           )}
         >
-          {monthData.profit}
+          {monthData?.profit}$
         </span>
         <span className="text-[#0D706E]">
-          {`${monthData.count} session${monthData.count > 1 ? 's' : ''}`} ({monthData.hands} hands)
+          {`${monthData?.count} session${monthData?.count > 1 ? 's' : ''}`} ({monthData?.hands}{' '}
+          hands)
         </span>
-        <span className="text-[#0D706E]">{winrate}</span>
+        <span className="text-[#0D706E]">{monthData?.winrate}</span>
       </div>
     );
   };
@@ -478,13 +535,62 @@ const Poker = () => {
           Add Session
         </Button>
         {/* <DatePicker picker="month" value={selectedDate} onChange={(d) => d && setSelectedDate(d)} /> */}
-        <div className="flex">
+        {/* <div className="flex">
           <p className="mt-2">
             <span style={{ fontWeight: 700 }}>Monthly stats:</span>{' '}
             <Tag color="green" style={{ fontSize: '18px' }}>
               {detailMonth?.profit}
             </Tag>
           </p>
+          <button
+            onClick={syncPageData}
+            className="w-20 h-6 mt-2 bg-indigo-500 text-blue-50 rounded-lg cursor-pointer hover:opacity-90"
+          >
+            Sync
+          </button>
+        </div> */}
+        <div className="flex w-[50%] justify-end">
+          {mode === 'month'
+            ? detailMonth && (
+                <p className="mt-2">
+                  <span style={{ fontWeight: 700 }}>Monthly stats:</span>{' '}
+                  <Tag color="geekblue" style={{ fontSize: '18px' }}>
+                    {detailMonth?.count} sessions
+                  </Tag>
+                  <Tag color="geekblue" style={{ fontSize: '18px' }}>
+                    {detailMonth?.hands} hands
+                  </Tag>
+                  <Tag color="geekblue" style={{ fontSize: '18px' }}>
+                    {detailMonth?.winrate}
+                  </Tag>
+                  <Tag
+                    color={detailMonth?.dayProfit ? 'green' : 'red'}
+                    style={{ fontSize: '18px' }}
+                  >
+                    {detailMonth?.profit}$
+                  </Tag>
+                </p>
+              )
+            : dataYearStats && (
+                <p className="mt-2">
+                  <span style={{ fontWeight: 700 }}>Yearly stats:</span>{' '}
+                  <Tag color="geekblue" style={{ fontSize: '18px' }}>
+                    {dataYearStats?.count} sessions
+                  </Tag>
+                  <Tag color="geekblue" style={{ fontSize: '18px' }}>
+                    {dataYearStats?.hands} hands
+                  </Tag>
+                  <Tag color="geekblue" style={{ fontSize: '18px' }}>
+                    {dataYearStats?.winrate}
+                  </Tag>
+                  <Tag
+                    color={dataYearStats?.dayProfit ? 'green' : 'red'}
+                    style={{ fontSize: '18px' }}
+                  >
+                    {dataYearStats?.profit}$
+                  </Tag>
+                </p>
+              )}
           <button
             onClick={syncPageData}
             className="w-20 h-6 mt-2 bg-indigo-500 text-blue-50 rounded-lg cursor-pointer hover:opacity-90"
@@ -505,6 +611,7 @@ const Poker = () => {
           monthCellRender={monthCellRender}
           handleSelectDate={handleSelectDate}
           selectedDate={selectedDate}
+          handleChangeViewMode={handleChangeViewMode}
         />
         {/* </Card> */}
       </div>

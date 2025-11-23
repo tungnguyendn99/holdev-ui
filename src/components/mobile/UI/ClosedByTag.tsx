@@ -70,10 +70,7 @@ export const handleClosedByDesktop = (closedBy: string | undefined) => {
       );
     case 'BE':
       return (
-        <Tag
-          color="yellow"
-          className="text-[14px]! font-bold px-2! py-px! rounded-md! leading-none!"
-        >
+        <Tag color="gold" className="text-[14px]! font-bold px-2! py-px! rounded-md! leading-none!">
           {closedBy}
         </Tag>
       );

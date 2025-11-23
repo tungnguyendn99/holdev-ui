@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Calendar, Select, Button, Space } from 'antd';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
@@ -12,6 +12,7 @@ const CustomCalendar = ({
   monthCellRender,
   handleSelectDate,
   selectedDate,
+  handleChangeViewMode,
 }: any) => {
   // const [selectedDate, setSelectedDate] = useState(dayjs());
   const { theme } = useTheme();
@@ -110,7 +111,10 @@ const CustomCalendar = ({
               )}
               <Button
                 size="large"
-                onClick={() => setMode(mode === 'month' ? 'year' : 'month')}
+                onClick={() => {
+                  setMode(mode === 'month' ? 'year' : 'month');
+                  handleChangeViewMode(mode === 'month' ? 'year' : 'month');
+                }}
                 // className="text-xs"
                 className={cx('text-xs', {
                   'bg-[#3f67be]! text-white! hover:text-gray-200!': theme === 'dark',
