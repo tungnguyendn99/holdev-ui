@@ -7,11 +7,11 @@ import clsx from 'clsx';
 
 export default function MobileSidebar({ onClose }: { onClose: () => void }) {
   const modules = [
-    { id: 'trade', name: 'Trading', path: '/trading', icon: <ChartCandlestick /> },
-    { id: 'poker', name: 'Poker', path: '/poker', icon: <Spade /> },
-    { id: 'english', name: 'English', path: '/english', icon: <NotebookPen /> },
-    { id: 'todo', name: 'To Do List', path: '/to-do', icon: <ListTodo /> },
-    { id: 'user', name: 'User', path: '/user', icon: <User /> },
+    { id: 'TRADING', name: 'Trading', path: '/trading', icon: <ChartCandlestick /> },
+    { id: 'POKER', name: 'Poker', path: '/poker', icon: <Spade /> },
+    { id: 'ENGLISH', name: 'English', path: '/english', icon: <NotebookPen /> },
+    { id: 'TODO', name: 'To Do List', path: '/to-do', icon: <ListTodo /> },
+    { id: 'USER', name: 'User', path: '/user', icon: <User /> },
   ];
 
   const pathname = usePathname();

@@ -10,12 +10,12 @@ import { Tooltip } from 'antd';
 
 const modules = [
   // { name: "Tổng quan", path: "/dashboard" },
-  { id: 'trade', name: 'Trading', path: '/trading', icon: <ChartCandlestick /> },
-  { id: 'poker', name: 'Poker', path: '/poker', icon: <Spade /> },
-  { id: 'english', name: 'English', path: '/english', icon: <NotebookPen /> },
-  { id: 'todo', name: 'To Do List', path: '/to-do', icon: <ListTodo /> },
+  { id: 'TRADING', name: 'Trading', path: '/trading', icon: <ChartCandlestick /> },
+  { id: 'POKER', name: 'Poker', path: '/poker', icon: <Spade /> },
+  { id: 'ENGLISH', name: 'English', path: '/english', icon: <NotebookPen /> },
+  { id: 'TODO', name: 'To Do List', path: '/to-do', icon: <ListTodo /> },
   // { id: 'expense', name: 'Expense', path: '/expense', icon: <Wallet /> },
-  { id: 'user', name: 'User', path: '/user', icon: <User /> },
+  { id: 'USER', name: 'User', path: '/user', icon: <User /> },
   // { name: "Người dùng", path: "/dashboard/users" },
 ];
 
