@@ -106,6 +106,7 @@ export default function PokerMobile() {
         startTime: moment(session.startTime).toDate(),
         endTime: session.endTime ? moment(session.endTime).toDate() : undefined,
       });
+      setPreviewURLs(session.images);
     } else {
       setIsEdit(false);
       setFormData({
@@ -744,18 +745,23 @@ export default function PokerMobile() {
               <AnimatePresence>
                 {selectedImage && (
                   <motion.div
-                    className="fixed inset-0 bg-black/70 flex items-center justify-center backdrop-blur-sm z-50"
+                    className="fixed inset-0 bg-black/70 flex items-center justify-center backdrop-blur-sm z-100"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     onClick={() => setSelectedImage(null)}
                   >
-                    <motion.img
-                      src={selectedImage}
-                      className="max-w-[80%] max-h-[80%] rounded-lg shadow-xl"
-                      initial={{ scale: 0.8 }}
-                      animate={{ scale: 1 }}
-                    />
+                    <div className="max-h-full max-w-[90vw] overflow-auto">
+                      <motion.img
+                        key={selectedImage}
+                        src={selectedImage}
+                        // className="max-w-[90%] max-h-[90%] rounded-lg shadow-xl"
+                        className="w-auto max-w-full h-auto max-h-none rounded-lg shadow-xl"
+                        initial={{ opacity: 0, scale: 0.85 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.85 }}
+                      />
+                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>

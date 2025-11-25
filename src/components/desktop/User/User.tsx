@@ -9,6 +9,7 @@ import { notification } from 'antd';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { hideLoading, setUserInfo, showLoading } from '../../../store/slices/user.slice';
 import moment from 'moment';
+import { useWindowResize } from '../../../common/func';
 
 //
 // MOCK DATA (bạn replace bằng API real)
@@ -616,6 +617,9 @@ export function ImagesTab({ theme, type, active }: any) {
     </motion.div>
   );
 
+  const isMobile = useWindowResize(576);
+  console.log('isMobile', isMobile);
+
   return (
     <>
       {/* =============================== */}
@@ -655,9 +659,7 @@ export function ImagesTab({ theme, type, active }: any) {
             {/* Container cho image — chặn click ra ngoài */}
             {selectedTypeImage === 'POKER' ? (
               <div
-                // className="flex items-center justify-center w-full h-full"
-                className="max-h-screen max-w-[90vw] overflow-auto"
-                // onClick={(e) => e.stopPropagation()} // STOP CLICK FROM CLOSING
+                className={`${isMobile ? 'max-h-[80%]' : 'max-h-screen'} max-w-[90vw] overflow-auto`}
               >
                 <motion.img
                   key={selectedImage}
@@ -678,10 +680,7 @@ export function ImagesTab({ theme, type, active }: any) {
                 />
               </div>
             ) : (
-              <div
-                className="flex items-center justify-center w-full h-full"
-                // onClick={(e) => e.stopPropagation()} // STOP CLICK FROM CLOSING
-              >
+              <div className="flex items-center justify-center w-full h-full">
                 <motion.img
                   key={selectedImage}
                   src={selectedImage}
