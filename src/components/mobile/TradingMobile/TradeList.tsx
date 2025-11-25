@@ -132,11 +132,9 @@ function SwipeToRevealDelete({ trade, onConfirmDelete, handleOpenTrade }: any) {
                 {trade.result >= 0 ? `+${trade.result}` : trade.result}$
               </p>
             )}
-            {trade.rating > 0 && (
-              <div className="flex items-center justify-end gap-1 text-yellow-400 text-xs">
-                <Star className="w-3 h-3 fill-yellow-400" /> {trade.rating}
-              </div>
-            )}
+            <div className={`flex items-center justify-end gap-1 ${trade.rating > 0 ? 'text-yellow-500' : 'text-zinc-400'} text-xs`}>
+              <Star className={`w-3 h-3 ${trade.rating > 0 ? 'fill-yellow-400' : 'fill-zinc-300'}`} /> {trade.rating || 0}
+            </div>
           </div>
         </Card>
       </motion.div>

@@ -37,7 +37,7 @@ import { hideLoading, showLoading } from '../../../store/slices/user.slice';
 import { openNotification } from '../../../common/utils.notification';
 import { Label } from '../../../../components/ui/label';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Eye } from 'lucide-react';
+import { Images, Star } from 'lucide-react';
 import CustomCalendar from '../UI/CustomCalendar';
 import { ImagesTab } from '../User/User';
 import PlanSettings from '../../mobile/TradingMobile/Plan';
@@ -369,7 +369,12 @@ const Trading = () => {
       key: 'symbol',
       width: 80,
       align: 'center',
-      render: (_, record) => <span className="font-bold">{record.symbol}</span>,
+      render: (_, record) => (
+        <div className="ml-4 flex gap-2 justify-center items-center">
+          <span className="font-bold">{record.symbol}</span>
+          <div className="w-4">{!!record.images.length && <Images size={16} />}</div>
+        </div>
+      ),
     },
     {
       title: 'Lots',
@@ -390,6 +395,14 @@ const Trading = () => {
           {text}
         </span>
       ),
+    },
+    {
+      title: 'Entry',
+      dataIndex: 'entryPrice',
+      key: 'entryPrice',
+      width: 80,
+      align: 'center',
+      render: (_, record) => <span className="font-semibold">{record.entryPrice}</span>,
     },
     {
       title: 'Close Date',
@@ -413,7 +426,19 @@ const Trading = () => {
       key: 'closedBy',
       width: 80,
       align: 'center',
-      render: (text) => <>{handleClosedByDesktop(text)}</>,
+      render: (_, record) => (
+        <div className="flex gap-2 justify-center items-center">
+          {handleClosedByDesktop(record.closedBy)}
+          <div
+            className={`flex items-center justify-end gap-1 ${record.rating > 0 ? 'text-yellow-500' : 'text-zinc-400'} text-xs`}
+          >
+            <Star
+              className={`w-3 h-3 ${record.rating > 0 ? 'fill-yellow-400' : 'fill-zinc-300'}`}
+            />{' '}
+            {record.rating || 0}
+          </div>
+        </div>
+      ),
     },
     {
       title: 'Net P&L',
@@ -1186,7 +1211,7 @@ const Trading = () => {
                 <AnimatePresence>
                   {selectedImage && (
                     <motion.div
-                      className="fixed inset-0 bg-black/70 flex items-center justify-center backdrop-blur-sm z-50"
+                      className="fixed inset-0 bg-black/70 flex items-center justify-center backdrop-blur-sm z-1020"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}

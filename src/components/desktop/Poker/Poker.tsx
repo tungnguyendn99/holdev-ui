@@ -30,7 +30,7 @@ import CustomCalendar from '../UI/CustomCalendar';
 import './Poker.scss';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ColumnsType } from 'antd/es/table';
-import { Eye } from 'lucide-react';
+import { Eye, Images, Star } from 'lucide-react';
 import { ImagesTab } from '../User/User';
 import PlanSettings from '../../mobile/PokerMobile/Plan';
 
@@ -72,6 +72,10 @@ const Poker = () => {
       console.error(err);
     }
   };
+
+  useEffect(() => {
+    getRecentSessions();
+  }, []);
 
   const getDataDays = async () => {
     try {
@@ -279,7 +283,12 @@ const Poker = () => {
       key: 'format',
       align: 'center' as const,
       width: 120,
-      render: (_, record) => <span className="font-bold">{record.format}</span>,
+      render: (_, record) => (
+        <div className="ml-3 flex gap-2 justify-center items-center">
+          <span className="font-bold">{record.format}</span>
+          <div className="w-4">{!!record.images.length && <Images size={16} />}</div>
+        </div>
+      ),
     },
     {
       title: 'Blind',
@@ -310,14 +319,14 @@ const Poker = () => {
       dataIndex: 'duration',
       key: 'duration',
       align: 'center' as const,
-      width: 80,
+      width: 70,
     },
     {
       title: 'Bbs',
       dataIndex: 'resultBB',
       key: 'resultBB',
       align: 'center' as const,
-      width: 90,
+      width: 60,
       render: (val: number) =>
         val >= 0 ? (
           <Tag
@@ -340,7 +349,7 @@ const Poker = () => {
       dataIndex: 'winrate',
       key: 'winrate',
       align: 'center' as const,
-      width: 100,
+      width: 120,
       render: (text: string) => (
         <Tag
           color="geekblue"
@@ -351,11 +360,26 @@ const Poker = () => {
       ),
     },
     {
+      title: 'Rating',
+      dataIndex: 'rating',
+      key: 'rating',
+      align: 'center' as const,
+      width: 50,
+      render: (_, record) => (
+        <div
+          className={`flex items-center justify-center gap-1 ${record.rating > 0 ? 'text-yellow-500' : 'text-zinc-400'} text-xs`}
+        >
+          <Star className={`w-3 h-3 ${record.rating > 0 ? 'fill-yellow-400' : 'fill-zinc-300'}`} />{' '}
+          {record.rating || 0}
+        </div>
+      ),
+    },
+    {
       title: 'Result',
       dataIndex: 'result',
       key: 'result',
       align: 'center' as const,
-      width: 120,
+      width: 100,
       render: (val: number) => (
         <span
           className={cx('text-[14px]! font-semibold', val >= 0 ? 'text-green-400' : 'text-red-500')}
@@ -364,31 +388,6 @@ const Poker = () => {
         </span>
       ),
     },
-    // {
-    //   title: '',
-    //   dataIndex: 'view',
-    //   key: 'view',
-    //   width: 40,
-    //   align: 'center',
-    //   render: (_, record) => (
-    //     <span
-    //       className="cursor-pointer flex justify-center"
-    //       onClick={() => {
-    //         console.log('asd', { ...record });
-    //         setIdUpdate(record.id);
-    //         form.setFieldsValue({
-    //           ...record,
-    //           ...(record?.startTime !== undefined && { startTime: dayjs(record.startTime) }),
-    //           ...(record?.endTime !== undefined && { endTime: dayjs(record.endTime) }),
-    //         });
-    //         setPreviewURLs(record.images);
-    //         setIsOpen({ status: true, type: 'edit' });
-    //       }}
-    //     >
-    //       <Eye />
-    //     </span>
-    //   ),
-    // },
   ];
 
   //upload images
@@ -823,7 +822,7 @@ const Poker = () => {
                 <AnimatePresence>
                   {selectedImage && (
                     <motion.div
-                      className="fixed inset-0 bg-black/70 flex items-center justify-center backdrop-blur-sm z-50"
+                      className="fixed inset-0 bg-black/70 flex items-center justify-center backdrop-blur-sm z-1020"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}

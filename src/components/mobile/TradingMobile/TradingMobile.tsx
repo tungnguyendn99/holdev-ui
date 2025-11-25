@@ -962,7 +962,7 @@ export default function TradingMobile() {
                   >
                     <motion.img
                       src={selectedImage}
-                      className="max-w-[80%] max-h-[80%] rounded-lg shadow-xl"
+                      className="max-w-[90%] max-h-[90%] rounded-lg shadow-xl"
                       initial={{ scale: 0.8 }}
                       animate={{ scale: 1 }}
                     />

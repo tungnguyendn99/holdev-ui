@@ -128,11 +128,9 @@ function SwipeToRevealDelete({ session, onConfirmDelete, handleOpenSession }: an
                 {session.result > 0 ? `+${session.result}` : session.result}$
               </p>
             )}
-            {session.rating > 0 && (
-              <div className="flex items-center justify-end gap-1 text-yellow-400 text-xs">
-                <Star className="w-3 h-3 fill-yellow-400" /> {session.rating}
-              </div>
-            )}
+            <div className={`flex items-center justify-end gap-1 ${session.rating > 0 ? 'text-yellow-500' : 'text-zinc-400'} text-xs`}>
+              <Star className={`w-3 h-3 ${session.rating > 0 ? 'fill-yellow-400' : 'fill-zinc-300'}`} /> {session.rating || 0}
+            </div>
           </div>
         </Card>
       </motion.div>
