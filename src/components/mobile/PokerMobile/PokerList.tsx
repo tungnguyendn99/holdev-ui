@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion, useMotionValue, animate } from 'framer-motion';
-import { Trash2, Star } from 'lucide-react';
+import { Trash2, Star, Images } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -108,7 +108,10 @@ function SwipeToRevealDelete({ session, onConfirmDelete, handleOpenSession }: an
       >
         <Card className="flex justify-between items-center px-3 py-2">
           <div>
-            <p className="font-medium">{session.blind}</p>
+            <div className="flex gap-3 items-center">
+              <p className="font-medium">{session.blind}</p>
+              {!!session.images.length && <Images size={16} />}
+            </div>
             <p className="text-xs text-muted-foreground">
               {session.format} · {session.hands} hands
             </p>
@@ -128,8 +131,13 @@ function SwipeToRevealDelete({ session, onConfirmDelete, handleOpenSession }: an
                 {session.result > 0 ? `+${session.result}` : session.result}$
               </p>
             )}
-            <div className={`flex items-center justify-end gap-1 ${session.rating > 0 ? 'text-yellow-500' : 'text-zinc-400'} text-xs`}>
-              <Star className={`w-3 h-3 ${session.rating > 0 ? 'fill-yellow-400' : 'fill-zinc-300'}`} /> {session.rating || 0}
+            <div
+              className={`flex items-center justify-end gap-1 ${session.rating > 0 ? 'text-yellow-500' : 'text-zinc-400'} text-xs`}
+            >
+              <Star
+                className={`w-3 h-3 ${session.rating > 0 ? 'fill-yellow-400' : 'fill-zinc-300'}`}
+              />{' '}
+              {session.rating || 0}
             </div>
           </div>
         </Card>

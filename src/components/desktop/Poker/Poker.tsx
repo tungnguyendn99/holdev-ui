@@ -54,6 +54,7 @@ const Poker = () => {
 
   const [mode, setMode] = useState<string>('month');
   const [dataYearStats, setDataYearStats] = useState<any>({});
+  const [selectedDaySessions, setSelectedDaySessions] = useState<any>([]);
 
   const locale: any = {
     lang: {
@@ -105,6 +106,21 @@ const Poker = () => {
   //     dispatch(hideLoading());
   //   }
   // };
+
+  const getSelectedDaySessions = async () => {
+    try {
+      // Simulate API call (replace with actual API request)
+      const { data } = await API.post('/poker/list', {
+        mode: 'day',
+        dateString: selectedDate.format('YYYY-MM-DD'),
+      });
+      setSelectedDaySessions(data);
+    } catch (err) {
+      console.log('error123', err);
+    } finally {
+      dispatch(hideLoading());
+    }
+  };
 
   const getDataYearStats = async () => {
     try {
@@ -161,6 +177,7 @@ const Poker = () => {
         // getDataMonths(),
         getDataYearSession(),
         getDataYearStats(),
+        getSelectedDaySessions(),
       ]);
     } catch (err) {
       console.error(err);
@@ -174,6 +191,7 @@ const Poker = () => {
     // getDataMonths();
     getDataYearSession();
     getDataYearStats();
+    getSelectedDaySessions();
   }, [selectedDate]);
 
   // ======== ADD/UPDATE SESSION ========
@@ -322,6 +340,14 @@ const Poker = () => {
       width: 70,
     },
     {
+      title: 'Hands',
+      dataIndex: 'hands',
+      key: 'hands',
+      align: 'center' as const,
+      width: 60,
+      render: (_, record) => <span className="font-bold">{record.hands}</span>,
+    },
+    {
       title: 'Bbs',
       dataIndex: 'resultBB',
       key: 'resultBB',
@@ -382,7 +408,7 @@ const Poker = () => {
       width: 100,
       render: (val: number) => (
         <span
-          className={cx('text-[14px]! font-semibold', val >= 0 ? 'text-green-400' : 'text-red-500')}
+          className={cx('text-[14px]! font-semibold', val >= 0 ? 'text-green-400' : 'text-red-400')}
         >
           {val >= 0 ? `$${val}` : `-$${Math.abs(val).toLocaleString()}`}
         </span>
@@ -631,6 +657,59 @@ const Poker = () => {
           <Tabs
             defaultActiveKey="recent"
             items={[
+              {
+                key: 'selecteDay',
+                label: 'Selected Day Sessions',
+                children: (
+                  <>
+                    <p
+                      className={cx('font-bold text-center mb-3', {
+                        'text-white': theme === 'dark',
+                      })}
+                    >
+                      {selectedDate.format('DD / MM / YYYY')}
+                    </p>
+                    {!!selectedDaySessions.length ? (
+                      <Table
+                        rowKey={(r) => r.id}
+                        columns={columns}
+                        dataSource={selectedDaySessions}
+                        pagination={false}
+                        scroll={{ y: 240 }}
+                        // size="small"
+                        className={cx(`w-full`, {
+                          '': theme === 'light',
+                          'dark-table': theme === 'dark',
+                        })}
+                        onRow={(record) => ({
+                          onClick: () => {
+                            setIdUpdate(record.id);
+                            form.setFieldsValue({
+                              ...record,
+                              ...(record?.startTime !== undefined && {
+                                startTime: dayjs(record.startTime),
+                              }),
+                              ...(record?.endTime !== undefined && {
+                                endTime: dayjs(record.endTime),
+                              }),
+                            });
+                            setPreviewURLs(record.images);
+                            setIsOpen({ status: true, type: 'edit' });
+                          },
+                        })}
+                      />
+                    ) : (
+                      <p
+                        className={cx('font-bold text-center mb-3 text-xl', {
+                          'text-white': theme === 'dark',
+                        })}
+                      >
+                        No Trade!
+                      </p>
+                    )}
+                  </>
+                ),
+              },
               {
                 key: 'recent',
                 label: 'Recent Sessions',
