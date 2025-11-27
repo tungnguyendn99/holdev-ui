@@ -313,7 +313,7 @@ const Poker = () => {
       dataIndex: 'blind',
       key: 'blind',
       align: 'center' as const,
-      width: 90,
+      width: 80,
       render: (_, record) => <span className="font-bold">{record.blind}</span>,
     },
     {
@@ -321,7 +321,7 @@ const Poker = () => {
       dataIndex: 'startTime',
       key: 'startTime',
       align: 'center' as const,
-      width: 80,
+      width: 100,
       render: (text: string) => moment(text).format('DD/MM/YYYY ~~ HH:mm'),
     },
     {
@@ -329,7 +329,7 @@ const Poker = () => {
       dataIndex: 'endTime',
       key: 'endTime',
       align: 'center' as const,
-      width: 90,
+      width: 100,
       render: (text: string) => moment(text).format('DD/MM/YYYY ~~ HH:mm'),
     },
     {
@@ -337,14 +337,14 @@ const Poker = () => {
       dataIndex: 'duration',
       key: 'duration',
       align: 'center' as const,
-      width: 70,
+      width: 60,
     },
     {
       title: 'Hands',
       dataIndex: 'hands',
       key: 'hands',
       align: 'center' as const,
-      width: 60,
+      width: 50,
       render: (_, record) => <span className="font-bold">{record.hands}</span>,
     },
     {
@@ -375,7 +375,7 @@ const Poker = () => {
       dataIndex: 'winrate',
       key: 'winrate',
       align: 'center' as const,
-      width: 90,
+      width: 80,
       render: (text: string) => (
         <Tag
           color="geekblue"
@@ -410,7 +410,11 @@ const Poker = () => {
         <span
           className={cx('text-[14px]! font-semibold', val >= 0 ? 'text-green-400' : 'text-red-400')}
         >
-          {val >= 0 ? `$${val}` : `-$${Math.abs(val).toLocaleString()}`}
+          {val === null || val === undefined
+            ? undefined
+            : val >= 0
+              ? `$${val.toLocaleString()}`
+              : `-$${Math.abs(val).toLocaleString()}`}
         </span>
       ),
     },
@@ -655,7 +659,7 @@ const Poker = () => {
           })}
         >
           <Tabs
-            defaultActiveKey="recent"
+            defaultActiveKey="selecteDay"
             items={[
               {
                 key: 'selecteDay',
@@ -774,7 +778,10 @@ const Poker = () => {
               {isOpen.type === 'add' ? 'Add New Session' : 'Edit Session'}
             </div>
           }
-          onCancel={() => setIsOpen({ status: false, type: 'add' })}
+          onCancel={() => {
+            form.resetFields();
+            setIsOpen({ status: false, type: 'add' });
+          }}
           footer={null}
           width={700}
         >

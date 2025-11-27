@@ -65,7 +65,7 @@ const Sidebar = ({ isCollapsed }: { isCollapsed: boolean }) => {
       className={cx(
         `sidebar ${theme === 'dark' && 'sidebar-dark'} ${theme === 'light' && 'sidebar-light'}`,
         'overflow-hidden transition-[width] duration-500 ease-in-out',
-        isCollapsed ? 'w-24' : 'w-56',
+        isCollapsed ? 'w-24' : 'w-72',
       )}
     >
       <h2
