@@ -300,7 +300,7 @@ const Poker = () => {
       dataIndex: 'format',
       key: 'format',
       align: 'center' as const,
-      width: 120,
+      width: 150,
       render: (_, record) => (
         <div className="ml-3 flex gap-2 justify-center items-center">
           <span className="font-bold">{record.format}</span>
@@ -313,7 +313,7 @@ const Poker = () => {
       dataIndex: 'blind',
       key: 'blind',
       align: 'center' as const,
-      width: 100,
+      width: 90,
       render: (_, record) => <span className="font-bold">{record.blind}</span>,
     },
     {
@@ -321,7 +321,7 @@ const Poker = () => {
       dataIndex: 'startTime',
       key: 'startTime',
       align: 'center' as const,
-      width: 120,
+      width: 80,
       render: (text: string) => moment(text).format('DD/MM/YYYY ~~ HH:mm'),
     },
     {
@@ -329,7 +329,7 @@ const Poker = () => {
       dataIndex: 'endTime',
       key: 'endTime',
       align: 'center' as const,
-      width: 120,
+      width: 90,
       render: (text: string) => moment(text).format('DD/MM/YYYY ~~ HH:mm'),
     },
     {
@@ -375,7 +375,7 @@ const Poker = () => {
       dataIndex: 'winrate',
       key: 'winrate',
       align: 'center' as const,
-      width: 120,
+      width: 90,
       render: (text: string) => (
         <Tag
           color="geekblue"
@@ -405,7 +405,7 @@ const Poker = () => {
       dataIndex: 'result',
       key: 'result',
       align: 'center' as const,
-      width: 100,
+      width: 80,
       render: (val: number) => (
         <span
           className={cx('text-[14px]! font-semibold', val >= 0 ? 'text-green-400' : 'text-red-400')}
