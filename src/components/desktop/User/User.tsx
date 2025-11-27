@@ -659,7 +659,7 @@ export function ImagesTab({ theme, type, active }: any) {
             {/* Container cho image — chặn click ra ngoài */}
             {selectedTypeImage === 'POKER' ? (
               <div
-                className={`${isMobile ? 'max-h-[80%]' : 'max-h-screen'} max-w-[90vw] overflow-auto`}
+                className={`${isMobile ? 'max-h-[85%]' : 'max-h-screen'} max-w-[90vw] overflow-auto`}
               >
                 <motion.img
                   key={selectedImage}

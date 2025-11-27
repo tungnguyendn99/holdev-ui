@@ -751,7 +751,7 @@ export default function PokerMobile() {
                     exit={{ opacity: 0 }}
                     onClick={() => setSelectedImage(null)}
                   >
-                    <div className="max-h-full max-w-[90vw] overflow-auto">
+                    <div className="max-h-[85%] max-w-[90vw] overflow-auto">
                       <motion.img
                         key={selectedImage}
                         src={selectedImage}
