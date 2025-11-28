@@ -116,6 +116,8 @@ function SwipeToRevealDelete({ trade, onConfirmDelete, handleOpenTrade }: any) {
             <p className="flex gap-2 items-center text-xs text-muted-foreground">
               <span>{moment(trade.closeTime || trade.entryTime).format('DD/MM/YYYY')}</span>
               <span>•</span>
+              <span>{trade.lots}</span>
+              <span>•</span>
               <span>{trade.duration}</span>
               <span>•</span>
               {/* <span className={trade.tradeSide === 'BUY' ? 'text-green-500' : 'text-red-500'}> */}
