@@ -41,7 +41,7 @@ import TradeList from './TradeList';
 import CustomDayPicker from '../UI/CustomDatePicker';
 import { AnimatePresence, motion } from 'framer-motion';
 import PlanSettings from './Plan';
-import { ImagesTab } from '../../desktop/User/User';
+import { ImagesTab } from '../../desktop/User/Images';
 
 export default function TradingMobile() {
   const { theme } = useTheme();
@@ -322,7 +322,13 @@ export default function TradingMobile() {
         {/* TAB 1 - TRADES */}
         <TabsContent value="trades" className="flex-1 overflow-y-auto">
           <div className="flex justify-between mb-3">
-            <Button onClick={() => handleOpenTrade()} className="w-full btn-theme">
+            <Button
+              onClick={() => {
+                handleOpenTrade();
+                setPreviewURLs([]);
+              }}
+              className="w-full btn-theme"
+            >
               <Plus size={20} className="mr-2" /> Add Trade
             </Button>
           </div>

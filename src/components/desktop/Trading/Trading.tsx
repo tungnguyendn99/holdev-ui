@@ -39,9 +39,9 @@ import { Label } from '../../../../components/ui/label';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Images, Star } from 'lucide-react';
 import CustomCalendar from '../UI/CustomCalendar';
-import { ImagesTab } from '../User/User';
 import PlanSettings from '../../mobile/TradingMobile/Plan';
 import { handleClosedByDesktop } from '../../mobile/UI/ClosedByTag';
+import { ImagesTab } from '../User/Images';
 
 const getMonthData = (value: Dayjs) => {
   if (value.month() === 8) {

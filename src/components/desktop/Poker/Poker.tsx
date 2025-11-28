@@ -31,8 +31,8 @@ import './Poker.scss';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ColumnsType } from 'antd/es/table';
 import { Eye, Images, Star } from 'lucide-react';
-import { ImagesTab } from '../User/User';
 import PlanSettings from '../../mobile/PokerMobile/Plan';
+import { ImagesTab } from '../User/Images';
 
 const Poker = () => {
   const dispatch = useAppDispatch();

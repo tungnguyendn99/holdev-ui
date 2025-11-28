@@ -29,8 +29,8 @@ import CustomDayPicker from '../UI/CustomDatePicker';
 import { Textarea } from '@/components/ui/textarea';
 import PokerList from './PokerList';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ImagesTab } from '../../desktop/User/User';
 import PlanSettings from './Plan';
+import { ImagesTab } from '../../desktop/User/Images';
 
 export default function PokerMobile() {
   const { theme } = useTheme();
@@ -300,7 +300,13 @@ export default function PokerMobile() {
         {/* TAB 1 - SESSIONS */}
         <TabsContent value="sessions" className="flex-1 overflow-y-auto">
           <div className="flex justify-between mb-3">
-            <Button onClick={() => handleOpenSession()} className="w-full">
+            <Button
+              onClick={() => {
+                handleOpenSession();
+                setPreviewURLs([]);
+              }}
+              className="w-full"
+            >
               <Plus size={20} className="mr-2" /> Add Session
             </Button>
           </div>
@@ -708,7 +714,7 @@ export default function PokerMobile() {
             <div className="flex gap-4 flex-wrap">
               {previewURLs.map((url, idx) => (
                 <div key={idx} className="relative">
-                  <div className="w-20 h-20 rounded-xl overflow-hidden bordertransition cursor-pointer">
+                  <div className="w-12 h-12 rounded-xl overflow-hidden bordertransition cursor-pointer">
                     <img
                       src={url}
                       className="w-full h-full object-cover"
@@ -730,8 +736,8 @@ export default function PokerMobile() {
               ))}
 
               {/* + Upload box */}
-              <label className="w-20 h-20 flex items-center justify-center rounded-xl border-1 border-dashed border-gray-300 cursor-pointer hover:border-gray-500">
-                <span className="text-gray-500 font-bold">+ Upload</span>
+              <label className="w-12 h-12 flex items-center justify-center rounded-xl border-1 border-dashed border-gray-300 cursor-pointer hover:border-gray-500">
+                <span className="text-gray-500 font-bold text-[10px]">+ Upload</span>
                 <input
                   type="file"
                   accept="image/*"
