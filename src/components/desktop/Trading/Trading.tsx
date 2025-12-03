@@ -200,7 +200,10 @@ const Trading = () => {
   const getRecentTrade = async () => {
     try {
       // Simulate API call (replace with actual API request)
-      const { data } = await API.post('/trading/list', { mode: 'month' });
+      const { data } = await API.post('/trading/list', {
+        mode: 'month',
+        dateString: selectedDate.format('YYYY-MM'),
+      });
       setDataRecent(data);
     } catch (err) {
       console.log('error123', err);
@@ -234,6 +237,7 @@ const Trading = () => {
     getDataYearTrade();
     getSelectedDayTrades();
     getDataYearStats();
+    getRecentTrade();
   }, [selectedDate]);
 
   // const syncPageData = async () => {

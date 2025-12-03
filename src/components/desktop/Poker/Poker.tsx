@@ -67,7 +67,10 @@ const Poker = () => {
   // ======== FETCH DATA ========
   const getRecentSessions = async () => {
     try {
-      const { data } = await API.post('/poker/list', { mode: 'month' });
+      const { data } = await API.post('/poker/list', {
+        mode: 'month',
+        dateString: selectedDate.format('YYYY-MM'),
+      });
       setSessions(data);
     } catch (err) {
       console.error(err);
@@ -192,6 +195,7 @@ const Poker = () => {
     getDataYearSession();
     getDataYearStats();
     getSelectedDaySessions();
+    getRecentSessions();
   }, [selectedDate]);
 
   // ======== ADD/UPDATE SESSION ========
