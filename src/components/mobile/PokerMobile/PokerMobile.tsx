@@ -433,7 +433,7 @@ export default function PokerMobile() {
                     Winrate
                   </p>
                   <p
-                    className={cx(`text-xs font-semibold`, {
+                    className={cx(`text-lg font-semibold`, {
                       'text-white': theme === 'dark',
                       'text-[#0b71d6]': theme === 'light',
                     })}
