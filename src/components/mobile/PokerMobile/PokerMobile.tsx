@@ -346,7 +346,7 @@ export default function PokerMobile() {
                   Sync
                 </button>
               </div>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-4 gap-2">
                 <div
                   className={cx('rounded-lg p-2 text-center', {
                     'bg-[#1e293b]': theme === 'dark',
@@ -433,7 +433,7 @@ export default function PokerMobile() {
                     Winrate
                   </p>
                   <p
-                    className={cx(`text-lg font-semibold`, {
+                    className={cx(`text-xs font-semibold`, {
                       'text-white': theme === 'dark',
                       'text-[#0b71d6]': theme === 'light',
                     })}
