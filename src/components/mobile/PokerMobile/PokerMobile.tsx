@@ -366,10 +366,34 @@ export default function PokerMobile() {
                       dataMonth?.dayProfit ? 'text-green-400' : 'text-red-400'
                     }`}
                   >
-                    {dataMonth?.profit ?? '--'}
+                    {dataMonth?.profit ? `${dataMonth?.profit}$` : '--'}
                   </p>
                 </div>
 
+                <div
+                  className={cx('rounded-lg p-2 text-center', {
+                    'bg-[#1e293b]': theme === 'dark',
+                    'bg-[#f0efef]': theme === 'light',
+                  })}
+                >
+                  <p
+                    className={cx('text-xs', {
+                      'text-gray-400': theme === 'dark',
+                      'text-black': theme === 'light',
+                    })}
+                  >
+                    Sessions
+                  </p>
+                  <p
+                    className={cx(`text-lg font-semibold`, {
+                      'text-white': theme === 'dark',
+                      'text-[#0b71d6]': theme === 'light',
+                    })}
+                  >
+                    {dataMonth?.count ? dataMonth?.count : '--'}
+                  </p>
+                </div>
+                
                 <div
                   className={cx('rounded-lg p-2 text-center', {
                     'bg-[#1e293b]': theme === 'dark',
