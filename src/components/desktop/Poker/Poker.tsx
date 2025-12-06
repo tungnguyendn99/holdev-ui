@@ -683,7 +683,7 @@ const Poker = () => {
                         columns={columns}
                         dataSource={selectedDaySessions}
                         pagination={false}
-                        scroll={{ y: 240 }}
+                        scroll={{ y: 420 }}
                         // size="small"
                         className={cx(`w-full`, {
                           '': theme === 'light',
@@ -727,7 +727,7 @@ const Poker = () => {
                     columns={columns}
                     dataSource={sessions}
                     pagination={false}
-                    scroll={{ y: 240 }}
+                    scroll={{ y: 420 }}
                     // size="small"
                     className={cx(`w-full`, {
                       '': theme === 'light',
