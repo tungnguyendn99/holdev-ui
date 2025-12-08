@@ -556,7 +556,7 @@ export default function PokerMobile() {
 
             <div className="space-y-3 w-full mt-3">
               <PokerList
-                sessions={sessions}
+                sessions={sessionsOfSelectedDate}
                 onDelete={deletePokerSession}
                 handleOpenSession={handleOpenSession}
               />
