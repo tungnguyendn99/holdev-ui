@@ -684,7 +684,7 @@ const Poker = () => {
                         dataSource={selectedDaySessions}
                         pagination={false}
                         scroll={{ y: 420 }}
-                        // size="small"
+                        size="small"
                         className={cx(`w-full`, {
                           '': theme === 'light',
                           'dark-table': theme === 'dark',
@@ -728,7 +728,7 @@ const Poker = () => {
                     dataSource={sessions}
                     pagination={false}
                     scroll={{ y: 420 }}
-                    // size="small"
+                    size="small"
                     className={cx(`w-full`, {
                       '': theme === 'light',
                       'dark-table': theme === 'dark',
