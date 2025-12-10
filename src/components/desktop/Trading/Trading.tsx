@@ -401,15 +401,15 @@ const Trading = () => {
       ),
     },
     {
-      title: 'Entry',
+      title: 'Entry ~ Exit',
       dataIndex: 'entryPrice',
       key: 'entryPrice',
-      width: 70,
+      width: 100,
       align: 'center',
-      render: (_, record) => <span className="font-semibold">{record.entryPrice}</span>,
+      render: (_, record) => <span className="font-semibold">{record.entryPrice} ~ {record.closePrice}</span>,
     },
     {
-      title: 'Entry Date',
+      title: 'Entry Time',
       dataIndex: 'entryTime',
       key: 'entryTime',
       align: 'center',
@@ -417,7 +417,7 @@ const Trading = () => {
       render: (text) => <span>{moment(text).format('DD/MM/YYYY ~~ HH:mm')}</span>,
     },
     {
-      title: 'Close Date',
+      title: 'Exit Time',
       dataIndex: 'closeTime',
       key: 'closeTime',
       align: 'center',
@@ -425,7 +425,7 @@ const Trading = () => {
       render: (text) => <span>{moment(text).format('DD/MM/YYYY ~~ HH:mm')}</span>,
     },
     {
-      title: 'Time',
+      title: 'Duration',
       dataIndex: 'duration',
       key: 'duration',
       width: 70,

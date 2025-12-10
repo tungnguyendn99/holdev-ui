@@ -342,6 +342,7 @@ const Poker = () => {
       key: 'duration',
       align: 'center' as const,
       width: 60,
+      render: (text) => <span className={cx(``)}>⏳ {text}</span>,
     },
     {
       title: 'Hands',

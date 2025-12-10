@@ -113,11 +113,15 @@ function SwipeToRevealDelete({ session, onConfirmDelete, handleOpenSession }: an
               {!!session.images.length && <Images size={16} />}
             </div>
             <p className="text-xs text-muted-foreground">
-              {session.format} · {session.hands} hands
+              <span className="text-blue-400 font-bold">{session.format}</span> ·{' '}
+              <span className="text-indigo-400 font-bold">{session.hands} hands</span>
             </p>
             <p className="text-xs text-muted-foreground">
-              {moment(session.startTime).format('DD/MM/YYYY HH:mm')}
-              {session.endTime && ` → ${moment(session.endTime).format('HH:mm')}`}
+              {moment(session.startTime).format('DD/MM/YYYY')}{' '}
+              <span className="text-emerald-500 font-bold">
+                {moment(session.startTime).format('HH:mm')}{' '}
+                {session.endTime && ` → ${moment(session.endTime).format('HH:mm')}`}
+              </span>
             </p>
           </div>
 

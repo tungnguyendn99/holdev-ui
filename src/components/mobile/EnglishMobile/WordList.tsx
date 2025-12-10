@@ -60,7 +60,7 @@ export default function VocabList({ words, speak, handleDeleteWord, setSelected 
       {/* --- Other Dates --- */}
       {Object.keys(groups)
         .filter((d) => d !== todayKey)
-        .sort((a, b) => (a < b ? 1 : -1)) // newest first
+        // .sort((a, b) => (a < b ? 1 : -1)) // newest first
         .map((date) => (
           <section key={date} className="mb-3">
             <h2 className="text-lg font-semibold mb-1 sticky top-0 py-1">
