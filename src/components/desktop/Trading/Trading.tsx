@@ -136,22 +136,22 @@ const Trading = () => {
       console.log('error123', err);
     }
   };
-  // const getDataMonthTrade = async () => {
-  //   try {
-  //     dispatch(showLoading());
-  //     // Simulate API call (replace with actual API request)
-  //     const { data } = await API.post('/trading/group', {
-  //       mode: 'month',
-  //       group: 'month',
-  //       dateString: selectedDate.format('YYYY-MM'),
-  //     });
-  //     setDataMonth(data[selectedDate.format('YYYY-MM')]);
-  //   } catch (err) {
-  //     console.log('error123', err);
-  //   } finally {
-  //     dispatch(hideLoading());
-  //   }
-  // };
+  const getDataMonthTrade = async () => {
+    try {
+      dispatch(showLoading());
+      // Simulate API call (replace with actual API request)
+      const { data } = await API.post('/trading/group', {
+        mode: 'month',
+        group: 'month',
+        dateString: selectedDate.format('YYYY-MM'),
+      });
+      setDataMonth(data[selectedDate.format('YYYY-MM')]);
+    } catch (err) {
+      console.log('error123', err);
+    } finally {
+      dispatch(hideLoading());
+    }
+  };
   const getDataYearStats = async () => {
     try {
       dispatch(showLoading());
@@ -188,8 +188,10 @@ const Trading = () => {
       const { data } = await API.post('/trading/group', {
         mode: 'year',
         group: 'month',
+        dateString: selectedDate.format('YYYY'),
       });
       setDataYear(data);
+      
       setDataMonth(data[selectedDate.format('YYYY-MM')]);
     } catch (err) {
       console.log('error123', err);
@@ -233,7 +235,7 @@ const Trading = () => {
 
   useEffect(() => {
     getDataDaysTrade();
-    // getDataMonthTrade();
+    getDataMonthTrade();
     getDataYearTrade();
     getSelectedDayTrades();
     getDataYearStats();
@@ -253,7 +255,7 @@ const Trading = () => {
       await Promise.all([
         getRecentTrade(),
         getDataDaysTrade(),
-        // getDataMonthTrade(),
+        getDataMonthTrade(),
         getDataYearTrade(),
         getSelectedDayTrades(),
         getDataYearStats(),

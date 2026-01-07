@@ -93,22 +93,22 @@ const Poker = () => {
     }
   };
 
-  // const getDataMonths = async () => {
-  //   try {
-  //     dispatch(showLoading());
-  //     const { data } = await API.post('/poker/group', {
-  //       mode: 'year',
-  //       group: 'month',
-  //       //   dateString: selectedDate.format('YYYY-MM'),
-  //     });
-  //     setDataMonths(data);
-  //     setDetailMonth(data[selectedDate.format('YYYY-MM')]);
-  //   } catch (err) {
-  //     console.log('error123', err);
-  //   } finally {
-  //     dispatch(hideLoading());
-  //   }
-  // };
+  const getDataMonths = async () => {
+    try {
+      dispatch(showLoading());
+      const { data } = await API.post('/poker/group', {
+        mode: 'month',
+        group: 'month',
+          dateString: selectedDate.format('YYYY-MM'),
+      });
+      // setDataMonths(data);
+      setDetailMonth(data[selectedDate.format('YYYY-MM')]);
+    } catch (err) {
+      console.log('error123', err);
+    } finally {
+      dispatch(hideLoading());
+    }
+  };
 
   const getSelectedDaySessions = async () => {
     try {
@@ -161,6 +161,7 @@ const Poker = () => {
       const { data } = await API.post('/poker/group', {
         mode: 'year',
         group: 'month',
+        dateString: selectedDate.format('YYYY'),
       });
       setDataYear(data);
       setDetailMonth(data[selectedDate.format('YYYY-MM')]);
@@ -177,7 +178,7 @@ const Poker = () => {
       await Promise.all([
         getRecentSessions(),
         getDataDays(),
-        // getDataMonths(),
+        getDataMonths(),
         getDataYearSession(),
         getDataYearStats(),
         getSelectedDaySessions(),
@@ -191,7 +192,7 @@ const Poker = () => {
 
   useEffect(() => {
     getDataDays();
-    // getDataMonths();
+    getDataMonths();
     getDataYearSession();
     getDataYearStats();
     getSelectedDaySessions();
