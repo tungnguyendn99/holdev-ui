@@ -257,7 +257,7 @@ const Poker = () => {
         <span className={cx(`text-[#0D706E]`)}>
           {`${dayData.count} session${dayData.count > 1 ? 's' : ''}`} ({dayData.hands} hands)
         </span>
-        <span className={cx(`text-[#0D706E]`)}>{winrate}</span>
+        <span className={cx(`text-[#0D706E]`)}>{winrate} ({dayData.duration})</span> 
       </div>
     );
   };
@@ -289,7 +289,7 @@ const Poker = () => {
           {`${monthData?.count} session${monthData?.count > 1 ? 's' : ''}`} ({monthData?.hands}{' '}
           hands)
         </span>
-        <span className="text-[#0D706E]">{monthData?.winrate}</span>
+        <span className="text-[#0D706E]">{monthData?.winrate} ({monthData.duration})</span>
       </div>
     );
   };
@@ -598,6 +598,9 @@ const Poker = () => {
                   <Tag color="geekblue" style={{ fontSize: '18px' }}>
                     {detailMonth?.winrate}
                   </Tag>
+                  <Tag color="geekblue" style={{ fontSize: '18px' }}>
+                    {detailMonth?.duration}
+                  </Tag>
                   <Tag
                     color={detailMonth?.dayProfit ? 'green' : 'red'}
                     style={{ fontSize: '18px' }}
@@ -617,6 +620,9 @@ const Poker = () => {
                   </Tag>
                   <Tag color="geekblue" style={{ fontSize: '18px' }}>
                     {dataYearStats?.winrate}
+                  </Tag>
+                  <Tag color="geekblue" style={{ fontSize: '18px' }}>
+                    {dataYearStats?.duration}
                   </Tag>
                   <Tag
                     color={dataYearStats?.dayProfit ? 'green' : 'red'}
