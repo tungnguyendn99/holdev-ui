@@ -302,7 +302,7 @@ const Trading = () => {
         >
           <p className="profit-cell">
             <span
-              className={cx(`font-semibold ${data.dayProfit ? 'text-green-600' : 'text-red-400'}`)}
+              className={cx(`text-[18px] font-semibold ${data.dayProfit ? 'text-green-600' : 'text-red-400'}`)}
             >
               {data?.profit}$
             </span>{' '}
