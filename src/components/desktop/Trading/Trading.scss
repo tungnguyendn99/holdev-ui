@@ -18,6 +18,22 @@
   padding: 8px 16px;
   border-radius: 10px;
   cursor: pointer;
+
+  &:hover {
+    opacity: 0.9;
+  }
+}
+
+.btn-dashboard {
+  width: 20%;
+  height: 2.5rem;
+  font-weight: 600;
+  background: #4b7cd7;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+
   &:hover {
     opacity: 0.9;
   }
@@ -26,12 +42,15 @@
 .recent-trade {
   width: 100%;
   margin-top: 1rem;
+
   .ant-card-body {
     padding: 12px 24px;
   }
+
   .ant-tabs-tab {
     padding: 8px;
   }
+
   .ant-tabs-tab-btn {
     font-size: 16px;
     font-weight: 600;
@@ -42,13 +61,16 @@
   .ant-card {
     background: #5f5cf0 !important;
   }
+
   .ant-tabs-tab {
     color: white !important;
   }
+
   .ant-tabs-tab-active {
     border-bottom: #5f5cf0 !important;
     // border-bottom: #3169d9 !important;
   }
+
   .ant-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
     // color: rgb(124, 109, 239) !important;
     // color: rgb(74, 114, 225) !important;
@@ -67,6 +89,7 @@
     background: #34516b !important;
     color: white !important;
   }
+
   .ant-table-header .ant-table-thead {
     th {
       background: #5f5cf0 !important;
@@ -74,12 +97,14 @@
       font-weight: bold;
     }
   }
-  .ant-table-tbody > tr.ant-table-row:hover > td {
+
+  .ant-table-tbody>tr.ant-table-row:hover>td {
     background: #6e8ca7 !important;
   }
 
   .ant-table-placeholder {
     background-color: unset !important;
+
     .ant-empty-description {
       color: white !important;
     }
@@ -90,6 +115,7 @@
   width: 12rem;
   margin-bottom: 1rem;
   font-size: 22px;
+
   .ant-picker-input input {
     font-size: 18px;
   }
@@ -99,6 +125,7 @@
   width: 100%;
   height: 300px;
   border-radius: 50%;
+
   //   :global {
   //   .ant-picker-cell {
   //     background: #8cd095;
@@ -109,22 +136,27 @@
     text-align: right;
     color: #404040;
   }
+
   .ant-picker-cell {
     border: 1px solid #eaf2e7;
   }
+
   .ant-picker-cell-inner {
     border-top: none !important;
     margin: 4px 4px 4px 4px !important;
+
     &:hover {
       opacity: 0.8;
     }
   }
+
   .ant-picker-cell-inner:has(.profit) {
     // padding: 4px !important;
     background: #ddf1e7 !important;
     border: 1px solid #b3cdc1 !important;
     border-top: 1px solid #b3cdc1 !important;
   }
+
   .ant-picker-cell-inner:has(.loss) {
     background: #fad3d3 !important;
     border: 1px solid #f0c8c7 !important;
@@ -139,12 +171,14 @@
   }
 
   .ant-picker-cell:not(.ant-picker-cell-in-view) {
-    visibility: hidden; /* hoặc display: none (nếu bạn muốn collapse luôn hàng) */
+    visibility: hidden;
+    /* hoặc display: none (nếu bạn muốn collapse luôn hàng) */
     // display: none;
   }
 
   .ant-picker-content thead tr {
     height: 3rem;
+
     // border: 1px solid #b3cdc1;
     // background-color: #e4f4f7;
     th {
@@ -159,11 +193,13 @@
   label {
     font-size: 16px !important;
   }
+
   input,
   .input-trade {
     // padding: 4px !important;
     height: 2.5rem;
   }
+
   .ant-modal-footer {
     display: none;
   }
@@ -192,6 +228,7 @@
         color: white;
         background-color: #27ae60;
       }
+
       &.ant-radio-button-wrapper-checked {
         color: white;
         background-color: #46d280; // xanh
@@ -206,6 +243,7 @@
         color: white;
         background-color: #b8483c;
       }
+
       &.ant-radio-button-wrapper-checked {
         color: white;
         background-color: #e66051; // đỏ
@@ -224,6 +262,7 @@
 .btn-submit-trade {
   height: 3rem;
   background: #4b9ee6;
+
   &:hover {
     opacity: 0.9;
   }
@@ -237,19 +276,23 @@
 .ant-picker-cell {
   border: 1px solid #eaf2e7;
 }
+
 .ant-picker-cell-inner {
   border-top: none !important;
   margin: 4px 4px 4px 4px !important;
+
   &:hover {
     opacity: 0.8;
   }
 }
+
 .ant-picker-cell-inner:has(.profit) {
   // padding: 4px !important;
   background: #ddf1e7 !important;
   border: 1px solid #b3cdc1 !important;
   border-top: 1px solid #b3cdc1 !important;
 }
+
 .ant-picker-cell-inner:has(.loss) {
   background: #fad3d3 !important;
   border: 1px solid #f0c8c7 !important;
@@ -266,6 +309,7 @@
   border: 1px solid #b3cdc1 !important;
   border-top: 1px solid #b3cdc1 !important;
 }
+
 .ant-picker-cell-inner:has(.loss) {
   background: #fad3d3 !important;
   border: 1px solid #f0c8c7 !important;

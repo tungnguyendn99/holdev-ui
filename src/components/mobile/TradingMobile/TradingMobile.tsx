@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -44,6 +45,7 @@ import PlanSettings from './Plan';
 import { ImagesTab } from '../../desktop/User/Images';
 
 export default function TradingMobile() {
+  const router = useRouter();
   const { theme } = useTheme();
   const [tab, setTab] = useState<'trades' | 'calendar' | 'plan'>('trades');
   const [trades, setTrades] = useState<any[]>([]);
@@ -321,15 +323,21 @@ export default function TradingMobile() {
 
         {/* TAB 1 - TRADES */}
         <TabsContent value="trades" className="flex-1 overflow-y-auto">
-          <div className="flex justify-between mb-3">
+          <div className="flex gap-2 mb-3">
             <Button
               onClick={() => {
                 handleOpenTrade();
                 setPreviewURLs([]);
               }}
-              className="w-full btn-theme"
+              className="flex-1 btn-theme"
             >
               <Plus size={20} className="mr-2" /> Add Trade
+            </Button>
+            <Button
+              onClick={() => router.push('/trading/dashboard')}
+              className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold flex items-center justify-center"
+            >
+              📊 Dashboard
             </Button>
           </div>
 

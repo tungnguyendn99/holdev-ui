@@ -1,0 +1,783 @@
+// Custom Styles for Trading Dashboard integrated into Main Layout
+.trading-dashboard-container {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  background-color: #090e1a;
+  color: #e2e8f0;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  padding: 28px;
+  border-radius: 16px;
+  border: 1px solid #16223f;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+
+  // Common Card Glassmorphism and Styling
+  .td-card {
+    background-color: #0d1527;
+    border: 1px solid #16223f;
+    border-radius: 14px;
+    padding: 24px;
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.4);
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+      border-color: #1e315f;
+      box-shadow: 0 8px 30px -4px rgba(0, 0, 0, 0.5);
+    }
+  }
+
+  // Dashboard Page Content Header
+  .td-content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .td-header-left {
+      h1 {
+        font-size: 26px;
+        font-weight: 700;
+        color: #f8fafc;
+        margin: 0 0 6px 0;
+      }
+
+      p {
+        font-size: 14px;
+        color: #64748b;
+        margin: 0;
+      }
+    }
+
+    .td-header-actions {
+      display: flex;
+      gap: 12px;
+
+      .td-btn {
+        padding: 10px 18px;
+        font-size: 13.5px;
+        font-weight: 600;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: 1px solid transparent;
+
+        &-outline {
+          background-color: transparent;
+          border: 1px solid #16223f;
+          color: #94a3b8;
+
+          &:hover {
+            border-color: #334155;
+            color: #f1f5f9;
+            background-color: #0d1527;
+          }
+        }
+
+        &-primary {
+          background-color: #f1f5f9;
+          border: 1px solid #f1f5f9;
+          color: #0f172a;
+
+          &:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+          }
+        }
+      }
+    }
+  }
+
+  // Metric Cards Grid
+  .td-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+
+    .td-metric-card {
+      background-color: #0d1527;
+      border: 1px solid #16223f;
+      border-radius: 14px;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      transition: all 0.2s ease;
+
+      &:hover {
+        border-color: #24355c;
+        transform: translateY(-2px);
+      }
+
+      .td-metric-info {
+        display: flex;
+        flex-direction: column;
+
+        .td-metric-title {
+          font-size: 11px;
+          font-weight: 700;
+          color: #64748b;
+          letter-spacing: 0.05em;
+          margin-bottom: 8px;
+        }
+
+        .td-metric-value {
+          font-size: 24px;
+          font-weight: 750;
+          margin: 0 0 6px 0;
+          font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        }
+
+        .td-metric-subtext {
+          font-size: 12px;
+          font-weight: 500;
+        }
+
+        .td-metric-progress-bar {
+          width: 120px;
+          height: 5px;
+          background-color: #1e293b;
+          border-radius: 10px;
+          margin-top: 8px;
+          overflow: hidden;
+
+          .td-progress-fill {
+            height: 100%;
+            background-color: #3b82f6;
+            border-radius: 10px;
+          }
+        }
+      }
+
+      .td-metric-icon-wrapper {
+        padding: 8px;
+        border-radius: 8px;
+        color: #94a3b8;
+
+        &.pnl-icon {
+          background-color: rgba(16, 185, 129, 0.08);
+          color: #10b981;
+        }
+
+        &.win-icon {
+          background-color: rgba(59, 130, 246, 0.08);
+          color: #3b82f6;
+        }
+
+        &.factor-icon {
+          background-color: rgba(245, 158, 11, 0.08);
+          color: #f59e0b;
+        }
+
+        &.trades-icon {
+          background-color: rgba(99, 102, 241, 0.08);
+          color: #6366f1;
+        }
+      }
+    }
+  }
+
+  // Card Headers
+  .td-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+
+    h3 {
+      font-size: 15px;
+      font-weight: 650;
+      color: #f1f5f9;
+      margin: 0;
+    }
+  }
+
+  // Middle Grid: Checklist & psychological reminders
+  .td-middle-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+
+    // Checklist Card
+    .td-checklist-card {
+      .td-checklist-content {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+
+        .td-checklist-item {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 14px 16px;
+          background-color: rgba(21, 34, 63, 0.3);
+          border: 1px solid #16223f;
+          border-radius: 10px;
+          cursor: pointer;
+          user-select: none;
+          transition: all 0.2s ease;
+
+          &:hover {
+            background-color: rgba(21, 34, 63, 0.6);
+            border-color: #24355c;
+          }
+
+          &.checked {
+            border-color: rgba(16, 185, 129, 0.2);
+            background-color: rgba(16, 185, 129, 0.03);
+
+            .td-checklist-text {
+              color: #94a3b8;
+              // text-decoration: line-through;
+            }
+
+            .td-checklist-checkbox {
+              border-color: #10b981;
+              background-color: #10b981;
+            }
+          }
+
+          .td-checklist-checkbox {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #475569;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+
+            .checkbox-active {
+              width: 8px;
+              height: 8px;
+              border-radius: 1px;
+              background-color: #0d1527;
+            }
+          }
+
+          .td-checklist-text {
+            font-size: 13.5px;
+            font-weight: 500;
+            color: #cbd5e1;
+            transition: color 0.2s ease;
+          }
+        }
+      }
+    }
+
+    // Psychological mindset reminders
+    .td-mindset-card {
+      .td-mindset-content {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+
+        .td-mindset-quote {
+          padding: 14px 18px;
+          background-color: rgba(21, 34, 63, 0.3);
+          border-top-right-radius: 8px;
+          border-bottom-right-radius: 8px;
+          transition: background-color 0.2s ease;
+
+          &:hover {
+            background-color: rgba(21, 34, 63, 0.5);
+          }
+
+          p {
+            margin: 0;
+            font-size: 13.5px;
+            font-style: italic;
+            color: #cbd5e1;
+            line-height: 1.45;
+          }
+        }
+      }
+    }
+  }
+
+  // Bottom Grid
+  .td-bottom-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 24px;
+
+    // Equity Curve SVG card
+    .td-equity-card {
+      display: flex;
+      flex-direction: column;
+      background-color: #0d1527;
+      border: 1px solid #16223f;
+      border-radius: 14px;
+      padding: 24px;
+
+      .td-equity-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+
+        h3 {
+          font-size: 16px;
+          font-weight: 650;
+          color: #f1f5f9;
+          margin: 0;
+        }
+
+        .td-timeframe-selector {
+          display: flex;
+          background-color: #121b2e;
+          border: 1px solid #1f2a45;
+          border-radius: 8px;
+          padding: 3px;
+
+          button {
+            background: none;
+            border: none;
+            color: #64748b;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 5px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+
+            &:hover {
+              color: #f1f5f9;
+            }
+
+            &.active {
+              background-color: #1e293b;
+              color: #f1f5f9;
+              box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            }
+          }
+        }
+      }
+
+      .td-chart-wrapper {
+        position: relative;
+        flex: 1;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+
+        .td-chart-svg {
+          width: 100%;
+          height: auto;
+          overflow: visible;
+        }
+      }
+    }
+
+    // Right Column Layout (Discipline Score + Recent Trades)
+    .td-bottom-right-column {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+
+      // Setup Scoring System Card
+      .td-setup-score-card {
+        .td-setup-score-content {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+
+          .td-setup-criteria {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            border: 1px solid #1a2a45;
+            border-radius: 10px;
+            overflow: hidden;
+
+            .td-setup-criterion-row {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              padding: 8px 14px;
+              border-bottom: 1px solid #1a2a45;
+              transition: background-color 0.15s ease;
+
+              &:last-child {
+                border-bottom: none;
+              }
+
+              &:hover {
+                background-color: rgba(59, 130, 246, 0.04);
+              }
+
+              .td-criterion-label {
+                font-size: 13px;
+                color: #94a3b8;
+                font-weight: 500;
+              }
+
+              .td-criterion-pts {
+                font-size: 12.5px;
+                font-weight: 700;
+                color: #60a5fa;
+                font-family: ui-monospace, SFMono-Regular, monospace;
+              }
+            }
+
+            .td-setup-total-row {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              padding: 10px 14px;
+              background-color: rgba(59, 130, 246, 0.07);
+              border-top: 1px solid #1e3254;
+
+              .td-total-label {
+                font-size: 13.5px;
+                font-weight: 700;
+                color: #f1f5f9;
+              }
+
+              .td-total-pts {
+                font-size: 13px;
+                font-weight: 800;
+                color: #f1f5f9;
+                font-family: ui-monospace, SFMono-Regular, monospace;
+              }
+            }
+          }
+
+          .td-setup-tiers {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+
+            .td-setup-tier {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              padding: 7px 12px;
+              border-radius: 8px;
+              border: 1px solid transparent;
+
+              .td-tier-left {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+
+                .td-tier-range {
+                  font-size: 11.5px;
+                  font-weight: 700;
+                  color: #94a3b8;
+                  min-width: 36px;
+                  font-family: ui-monospace, SFMono-Regular, monospace;
+                }
+
+                .td-tier-stars {
+                  font-size: 12px;
+                  letter-spacing: 1px;
+                  color: #f59e0b;
+                }
+
+                .td-tier-no-trade-text {
+                  font-size: 11px;
+                  font-weight: 800;
+                  color: #ef4444;
+                  letter-spacing: 0.08em;
+                }
+              }
+
+              .td-tier-label {
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: 0.04em;
+                padding: 3px 8px;
+                border-radius: 5px;
+
+                &.full {
+                  background-color: rgba(16, 185, 129, 0.12);
+                  color: #34d399;
+                }
+
+                &.normal {
+                  background-color: rgba(59, 130, 246, 0.1);
+                  color: #60a5fa;
+                }
+
+                &.half {
+                  background-color: rgba(245, 158, 11, 0.1);
+                  color: #fbbf24;
+                }
+
+                &.no-trade {
+                  background-color: rgba(239, 68, 68, 0.1);
+                  color: #f87171;
+                }
+              }
+
+              &.tier-full {
+                background-color: rgba(16, 185, 129, 0.04);
+                border-color: rgba(16, 185, 129, 0.12);
+              }
+
+              &.tier-normal {
+                background-color: rgba(59, 130, 246, 0.04);
+                border-color: rgba(59, 130, 246, 0.1);
+              }
+
+              &.tier-half {
+                background-color: rgba(245, 158, 11, 0.04);
+                border-color: rgba(245, 158, 11, 0.1);
+              }
+
+              &.tier-no-trade {
+                background-color: rgba(239, 68, 68, 0.05);
+                border-color: rgba(239, 68, 68, 0.15);
+              }
+            }
+          }
+        }
+      }
+
+      // Discipline Score Card
+      .td-score-card {
+        .td-score-content {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+
+          .td-score-num-wrapper {
+            display: flex;
+            align-items: baseline;
+            margin-bottom: 8px;
+
+            .td-score-big {
+              font-size: 48px;
+              font-weight: 800;
+              color: #f8fafc;
+              line-height: 1;
+            }
+
+            .td-score-total {
+              font-size: 14px;
+              color: #64748b;
+              margin-left: 6px;
+              font-weight: 500;
+            }
+          }
+
+          .td-score-desc {
+            font-size: 13px;
+            line-height: 1.5;
+            color: #94a3b8;
+            margin: 0 0 20px 0;
+          }
+
+          .td-score-bars {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+
+            .td-score-bar-group {
+              display: flex;
+              flex-direction: column;
+              gap: 6px;
+
+              .td-score-bar-labels {
+                display: flex;
+                justify-content: space-between;
+                font-size: 12.5px;
+                font-weight: 500;
+                color: #cbd5e1;
+              }
+
+              .td-bar-outer {
+                width: 100%;
+                height: 6px;
+                background-color: #17253f;
+                border-radius: 10px;
+                overflow: hidden;
+
+                .td-bar-inner {
+                  height: 100%;
+                  border-radius: 10px;
+                  transition: width 0.5s ease-out;
+                }
+              }
+            }
+          }
+        }
+      }
+
+      // Recent Trades Card
+      .td-recent-trades-card {
+        background-color: #0d1527;
+        border: 1px solid #16223f;
+        border-radius: 14px;
+        padding: 24px;
+
+        .td-recent-trades-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 18px;
+
+          h3 {
+            font-size: 15px;
+            font-weight: 650;
+            color: #f1f5f9;
+            margin: 0;
+          }
+
+          .td-btn-view-all {
+            background: none;
+            border: none;
+            color: #3b82f6;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+
+            &:hover {
+              color: #60a5fa;
+              background-color: rgba(59, 130, 246, 0.05);
+            }
+          }
+        }
+
+        .td-recent-trades-list {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+
+          .td-trade-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 14px;
+            background-color: rgba(21, 34, 63, 0.2);
+            border: 1px solid #16223f;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+
+            &:hover {
+              background-color: rgba(21, 34, 63, 0.4);
+              border-color: #24355c;
+              transform: translateX(2px);
+            }
+
+            .td-trade-symbol {
+              font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+              font-size: 12.5px;
+              font-weight: 700;
+              color: #f8fafc;
+              width: 32px;
+              height: 32px;
+              background-color: #1e293b;
+              border-radius: 6px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              margin-right: 12px;
+            }
+
+            .td-trade-details {
+              display: flex;
+              flex-direction: column;
+              flex: 1;
+
+              .td-trade-type-dir {
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                font-size: 13.5px;
+              }
+
+              .td-trade-time {
+                font-size: 11px;
+                color: #64748b;
+              }
+            }
+
+            .td-trade-pnl {
+              font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+              font-size: 13.5px;
+              font-weight: 700;
+              margin-right: 16px;
+            }
+
+            .td-trade-tag {
+              font-size: 9.5px;
+              font-weight: 700;
+              letter-spacing: 0.02em;
+              padding: 4px 8px;
+              border-radius: 6px;
+
+              &.tag-followed-plan {
+                background-color: rgba(16, 185, 129, 0.1);
+                color: #34d399;
+              }
+
+              &.tag-neutral {
+                background-color: rgba(100, 116, 139, 0.1);
+                color: #94a3b8;
+              }
+
+              &.tag-fomo {
+                background-color: rgba(239, 68, 68, 0.1);
+                color: #f87171;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// RESPONSIVENESS AND BREAKPOINTS
+@media (max-width: 1200px) {
+  .trading-dashboard-container {
+    .td-metrics-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+}
+
+@media (max-width: 1024px) {
+  .trading-dashboard-container {
+    padding: 20px;
+
+    .td-middle-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .td-bottom-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+@media (max-width: 640px) {
+  .trading-dashboard-container {
+    padding: 16px;
+
+    .td-content-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+
+      .td-header-actions {
+        width: 100%;
+
+        .td-btn {
+          flex: 1;
+          text-align: center;
+        }
+      }
+    }
+
+    .td-metrics-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+}

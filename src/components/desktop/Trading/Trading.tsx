@@ -1,5 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import './Trading.scss';
 import './../UI/ui.scss';
 import {
@@ -37,7 +38,7 @@ import { hideLoading, showLoading } from '../../../store/slices/user.slice';
 import { openNotification } from '../../../common/utils.notification';
 import { Label } from '../../../../components/ui/label';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Images, Star } from 'lucide-react';
+import { Images, Star, LayoutDashboard } from 'lucide-react';
 import CustomCalendar from '../UI/CustomCalendar';
 import PlanSettings from '../../mobile/TradingMobile/Plan';
 import { handleClosedByDesktop } from '../../mobile/UI/ClosedByTag';
@@ -51,6 +52,7 @@ const getMonthData = (value: Dayjs) => {
 
 const Trading = () => {
   const isMobile = useWindowResize(576);
+  const router = useRouter();
   const { Option } = Select;
   const data: any = {};
   const [form] = Form.useForm();
@@ -191,7 +193,7 @@ const Trading = () => {
         dateString: selectedDate.format('YYYY'),
       });
       setDataYear(data);
-      
+
       setDataMonth(data[selectedDate.format('YYYY-MM')]);
     } catch (err) {
       console.log('error123', err);
@@ -733,49 +735,56 @@ const Trading = () => {
                 Upload & Save
               </Button>
             </div>
+            <Button
+              className="btn-dashboard"
+              // className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium border-none flex items-center gap-1.5"
+              onClick={() => router.push('/trading/dashboard')}
+            >
+              <LayoutDashboard size={16} /> Dashboard
+            </Button>
           </div>
           <div className="flex w-[40%] justify-end">
             {mode === 'month'
               ? dataMonth && (
-                  <p className="mt-2">
-                    <span style={{ fontWeight: 700 }}>Monthly stats:</span>{' '}
-                    <Tag color="geekblue" style={{ fontSize: '18px' }}>
-                      {dataMonth?.trades} trades
-                    </Tag>
-                    <Tag color="geekblue" style={{ fontSize: '18px' }}>
-                      {dataMonth?.winrate}
-                    </Tag>
-                    <Tag color="geekblue" style={{ fontSize: '18px' }}>
-                      {dataMonth?.reward}R
-                    </Tag>
-                    <Tag
-                      color={dataMonth?.dayProfit ? 'green' : 'red'}
-                      style={{ fontSize: '18px' }}
-                    >
-                      {dataMonth?.profit}$
-                    </Tag>
-                  </p>
-                )
+                <p className="mt-2">
+                  <span style={{ fontWeight: 700 }}>Monthly stats:</span>{' '}
+                  <Tag color="geekblue" style={{ fontSize: '18px' }}>
+                    {dataMonth?.trades} trades
+                  </Tag>
+                  <Tag color="geekblue" style={{ fontSize: '18px' }}>
+                    {dataMonth?.winrate}
+                  </Tag>
+                  <Tag color="geekblue" style={{ fontSize: '18px' }}>
+                    {dataMonth?.reward}R
+                  </Tag>
+                  <Tag
+                    color={dataMonth?.dayProfit ? 'green' : 'red'}
+                    style={{ fontSize: '18px' }}
+                  >
+                    {dataMonth?.profit}$
+                  </Tag>
+                </p>
+              )
               : dataYearStats && (
-                  <p className="mt-2">
-                    <span style={{ fontWeight: 700 }}>Yearly stats:</span>{' '}
-                    <Tag color="geekblue" style={{ fontSize: '18px' }}>
-                      {dataYearStats?.trades} trades
-                    </Tag>
-                    <Tag color="geekblue" style={{ fontSize: '18px' }}>
-                      {dataYearStats?.winrate}
-                    </Tag>
-                    <Tag color="geekblue" style={{ fontSize: '18px' }}>
-                      {dataYearStats?.reward}R
-                    </Tag>
-                    <Tag
-                      color={dataYearStats?.dayProfit ? 'green' : 'red'}
-                      style={{ fontSize: '18px' }}
-                    >
-                      {dataYearStats?.profit}$
-                    </Tag>
-                  </p>
-                )}
+                <p className="mt-2">
+                  <span style={{ fontWeight: 700 }}>Yearly stats:</span>{' '}
+                  <Tag color="geekblue" style={{ fontSize: '18px' }}>
+                    {dataYearStats?.trades} trades
+                  </Tag>
+                  <Tag color="geekblue" style={{ fontSize: '18px' }}>
+                    {dataYearStats?.winrate}
+                  </Tag>
+                  <Tag color="geekblue" style={{ fontSize: '18px' }}>
+                    {dataYearStats?.reward}R
+                  </Tag>
+                  <Tag
+                    color={dataYearStats?.dayProfit ? 'green' : 'red'}
+                    style={{ fontSize: '18px' }}
+                  >
+                    {dataYearStats?.profit}$
+                  </Tag>
+                </p>
+              )}
             {/* {dataMonth && (
               <p className="mt-2">
                 <span style={{ fontWeight: 700 }}>
@@ -823,7 +832,7 @@ const Trading = () => {
             '': theme === 'light',
             'bg-[#222d3f]! text-white!': theme === 'dark',
           })}
-          // bodyStyle={{ padding: 16 }}
+        // bodyStyle={{ padding: 16 }}
         >
           <Tabs
             activeKey={activeKey}
@@ -1031,7 +1040,7 @@ const Trading = () => {
                 <Form.Item
                   label="Close Price"
                   name="closePrice"
-                  // rules={[{ required: true, message: 'Please input close price!' }]}
+                // rules={[{ required: true, message: 'Please input close price!' }]}
                 >
                   <InputNumber
                     min={0}
@@ -1062,7 +1071,7 @@ const Trading = () => {
                 <Form.Item
                   label="Take Profit"
                   name="takeProfit"
-                  // rules={[{ required: true, message: 'Please input take profit!' }]}
+                // rules={[{ required: true, message: 'Please input take profit!' }]}
                 >
                   <InputNumber
                     min={0}
@@ -1088,7 +1097,7 @@ const Trading = () => {
                 <Form.Item
                   label="Close Time"
                   name="closeTime"
-                  // rules={[{ required: true, message: 'Please select close time!' }]}
+                // rules={[{ required: true, message: 'Please select close time!' }]}
                 >
                   <DatePicker showTime style={{ width: '100%' }} className="input-trade" />
                 </Form.Item>
@@ -1116,7 +1125,7 @@ const Trading = () => {
                 <Form.Item
                   label="Result (USD)"
                   name="result"
-                  // rules={[{ required: true, message: 'Please input result!' }]}
+                // rules={[{ required: true, message: 'Please input result!' }]}
                 >
                   <InputNumber
                     style={{ width: '100%' }}
@@ -1133,7 +1142,7 @@ const Trading = () => {
                 <Form.Item
                   label="Closed By"
                   name="closedBy"
-                  // rules={[{ required: true, message: 'Please select trade side!' }]}
+                // rules={[{ required: true, message: 'Please select trade side!' }]}
                 >
                   <Select
                     style={{ width: '100%' }}
@@ -1154,7 +1163,7 @@ const Trading = () => {
                 <Form.Item
                   label="Rating"
                   name="rating"
-                  // rules={[{ required: false, message: 'Please rate your trade' }]}
+                // rules={[{ required: false, message: 'Please rate your trade' }]}
                 >
                   <Rate onChange={(value) => setRating(value)} value={rating} />
                 </Form.Item>
