@@ -734,6 +734,298 @@
   }
 }
 
+// ============================================================
+// BMC PRE-TRADE CHECKLIST
+// ============================================================
+.bmc-checklist-wrapper {
+  background-color: #0d1527;
+  border: 1px solid #16223f;
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.5);
+
+  // Header
+  .bmc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 28px;
+    gap: 24px;
+
+    .bmc-header-left {
+      flex: 1;
+
+      .bmc-title {
+        font-size: 17px;
+        font-weight: 700;
+        color: #f1f5f9;
+        margin: 0 0 8px 0;
+        letter-spacing: -0.01em;
+      }
+
+      .bmc-subtitle {
+        font-size: 13px;
+        color: #64748b;
+        margin: 0;
+        line-height: 1.55;
+        max-width: 560px;
+      }
+    }
+
+    .bmc-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+
+      .bmc-btn {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 9px 18px;
+        border-radius: 9px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: 1px solid transparent;
+
+        &.bmc-btn-reset {
+          background-color: transparent;
+          border-color: #1e293b;
+          color: #94a3b8;
+
+          &:hover {
+            border-color: #334155;
+            color: #f1f5f9;
+            background-color: rgba(255,255,255,0.04);
+          }
+        }
+
+        &.bmc-btn-validate {
+          background-color: #f1f5f9;
+          color: #0f172a;
+          border-color: #f1f5f9;
+
+          &:hover {
+            background-color: #e2e8f0;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(241,245,249,0.15);
+          }
+
+          &.validated {
+            background-color: #10b981;
+            border-color: #10b981;
+            color: #fff;
+            box-shadow: 0 0 16px rgba(16,185,129,0.35);
+          }
+        }
+      }
+    }
+  }
+
+  // Two-column layout
+  .bmc-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+
+    .bmc-column {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+
+      // Column header (DÃY 1 — Weekly → H4 → M15)
+      .bmc-column-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 18px;
+        background-color: #121c33;
+        border: 1px solid #1a2a45;
+        border-radius: 10px;
+
+        .bmc-day-label {
+          font-size: 11px;
+          font-weight: 800;
+          color: #94a3b8;
+          letter-spacing: 0.08em;
+          font-family: ui-monospace, SFMono-Regular, monospace;
+        }
+
+        .bmc-separator {
+          color: #334155;
+          font-size: 13px;
+        }
+
+        .bmc-timeframes {
+          font-size: 13px;
+          font-weight: 600;
+          color: #cbd5e1;
+          font-family: ui-monospace, SFMono-Regular, monospace;
+          letter-spacing: 0.02em;
+        }
+      }
+
+      // Each group block
+      .bmc-group {
+        background-color: #0a1121;
+        border: 1px solid #16223f;
+        border-radius: 12px;
+        overflow: hidden;
+
+        .bmc-group-header {
+          display: flex;
+          align-items: flex-start;
+          gap: 12px;
+          padding: 14px 18px 12px 18px;
+          border-bottom: 1px solid #16223f;
+          background-color: rgba(255,255,255,0.015);
+
+          .bmc-group-number {
+            flex-shrink: 0;
+            width: 22px;
+            height: 22px;
+            background-color: #1e293b;
+            border: 1px solid #2d3f5e;
+            border-radius: 6px;
+            font-size: 11.5px;
+            font-weight: 700;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 1px;
+          }
+
+          .bmc-group-title {
+            font-size: 13px;
+            font-weight: 650;
+            color: #e2e8f0;
+            line-height: 1.4;
+            font-style: italic;
+          }
+        }
+
+        .bmc-items-list {
+          display: flex;
+          flex-direction: column;
+
+          .bmc-item {
+            padding: 14px 18px;
+            border-bottom: 1px solid rgba(22, 34, 63, 0.6);
+            cursor: pointer;
+            transition: background-color 0.15s ease;
+
+            &:last-child {
+              border-bottom: none;
+            }
+
+            &:hover:not(.bmc-item--info) {
+              background-color: rgba(255,255,255,0.025);
+            }
+
+            &.bmc-item--checked {
+              .bmc-item-top .bmc-item-text {
+                color: #475569;
+                text-decoration: line-through;
+                text-decoration-color: #334155;
+              }
+            }
+
+            &.bmc-item--info {
+              cursor: default;
+              background-color: rgba(99, 102, 241, 0.04);
+              border-top: 1px dashed rgba(99,102,241,0.2);
+              border-bottom: none;
+              margin-top: 2px;
+            }
+
+            .bmc-item-top {
+              display: flex;
+              align-items: flex-start;
+              gap: 10px;
+              margin-bottom: 0;
+
+              .bmc-checkbox {
+                flex-shrink: 0;
+                width: 16px;
+                height: 16px;
+                border: 1.5px solid #334155;
+                border-radius: 4px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-top: 2px;
+                transition: all 0.2s ease;
+                background-color: transparent;
+
+                &.bmc-checkbox--checked {
+                  background-color: #10b981;
+                  border-color: #10b981;
+                }
+              }
+
+              .bmc-item-text {
+                font-size: 13px;
+                font-weight: 500;
+                color: #cbd5e1;
+                line-height: 1.5;
+                transition: color 0.2s ease;
+
+                &.bmc-item-text--checked {
+                  color: #475569;
+                }
+              }
+            }
+
+            .bmc-blocker-badge {
+              display: inline-block;
+              margin: 7px 0 4px 26px;
+              font-size: 9px;
+              font-weight: 800;
+              letter-spacing: 0.08em;
+              color: #f87171;
+              background-color: rgba(239,68,68,0.12);
+              border: 1px solid rgba(239,68,68,0.22);
+              padding: 2px 7px;
+              border-radius: 4px;
+            }
+
+            .bmc-item-hint {
+              margin: 5px 0 0 26px;
+              font-size: 11.5px;
+              color: #475569;
+              font-style: italic;
+              line-height: 1.45;
+            }
+
+            // Info row (italic note at bottom of group)
+            .bmc-info-row {
+              display: flex;
+              align-items: flex-start;
+              gap: 8px;
+
+              .bmc-info-icon {
+                flex-shrink: 0;
+                color: #6366f1;
+                margin-top: 2px;
+              }
+
+              .bmc-info-text {
+                font-size: 12px;
+                color: #6366f1;
+                font-style: italic;
+                line-height: 1.45;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
 // RESPONSIVENESS AND BREAKPOINTS
 @media (max-width: 1200px) {
   .trading-dashboard-container {
@@ -753,6 +1045,22 @@
 
     .td-bottom-grid {
       grid-template-columns: 1fr;
+    }
+  }
+
+  .bmc-checklist-wrapper {
+    .bmc-columns {
+      grid-template-columns: 1fr;
+    }
+
+    .bmc-header {
+      flex-direction: column;
+      align-items: flex-start;
+
+      .bmc-header-actions {
+        width: 100%;
+        justify-content: flex-end;
+      }
     }
   }
 }

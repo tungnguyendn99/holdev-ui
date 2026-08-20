@@ -25,7 +25,10 @@ import {
   X,
   LogOut,
   ArrowLeft,
-  Star
+  Star,
+  RotateCcw,
+  ShieldCheck,
+  Info
 } from 'lucide-react';
 import { useAppSelector } from '../../../store/hooks';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -40,6 +43,288 @@ interface MetricCardProps {
   isPositive?: boolean;
   icon: React.ReactNode;
 }
+
+// BMC Pre-Trade Checklist Data
+interface ChecklistItem {
+  id: string;
+  text: string;
+  hint?: string;
+  isBlocker?: boolean;
+  isInfo?: boolean;
+  checked: boolean;
+}
+
+interface ChecklistGroup {
+  id: string;
+  number: number;
+  title: string;
+  items: ChecklistItem[];
+}
+
+interface ChecklistDayData {
+  dayLabel: string;
+  timeframes: string;
+  groups: ChecklistGroup[];
+}
+
+const initialBmcData: ChecklistDayData[] = [
+  {
+    dayLabel: '1',
+    timeframes: 'Weekly → H4 → M15',
+    groups: [
+      {
+        id: 'w1',
+        number: 1,
+        title: 'Weekly — Cấu trúc, Bias, DOL & PD-Array',
+        items: [
+          {
+            id: 'w1-1',
+            text: 'Cấu trúc — thị trường gần nhất xác nhận hướng gì? (Tăng, giảm hoặc không rõ)',
+            hint: 'Uptrend: HH+HL | Downtrend: LL+LH | No trend: Sideways.',
+            isBlocker: true,
+            checked: false,
+          },
+          {
+            id: 'w1-2',
+            text: 'DOL tuần — các vùng thanh khoản đang nằm ở đâu? Thanh khoản nào đã lấy rồi?',
+            hint: 'Đích giá hướng tới trong tuần.',
+            isBlocker: true,
+            checked: false,
+          },
+          {
+            id: 'w1-3',
+            text: 'Weekly Bias: Tăng, giảm hay không có bias?',
+            hint: 'Dựa theo 2 nến đã đóng gần nhất.',
+            checked: false,
+          },
+          {
+            id: 'w1-4',
+            text: 'PDA trên Weekly: có hay không? Nếu không có thì còn Blocks nào giao dịch được không?',
+            hint: 'Đánh dấu những Blocks hợp lệ thuộc vùng Premium & Discount.',
+            checked: false,
+          },
+          {
+            id: 'w1-5',
+            text: 'Có Model nào để giao dịch Swing (W / H4) không?: IRL to ERL, UNICORN, CRT, ERL to ERL...',
+            hint: 'Nếu có thì xuống khung 4h tìm xác nhận đảo chiều cấu trúc rồi giao dịch.',
+            checked: false,
+          },
+        ],
+      },
+      {
+        id: 'w2',
+        number: 2,
+        title: 'H4 — Setup tại khung Tuần — vào luôn nếu đủ',
+        items: [
+          {
+            id: 'w2-1',
+            text: 'Sweep liquidity (BSL / SSL) đã xảy ra tại vùng PD-Array tuần hoặc vùng canh giao dịch tuần?',
+            hint: 'Sweep thanh khoản trước khi đảo chiều sẽ uy tín hơn Bms.',
+            checked: false,
+          },
+          {
+            id: 'w2-2',
+            text: 'MSS / CISD sau sweep / bms — kèm FVG không?',
+            hint: 'Không có FVG đi kèm = MSS/CISD không hợp lệ',
+            isBlocker: true,
+            checked: false,
+          },
+          {
+            id: 'w2-3',
+            text: 'PDA entry nằm đúng phía discount/premium?',
+            hint: 'Có nhiều sự lựa chọn thì chọn PDA để vào lệnh, còn không thì chọn cái mà thị trường tạo ra.',
+            isBlocker: true,
+            checked: false,
+          },
+          {
+            id: 'w2-4',
+            text: 'OTE trong vùng PDA (61.8% - 79%)?',
+            hint: 'OTE + PDA hợp lưu = xác suất tốt nhất',
+            checked: false,
+          },
+          {
+            id: 'w2-5',
+            text: 'Đặt đúng điểm Stop Loss và Take Profit theo Model',
+            hint: 'Đặt Stop Loss an toàn ở đỉnh/đáy cao nhất khi tạo MSS/CISD hoặc đỉnh/đáy đã được quét thanh khoản.',
+            checked: false,
+          },
+          {
+            id: 'w2-6',
+            text: 'Có bất lợi nào cản trở khối lệnh hay không?',
+            hint: 'Nếu có thì quan sát và quản lý lệnh tốt.',
+            checked: false,
+          },
+          {
+            id: 'w2-info',
+            text: 'Không có model khung tuần → xuống H4 tìm model Scalp (H4-M15)',
+            isInfo: true,
+            checked: false,
+          },
+        ],
+      },
+      {
+        id: 'w3',
+        number: 3,
+        title: 'H4 -- Xác nhận cấu trúc, tìm Model giao dịch',
+        items: [
+          {
+            id: 'w3-1',
+            text: 'H4 cấu trúc đồng thuận với Weekly?',
+            hint: 'Ngược Weekly -> Không Trade.',
+            isBlocker: true,
+            checked: false,
+          },
+          {
+            id: 'w3-2',
+            text: 'H4: PDA -- OB / FVG / BPR / IFVG đã đánh dấu',
+            hint: 'Vùng PDA có thể giao dịch, nếu không có thì chọn Blocks (PDA cho tỉ lệ winrate cao hơn)',
+            checked: false,
+          },
+          {
+            id: 'w3-3',
+            text: 'H4: Model đang hình thành: IRL to ERL, UNICORN, CRT, ERL to ERL?',
+            hint: 'Phải có Model mới giao dịch, không giao dịch cảm tính.',
+            checked: false,
+          },
+          {
+            id: 'w3-4',
+            text: 'Xác định các mục tiêu thanh khoản để đặt Take Profit cho lệnh trong khung M15',
+            hint: 'Nếu không có mục tiêu -> Không Trade.',
+            checked: false,
+          },
+        ],
+      },
+    ],
+  },
+  {
+    dayLabel: '2',
+    timeframes: 'Daily → H1 → M5',
+    groups: [
+      {
+        id: 'd1',
+        number: 1,
+        title: 'Daily — Bias & DOL',
+        items: [
+          {
+            id: 'd1-1',
+            text: 'Cấu trúc Daily — đồng thuận với Weekly?',
+            hint: 'Daily ngược Weekly → bỏ qua hoàn toàn',
+            isBlocker: true,
+            checked: false,
+          },
+          {
+            id: 'd1-2',
+            text: 'DOL hôm nay — các vùng thanh khoản đang nằm ở đâu?',
+            hint: 'Xác định mục tiêu thanh khoản ngày giá có thể tiến tới.',
+            isBlocker: true,
+            checked: false,
+          },
+          {
+            id: 'd1-3',
+            text: 'Daily Bias: Tăng, giảm hay không có Bias?',
+            hint: 'Dựa theo 2 nến đã đóng gần nhất',
+            checked: false,
+          },
+          {
+            id: 'd1-4',
+            text: 'PDA trên Daily: OB / FVG / BPR / IFVG ở đâu? có hay không? Nếu không có thì còn Blocks nào giao dịch được không?',
+            hint: 'Đánh dấu những Blocks hợp lệ thuộc vùng Premium & Discount.',
+            checked: false,
+          },
+          {
+            id: 'd1-5',
+            text: 'Có Model nào để giao dịch Swing (D / H1) không?: IRL to ERL, UNICORN, CRT, ERL to ERL...',
+            hint: 'Nếu có thì xuống khung 1h tìm xác nhận đảo chiều cấu trúc rồi giao dịch.',
+            checked: false,
+          },
+        ],
+      },
+      {
+        id: 'd2',
+        number: 2,
+        title: 'H1 — Setup tại khung Ngày — vào luôn nếu đủ',
+        items: [
+          {
+            id: 'd2-1',
+            text: 'Sweep liquidity (BSL/SSL) đã xảy ra tại vùng PD-Array ngày?',
+            hint: 'Sweep thanh khoản trước khi đảo chiều sẽ uy tín hơn Bms.',
+            checked: false,
+          },
+          {
+            id: 'd2-2',
+            text: 'MSS / CISD sau sweep - kèm FVG không?',
+            hint: 'Không có FVG đi kèm = MSS không hợp lệ',
+            isBlocker: true,
+            checked: false,
+          },
+          {
+            id: 'd2-3',
+            text: 'PDA entry nằm đúng phía discount/premium?',
+            hint: 'Có nhiều sự lựa chọn thì chọn PDA để vào lệnh, còn không thì chọn cái mà thị trường tạo ra.',
+            isBlocker: true,
+            checked: false,
+          },
+          {
+            id: 'd2-4',
+            text: 'OTE trong vùng PDA (61.8% - 79%)?',
+            hint: 'OTE + PDA hợp lưu = xác suất tốt nhất',
+            checked: false,
+          },
+          {
+            id: 'd2-5',
+            text: 'Đặt đúng điểm Stop Loss và Take Profit theo Model',
+            hint: 'Đặt Stop Loss an toàn ở đỉnh/đáy cao nhất khi tạo MSS/CISD hoặc đỉnh/đáy đã được quét thanh khoản.',
+            checked: false,
+          },
+          {
+            id: 'd2-6',
+            text: 'Có bất lợi nào cản trở khối lệnh hay không?',
+            hint: 'Nếu có thì quan sát và quản lý lệnh tốt.',
+            checked: false,
+          },
+          {
+            id: 'd2-info',
+            text: 'Không có model khung ngày → xuống H1 tìm model Scalp (H1-M5)',
+            isInfo: true,
+            checked: false,
+          },
+        ],
+      },
+      {
+        id: 'd3',
+        number: 3,
+        title: 'H1 -- Xác nhận cấu trúc & POI',
+        items: [
+          {
+            id: 'd3-1',
+            text: 'H1 cấu trúc đồng thuận với Daily?',
+            hint: 'Ngược Daily -> Không Trade.',
+            isBlocker: true,
+            checked: false,
+          },
+          {
+            id: 'd3-2',
+            text: 'H1: PDA -- OB / FVG / BPR / IFVG đã đánh dấu',
+            hint: 'Vùng PDA có thể giao dịch, nếu không có thì chọn Blocks (PDA cho tỉ lệ winrate cao hơn)',
+            checked: false,
+          },
+          {
+            id: 'd3-3',
+            text: 'H1: Model đang hình thành: IRL to ERL, UNICORN, CRT, ERL to ERL?',
+            hint: 'Phải có Model mới giao dịch, không giao dịch cảm tính.',
+            checked: false,
+          },
+          {
+            id: 'd3-4',
+            text: 'Xác định các mục tiêu thanh khoản để đặt Take Profit cho lệnh trong khung M5',
+            hint: 'Nếu không có mục tiêu -> Không Trade.',
+            checked: false,
+          },
+        ],
+      },
+    ],
+  },
+];
 
 export default function TradingDashboard() {
   const router = useRouter();
@@ -57,6 +342,48 @@ export default function TradingDashboard() {
     { id: 6, text: 'Tôi đang bình tĩnh, không revenge, không FOMO', checked: false },
     { id: 7, text: 'Chấp nhận không Trade nếu không có Setup tốt', checked: false }
   ]);
+
+  // BMC Pre-Trade Checklist State
+  const [bmcData, setBmcData] = useState<ChecklistDayData[]>(initialBmcData);
+  const [bmcValidated, setBmcValidated] = useState(false);
+
+  const toggleBmcItem = (dayIdx: number, groupId: string, itemId: string) => {
+    setBmcData(prev => prev.map((day, dIdx) => {
+      if (dIdx !== dayIdx) return day;
+      return {
+        ...day,
+        groups: day.groups.map(group => {
+          if (group.id !== groupId) return group;
+          return {
+            ...group,
+            items: group.items.map(item =>
+              item.id === itemId ? { ...item, checked: !item.checked } : item
+            ),
+          };
+        }),
+      };
+    }));
+    setBmcValidated(false);
+  };
+
+  const resetBmc = () => {
+    setBmcData(initialBmcData);
+    setBmcValidated(false);
+  };
+
+  const validateBmc = () => {
+    const allBlockersChecked = bmcData.every(day =>
+      day.groups.every(group =>
+        group.items.filter(i => i.isBlocker).every(i => i.checked)
+      )
+    );
+    setBmcValidated(allBlockersChecked);
+    if (!allBlockersChecked) {
+      alert('⚠️ Chưa đủ điều kiện! Hãy hoàn thành tất cả các BLOCKER trước khi vào lệnh.');
+    } else {
+      alert('✅ Entry hợp lệ! Tất cả BLOCKER đã được xác nhận.');
+    }
+  };
 
   // Equity Curve Timeframes
   const [timeframe, setTimeframe] = useState<'1M' | '3M' | 'YTD' | 'ALL'>('1M');
@@ -209,6 +536,95 @@ export default function TradingDashboard() {
           <div className="td-metric-icon-wrapper trades-icon">
             <History size={20} />
           </div>
+        </div>
+      </div>
+
+      {/* BMC PRE-TRADE CHECKLIST */}
+      <div className="bmc-checklist-wrapper">
+        <div className="bmc-header">
+          <div className="bmc-header-left">
+            <h2 className="bmc-title">Pre-Trade Checklist</h2>
+            <p className="bmc-subtitle">
+              Multi-timeframe structural alignment and PD-Array verification. Ensure all critical blockers are cleared before execution.
+            </p>
+          </div>
+          <div className="bmc-header-actions">
+            <button className="bmc-btn bmc-btn-reset" onClick={resetBmc}>
+              <RotateCcw size={14} />
+              Reset
+            </button>
+            <button
+              className={cx('bmc-btn bmc-btn-validate', { 'validated': bmcValidated })}
+              onClick={validateBmc}
+            >
+              <ShieldCheck size={14} />
+              Validate Entry
+            </button>
+          </div>
+        </div>
+
+        <div className="bmc-columns">
+          {bmcData.map((day, dayIdx) => (
+            <div key={day.dayLabel} className="bmc-column">
+              {/* Column Header */}
+              <div className="bmc-column-header">
+                <span className="bmc-day-label">{day.dayLabel}</span>
+                <span className="bmc-separator">—</span>
+                <span className="bmc-timeframes">{day.timeframes}</span>
+              </div>
+
+              {/* Groups */}
+              {day.groups.map((group) => (
+                <div key={group.id} className="bmc-group">
+                  <div className="bmc-group-header">
+                    <span className="bmc-group-number">{group.number}</span>
+                    <span className="bmc-group-title">{group.title}</span>
+                  </div>
+
+                  <div className="bmc-items-list">
+                    {group.items.map((item) => (
+                      <div
+                        key={item.id}
+                        className={cx('bmc-item', {
+                          'bmc-item--checked': item.checked,
+                          'bmc-item--info': item.isInfo,
+                        })}
+                        onClick={() => !item.isInfo && toggleBmcItem(dayIdx, group.id, item.id)}
+                      >
+                        {item.isInfo ? (
+                          <div className="bmc-info-row">
+                            <Info size={13} className="bmc-info-icon" />
+                            <span className="bmc-info-text">{item.text}</span>
+                          </div>
+                        ) : (
+                          <>
+                            <div className="bmc-item-top">
+                              <div className={cx('bmc-checkbox', { 'bmc-checkbox--checked': item.checked })}>
+                                {item.checked && (
+                                  <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                                    <path d="M1 4L3.5 6.5L9 1" stroke="#0d1527" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                                  </svg>
+                                )}
+                              </div>
+                              <span className={cx('bmc-item-text', { 'bmc-item-text--checked': item.checked })}>
+                                {item.text}
+                              </span>
+                            </div>
+                            {item.isBlocker && (
+                              <span className="bmc-blocker-badge">BLOCKER</span>
+                            )}
+                            {item.hint && (
+                              <p className="bmc-item-hint">{item.hint}</p>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ))}
         </div>
       </div>
 
