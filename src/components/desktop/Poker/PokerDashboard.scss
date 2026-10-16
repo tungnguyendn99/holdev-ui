@@ -1,0 +1,233 @@
+// ==========================================
+// Poker Dashboard — Full Page Styles
+// ==========================================
+
+.poker-dashboard-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  background-color: #090e1a;
+  color: #e2e8f0;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  padding: 28px;
+  min-height: 100vh;
+
+  // Reuse poker session styles for calendar cells
+  .ant-picker-cell {
+    border: 1px solid #eaf2e7;
+  }
+
+  .ant-picker-cell-inner {
+    border-top: none !important;
+    margin: 4px !important;
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+
+  // .ant-picker-cell-inner:has(.profit) {
+  //   background: #ddf1e7 !important;
+  //   border: 1px solid #b3cdc1 !important;
+  //   border-top: 1px solid #b3cdc1 !important;
+  // }
+
+  .ant-picker-cell-inner:has(.loss) {
+    background: #fad3d3 !important;
+    border: 1px solid #f0c8c7 !important;
+    border-top: 1px solid #f0c8c7 !important;
+  }
+
+  .ant-picker-calendar-date-content {
+    height: 90px !important;
+  }
+
+  // Recent session card styles
+  .recent-session {
+    width: 100%;
+    margin-top: 1rem;
+
+    .ant-card-body {
+      padding: 12px 24px;
+    }
+
+    .ant-tabs-tab {
+      padding: 8px;
+    }
+
+    .ant-tabs-tab-btn {
+      font-size: 16px;
+      font-weight: 600;
+    }
+  }
+
+  .recent-session-dark {
+    .ant-card {
+      background: #5f5cf0 !important;
+    }
+
+    .ant-tabs-tab {
+      color: white !important;
+    }
+
+    .ant-tabs-tab-active {
+      border-bottom: #5f5cf0 !important;
+    }
+
+    .ant-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+      color: #89cff0 !important;
+    }
+  }
+
+  .dark-table {
+    .ant-table {
+      border: 1px solid white !important;
+      background: #34516b !important;
+      color: white !important;
+    }
+
+    .ant-table-header .ant-table-thead {
+      th {
+        background: #5f5cf0 !important;
+        color: white;
+        font-weight: bold;
+      }
+    }
+
+    .ant-table-tbody>tr.ant-table-row:hover>td {
+      background: #6e8ca7 !important;
+    }
+
+    .ant-table-placeholder {
+      background-color: unset !important;
+
+      .ant-empty-description {
+        color: white !important;
+      }
+    }
+  }
+
+  .btn-submit-session {
+    height: 3rem;
+    background: #4b9ee6;
+
+    &:hover {
+      opacity: 0.9;
+    }
+  }
+}
+
+// HEADER
+.pd-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.pd-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  .pd-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    margin-bottom: 8px;
+    border: 1px solid #1e315f;
+    border-radius: 10px;
+    background: rgba(13, 21, 39, 0.6);
+    color: #94a3b8;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    width: fit-content;
+
+    &:hover {
+      border-color: #334155;
+      color: #f1f5f9;
+      background: rgba(13, 21, 39, 0.9);
+      transform: translateX(-3px);
+    }
+  }
+
+  .pd-title {
+    font-size: 28px;
+    font-weight: 800;
+    color: #f8fafc;
+    margin: 0;
+    letter-spacing: -0.5px;
+  }
+
+  .pd-subtitle {
+    font-size: 14px;
+    color: #64748b;
+    margin: 0;
+  }
+}
+
+.pd-header-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+
+  .pd-add-btn {
+    height: 34px;
+    font-weight: 600;
+    border-radius: 10px;
+  }
+
+  .pd-sync-btn {
+    padding: 8px 20px;
+    background: #6366f1;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+  }
+}
+
+// STATS BAR
+.pd-stats-bar {
+  background: rgba(13, 21, 39, 0.6);
+  border: 1px solid #16223f;
+  border-radius: 12px;
+  padding: 16px 24px;
+}
+
+.pd-stats-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+
+  .pd-stats-label {
+    font-weight: 700;
+    font-size: 18px;
+    color: #f1f5f9;
+    margin-right: 4px;
+  }
+}
+
+// CALENDAR SECTION
+.pd-calendar-section {
+  background: transparent;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+// TABS SECTION
+.pd-tabs-section {
+  margin-top: 0;
+}
