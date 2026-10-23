@@ -21,7 +21,7 @@ import { PlusOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import dayjs, { Dayjs } from 'dayjs';
 import moment from 'moment';
 import { useRouter } from 'next/navigation';
-import { useAppDispatch } from '../../../store/hooks';
+import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { showLoading, hideLoading } from '../../../store/slices/user.slice';
 import API from '../../../utils/api';
 import { useTheme } from 'next-themes';
@@ -32,10 +32,12 @@ import { ColumnsType } from 'antd/es/table';
 import { ArrowLeft, Images, Star } from 'lucide-react';
 import PlanSettings from '../../mobile/PokerMobile/Plan';
 import { ImagesTab } from '../User/Images';
+import PokerStatsChart from './PokerStatsChart';
 import './PokerDashboard.scss';
 
 const PokerDashboard = () => {
   const dispatch = useAppDispatch();
+  const userInfo = useAppSelector((state) => state.user.userInfo);
   const router = useRouter();
   const { theme } = useTheme();
   const [form] = Form.useForm();
@@ -746,6 +748,20 @@ const PokerDashboard = () => {
           />
         </Card>
       </div>
+
+      {/* POKER STATS CHART */}
+      <PokerStatsChart
+        selectedDate={selectedDate}
+        mode={mode}
+        dataDays={dataDays}
+        dataYear={dataYear}
+        detailMonth={detailMonth}
+        dataYearStats={dataYearStats}
+        sessions={sessions}
+        onSelectDate={handleSelectDate}
+        onChangeViewMode={handleChangeViewMode}
+        username={userInfo?.username ? String(userInfo.username) : ''}
+      />
 
       {/* MODAL FORM */}
       {isOpen.status && (

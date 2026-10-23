@@ -1,0 +1,305 @@
+// ==========================================
+// Poker Stats Chart — Dual Line & Bar Graph
+// ==========================================
+
+.poker-stats-chart-card {
+  width: 100%;
+  margin-top: 20px;
+  border-radius: 14px;
+  padding: 18px 24px 20px;
+  background: linear-gradient(135deg, #0b0c16 0%, #101221 40%, #17152b 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5);
+  font-family: inherit;
+  position: relative;
+  overflow: hidden;
+
+  &.light-mode {
+    background: linear-gradient(135deg, #0e111d 0%, #131728 50%, #1c1833 100%);
+  }
+
+  // HEADER
+  .poker-chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 14px;
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+
+      .poker-nav-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        color: #94a3b8;
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.12);
+          color: #f8fafc;
+          border-color: rgba(255, 255, 255, 0.2);
+        }
+      }
+
+      .poker-chart-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 17px;
+        font-weight: 700;
+        color: #f1f5f9;
+        margin: 0;
+        letter-spacing: -0.2px;
+
+        .user-name {
+          color: #f8fafc;
+        }
+
+        .separator {
+          color: #64748b;
+          font-weight: 400;
+        }
+
+        .date-title {
+          color: #e2e8f0;
+        }
+      }
+
+      .poker-game-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 4px 12px;
+        border-radius: 6px;
+        background: rgba(22, 101, 52, 0.2);
+        border: 1px solid rgba(34, 197, 94, 0.3);
+
+        .game-type {
+          font-size: 13px;
+          font-weight: 800;
+          color: #22c55e;
+          letter-spacing: 0.5px;
+        }
+
+        .game-blind {
+          font-size: 13px;
+          font-weight: 600;
+          color: #94a3b8;
+        }
+      }
+
+      .view-mode-toggle {
+        display: inline-flex;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 8px;
+        padding: 2px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+
+        .mode-btn {
+          padding: 3px 10px;
+          font-size: 12px;
+          font-weight: 600;
+          border-radius: 6px;
+          border: none;
+          background: transparent;
+          color: #94a3b8;
+          cursor: pointer;
+          transition: all 0.2s ease;
+
+          &.active {
+            background: #6366f1;
+            color: #ffffff;
+            box-shadow: 0 2px 6px rgba(99, 102, 241, 0.35);
+          }
+
+          &:hover:not(.active) {
+            color: #f1f5f9;
+          }
+        }
+      }
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+
+      .metric-pill {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 16px;
+
+        .metric-label {
+          color: #cbd5e1;
+          font-weight: 500;
+        }
+
+        .metric-val {
+          font-weight: 700;
+          letter-spacing: -0.2px;
+        }
+
+        &.profit-metric {
+          .metric-icon.line-icon {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            width: 26px;
+
+            .icon-line {
+              flex: 1;
+              height: 2px;
+              background-color: #f59e0b;
+              border-radius: 1px;
+            }
+
+            .icon-circle {
+              width: 8px;
+              height: 8px;
+              border-radius: 50%;
+              border: 2px solid #f59e0b;
+              background-color: #101221;
+            }
+          }
+
+          .metric-val {
+            color: #fbbf24;
+            font-size: 15px;
+          }
+        }
+
+        &.hands-metric {
+          .metric-icon.bars-icon {
+            display: inline-flex;
+            align-items: flex-end;
+            gap: 2.5px;
+            height: 14px;
+            width: 16px;
+
+            .bar {
+              flex: 1;
+              background-color: #818cf8;
+              border-radius: 1px;
+            }
+
+            .bar-1 {
+              height: 7px;
+            }
+
+            .bar-2 {
+              height: 11px;
+            }
+
+            .bar-3 {
+              height: 14px;
+            }
+          }
+
+          .metric-val {
+            color: #ffffff;
+            font-size: 15px;
+          }
+        }
+      }
+    }
+  }
+
+  // BODY & SVG
+  .poker-chart-body {
+    position: relative;
+    width: 100%;
+
+    .poker-chart-svg {
+      width: 100%;
+      height: auto;
+      display: block;
+      overflow: visible;
+
+      .hand-bar {
+        transition: fill 0.2s ease, opacity 0.2s ease;
+
+        &:hover {
+          cursor: pointer;
+        }
+      }
+
+      .profit-point {
+        transition: r 0.2s ease, fill 0.2s ease;
+      }
+
+      .x-axis-text {
+        user-select: none;
+
+        &.active-day-label {
+          filter: drop-shadow(0 0 4px rgba(254, 240, 138, 0.5));
+        }
+      }
+
+      .x-axis-suffix {
+        user-select: none;
+      }
+
+      .future-curtain {
+        pointer-events: none;
+      }
+    }
+
+    // FLOATING TOOLTIP
+    .poker-chart-tooltip {
+      position: absolute;
+      top: 10px;
+      z-index: 10;
+      background: rgba(15, 23, 42, 0.92);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+      padding: 10px 14px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+      pointer-events: none;
+      min-width: 160px;
+      transition: left 0.1s ease-out, transform 0.1s ease-out;
+
+      .tooltip-header {
+        font-size: 12px;
+        font-weight: 700;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 6px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        padding-bottom: 4px;
+      }
+
+      .tooltip-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        font-size: 13px;
+        margin-top: 3px;
+
+        .tooltip-label {
+          color: #94a3b8;
+        }
+
+        .tooltip-val {
+          font-weight: 600;
+        }
+      }
+    }
+  }
+}
