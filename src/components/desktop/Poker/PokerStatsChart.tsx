@@ -20,6 +20,19 @@ interface PokerStatsChartProps {
   username?: string;
 }
 
+const formatDuration = (val: any): string | null => {
+  if (val === null || val === undefined || val === '') return null;
+  if (typeof val === 'number') {
+    const hours = Math.floor(val / 60);
+    const mins = Math.round(val % 60);
+    if (hours > 0) {
+      return `${hours}h ${mins > 0 ? `${mins}m` : ''}`.trim();
+    }
+    return `${mins}m`;
+  }
+  return String(val);
+};
+
 export const PokerStatsChart: React.FC<PokerStatsChartProps> = ({
   selectedDate,
   mode: parentMode,
@@ -115,6 +128,30 @@ export const PokerStatsChart: React.FC<PokerStatsChartProps> = ({
         const dayHands = dayInfo?.hands ? Number(dayInfo.hands) : 0;
         const count = dayInfo?.count ? Number(dayInfo.count) : 0;
         const winrate = dayInfo?.winrate || null;
+        let duration = formatDuration(dayInfo?.duration);
+
+        if (!duration && sessions && sessions.length > 0) {
+          const daySessions = sessions.filter((s) => {
+            if (!s?.startTime) return false;
+            return dayjs(s.startTime).format('YYYY-MM-DD') === dateKey;
+          });
+          if (daySessions.length > 0) {
+            const totalMinutes = daySessions.reduce((acc, s) => {
+              if (typeof s.duration === 'number') return acc + s.duration;
+              if (s.startTime && s.endTime) {
+                const diff = dayjs(s.endTime).diff(dayjs(s.startTime), 'minute');
+                return acc + (diff > 0 ? diff : 0);
+              }
+              return acc;
+            }, 0);
+            if (totalMinutes > 0) {
+              duration = formatDuration(totalMinutes);
+            } else if (daySessions[0]?.duration) {
+              duration = String(daySessions[0].duration);
+            }
+          }
+        }
+
         const hasData = !!dayInfo && (dayHands > 0 || count > 0 || dayProfit !== 0);
 
         // Accumulate profit up to this day
@@ -132,6 +169,7 @@ export const PokerStatsChart: React.FC<PokerStatsChartProps> = ({
           hands: dayHands,
           count,
           winrate,
+          duration,
           hasData,
           isActiveOrPast: d <= activeCutoffDay,
         });
@@ -167,6 +205,7 @@ export const PokerStatsChart: React.FC<PokerStatsChartProps> = ({
         const monthHands = monthInfo?.hands ? Number(monthInfo.hands) : 0;
         const count = monthInfo?.count ? Number(monthInfo.count) : 0;
         const winrate = monthInfo?.winrate || null;
+        const duration = formatDuration(monthInfo?.duration);
         const hasData = !!monthInfo && (monthHands > 0 || count > 0 || monthProfit !== 0);
 
         if (m <= activeCutoffMonth) {
@@ -183,6 +222,7 @@ export const PokerStatsChart: React.FC<PokerStatsChartProps> = ({
           hands: monthHands,
           count,
           winrate,
+          duration,
           hasData,
           isActiveOrPast: m <= activeCutoffMonth,
         });
@@ -196,7 +236,7 @@ export const PokerStatsChart: React.FC<PokerStatsChartProps> = ({
         xAxisSuffix: '(Month)',
       };
     }
-  }, [isMonthView, selectedDate, dataDays, dataYear]);
+  }, [isMonthView, selectedDate, dataDays, dataYear, sessions]);
 
   // SVG Dimensions & Calculation
   const width = 1000;
@@ -663,6 +703,12 @@ export const PokerStatsChart: React.FC<PokerStatsChartProps> = ({
                   <div className="tooltip-row">
                     <span className="tooltip-label">Sessions:</span>
                     <span className="tooltip-val text-slate-200">{item.count}</span>
+                  </div>
+                )}
+                {item.duration && (
+                  <div className="tooltip-row">
+                    <span className="tooltip-label">Duration:</span>
+                    <span className="tooltip-val text-cyan-300">{item.duration}</span>
                   </div>
                 )}
                 {item.winrate && (
