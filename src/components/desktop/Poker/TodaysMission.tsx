@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import dayjs from 'dayjs';
+import { getDailyPlanConfig } from './disciplineUtils';
 import './TodaysMission.scss';
 
 interface ChecklistItem {
@@ -39,12 +40,26 @@ const TodaysMission = () => {
 
   // State
   const [checklist, setChecklist] = useState<ChecklistItem[]>(DEFAULT_CHECKLIST);
-  const [plannedVolume, setPlannedVolume] = useState<number>(1000);
-  const [plannedTime, setPlannedTime] = useState<string>('3.5h');
+  const [plannedVolume, setPlannedVolume] = useState<number>(1500);
+  const [plannedTime, setPlannedTime] = useState<string>('5h');
   const [studyTask, setStudyTask] = useState<string>('River decisions');
   const [studyDuration, setStudyDuration] = useState<string>('15 minutes (GTO lab)');
   const [priority, setPriority] = useState<string>('A-Game');
   const [prioritySubtext, setPrioritySubtext] = useState<string>('Process over profit');
+
+  useEffect(() => {
+    const cfg = getDailyPlanConfig();
+    setPlannedVolume(cfg.plannedVolume);
+    setPlannedTime(cfg.plannedTimeStr);
+
+    const onUpdate = () => {
+      const updated = getDailyPlanConfig();
+      setPlannedVolume(updated.plannedVolume);
+      setPlannedTime(updated.plannedTimeStr);
+    };
+    window.addEventListener('poker_daily_plan_updated', onUpdate);
+    return () => window.removeEventListener('poker_daily_plan_updated', onUpdate);
+  }, []);
 
   const completedCount = checklist.filter((c) => c.checked).length;
   const totalCount = checklist.length;

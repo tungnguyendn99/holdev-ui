@@ -33,6 +33,8 @@ import { ArrowLeft, Images, Star } from 'lucide-react';
 import PlanSettings from '../../mobile/PokerMobile/Plan';
 import { ImagesTab } from '../User/Images';
 import PokerStatsChart from './PokerStatsChart';
+import SelectedDayDisciplineCard from './SelectedDayDisciplineCard';
+import RecentDisciplineOverview from './RecentDisciplineOverview';
 import './PokerDashboard.scss';
 
 const PokerDashboard = () => {
@@ -648,13 +650,6 @@ const PokerDashboard = () => {
                 label: 'Selected Day Sessions',
                 children: (
                   <>
-                    <p
-                      className={cx('font-bold text-center mb-3', {
-                        'text-white': theme === 'dark',
-                      })}
-                    >
-                      {selectedDate.format('DD / MM / YYYY')}
-                    </p>
                     {!!selectedDaySessions.length ? (
                       <Table
                         rowKey={(r) => r.id}
@@ -693,6 +688,11 @@ const PokerDashboard = () => {
                         No Session!
                       </p>
                     )}
+                    <SelectedDayDisciplineCard
+                      selectedDate={selectedDate}
+                      dayData={dataDays[selectedDate.format('YYYY-MM-DD')]}
+                      daySessions={selectedDaySessions}
+                    />
                   </>
                 ),
               },
@@ -700,32 +700,38 @@ const PokerDashboard = () => {
                 key: 'recent',
                 label: 'Recent Sessions',
                 children: (
-                  <Table
-                    rowKey={(r) => r.id}
-                    columns={columns}
-                    dataSource={sessions}
-                    pagination={false}
-                    scroll={{ y: 420 }}
-                    size="small"
-                    className={cx(`w-full`, {
-                      '': theme === 'light',
-                      'dark-table': theme === 'dark',
-                    })}
-                    onRow={(record) => ({
-                      onClick: () => {
-                        setIdUpdate(record.id);
-                        form.setFieldsValue({
-                          ...record,
-                          ...(record?.startTime !== undefined && {
-                            startTime: dayjs(record.startTime),
-                          }),
-                          ...(record?.endTime !== undefined && { endTime: dayjs(record.endTime) }),
-                        });
-                        setPreviewURLs(record.images);
-                        setIsOpen({ status: true, type: 'edit' });
-                      },
-                    })}
-                  />
+                  <>
+                    <Table
+                      rowKey={(r) => r.id}
+                      columns={columns}
+                      dataSource={sessions}
+                      pagination={false}
+                      scroll={{ y: 420 }}
+                      size="small"
+                      className={cx(`w-full`, {
+                        '': theme === 'light',
+                        'dark-table': theme === 'dark',
+                      })}
+                      onRow={(record) => ({
+                        onClick: () => {
+                          setIdUpdate(record.id);
+                          form.setFieldsValue({
+                            ...record,
+                            ...(record?.startTime !== undefined && {
+                              startTime: dayjs(record.startTime),
+                            }),
+                            ...(record?.endTime !== undefined && { endTime: dayjs(record.endTime) }),
+                          });
+                          setPreviewURLs(record.images);
+                          setIsOpen({ status: true, type: 'edit' });
+                        },
+                      })}
+                    />
+                    <RecentDisciplineOverview
+                      dataDays={dataDays}
+                      sessions={sessions}
+                    />
+                  </>
                 ),
               },
               {
