@@ -1,21 +1,43 @@
 import dayjs, { Dayjs } from 'dayjs';
 
 export interface DailyPlanConfig {
-  plannedVolume: number; // e.g. 1500
-  plannedMinutes: number; // e.g. 300 (5 hours)
-  plannedTimeStr: string; // e.g. '5h'
+  plannedVolume: number; // e.g. 1500 for weekday, 750 for weekend
+  plannedMinutes: number; // e.g. 300 (5 hours) for weekday, 150 (2h30) for weekend
+  plannedTimeStr: string; // e.g. '5h' or '2h30'
 }
 
-export const DEFAULT_DAILY_PLAN: DailyPlanConfig = {
+export const DEFAULT_WEEKDAY_PLAN: DailyPlanConfig = {
   plannedVolume: 1500,
   plannedMinutes: 300,
   plannedTimeStr: '5h',
 };
 
-export const getDailyPlanConfig = (): DailyPlanConfig => {
-  if (typeof window === 'undefined') return DEFAULT_DAILY_PLAN;
+export const DEFAULT_WEEKEND_PLAN: DailyPlanConfig = {
+  plannedVolume: 750,
+  plannedMinutes: 150,
+  plannedTimeStr: '2h30',
+};
+
+export const DEFAULT_DAILY_PLAN: DailyPlanConfig = DEFAULT_WEEKDAY_PLAN;
+
+/**
+ * Checks whether a given date or today is a weekend (Saturday or Sunday).
+ * Sunday is 0, Saturday is 6 in dayjs.
+ */
+export const isWeekend = (dateOrFlag?: string | Dayjs | Date | boolean): boolean => {
+  if (typeof dateOrFlag === 'boolean') return dateOrFlag;
+  const d = dateOrFlag ? dayjs(dateOrFlag) : dayjs();
+  const day = d.day();
+  return day === 0 || day === 6;
+};
+
+export const getDailyPlanConfig = (dateOrFlag?: string | Dayjs | Date | boolean): DailyPlanConfig => {
+  const weekend = isWeekend(dateOrFlag);
+  const defaultPlan = weekend ? DEFAULT_WEEKEND_PLAN : DEFAULT_WEEKDAY_PLAN;
+  if (typeof window === 'undefined') return defaultPlan;
   try {
-    const saved = localStorage.getItem('poker_daily_plan');
+    const key = weekend ? 'poker_weekend_plan' : 'poker_daily_plan';
+    const saved = localStorage.getItem(key);
     if (saved) {
       const parsed = JSON.parse(saved);
       if (parsed.plannedVolume && parsed.plannedMinutes) {
@@ -23,21 +45,32 @@ export const getDailyPlanConfig = (): DailyPlanConfig => {
       }
     }
   } catch (e) {
-    console.error('Error reading poker_daily_plan', e);
+    console.error('Error reading poker plan config', e);
   }
-  return DEFAULT_DAILY_PLAN;
+  return defaultPlan;
 };
 
-export const setDailyPlanConfig = (config: Partial<DailyPlanConfig>) => {
+export const getWeekdayPlanConfig = (): DailyPlanConfig => getDailyPlanConfig(false);
+export const getWeekendPlanConfig = (): DailyPlanConfig => getDailyPlanConfig(true);
+
+export const setDailyPlanConfig = (
+  config: Partial<DailyPlanConfig>,
+  isWeekendPlan: boolean = false,
+) => {
   if (typeof window === 'undefined') return;
   try {
-    const current = getDailyPlanConfig();
+    const key = isWeekendPlan ? 'poker_weekend_plan' : 'poker_daily_plan';
+    const current = getDailyPlanConfig(isWeekendPlan);
     const updated = { ...current, ...config };
-    localStorage.setItem('poker_daily_plan', JSON.stringify(updated));
+    localStorage.setItem(key, JSON.stringify(updated));
     window.dispatchEvent(new Event('poker_daily_plan_updated'));
   } catch (e) {
-    console.error('Error saving poker_daily_plan', e);
+    console.error('Error saving poker plan config', e);
   }
+};
+
+export const setWeekendPlanConfig = (config: Partial<DailyPlanConfig>) => {
+  setDailyPlanConfig(config, true);
 };
 
 /**
@@ -106,6 +139,10 @@ export const formatMinutesToDisplay = (minutes: number): string => {
 
 export interface DayEvaluation {
   dateKey: string;
+  isWeekendDay: boolean;
+  plannedVolume: number;
+  plannedMinutes: number;
+  plannedTimeStr: string;
   hands: number;
   durationMinutes: number;
   durationDisplay: string;
@@ -128,15 +165,20 @@ export interface DayEvaluation {
 
 /**
  * Evaluates a single day against the daily plan.
+ * If planConfig is not provided, automatically resolves weekday vs weekend (Sat/Sun: 750 hands / 150 mins / 2h30).
  * Rule: nếu hands hoặc duration < value kế hoạch đã đề ra => ngày đó chưa hoàn thành theo kế hoạch.
  */
 export const evaluateDayPlan = (
   dateKey: string,
   dayData: any,
   daySessions: any[] = [],
-  planConfig: DailyPlanConfig = DEFAULT_DAILY_PLAN,
+  planConfig?: DailyPlanConfig,
 ): DayEvaluation => {
-  const { plannedVolume, plannedMinutes } = planConfig;
+  const isWeekendDay = isWeekend(dateKey);
+  const effectiveConfig = planConfig || getDailyPlanConfig(dateKey);
+  const { plannedVolume, plannedMinutes } = effectiveConfig;
+  const plannedTimeStr =
+    effectiveConfig.plannedTimeStr || formatMinutesToDisplay(plannedMinutes);
 
   // Aggregate hands
   let hands = 0;
@@ -261,6 +303,10 @@ export const evaluateDayPlan = (
 
   return {
     dateKey,
+    isWeekendDay,
+    plannedVolume,
+    plannedMinutes,
+    plannedTimeStr,
     hands,
     durationMinutes,
     durationDisplay: formatMinutesToDisplay(durationMinutes),
@@ -318,8 +364,9 @@ export interface DisciplineOverview {
 export const calculateDisciplineOverview = (
   dataDays: Record<string, any> = {},
   sessions: any[] = [],
-  planConfig: DailyPlanConfig = DEFAULT_DAILY_PLAN,
+  weekdayPlanConfig?: DailyPlanConfig,
   sampleWindowDays: number = 8,
+  weekendPlanConfig?: DailyPlanConfig,
 ): DisciplineOverview => {
   // Map all sessions by day
   const sessionsByDay: Record<string, any[]> = {};
@@ -338,14 +385,20 @@ export const calculateDisciplineOverview = (
 
   const dailyEvals: DayEvaluation[] = [];
 
+  const resolvedWeekdayPlan = weekdayPlanConfig || getWeekdayPlanConfig();
+  const resolvedWeekendPlan = weekendPlanConfig || getWeekendPlanConfig();
+
   allDateKeys.forEach((dateKey) => {
     const dayData = dataDays[dateKey];
     const daySessions = sessionsByDay[dateKey] || [];
+    const isDateWeekend = isWeekend(dateKey);
+    const dayPlan = isDateWeekend ? resolvedWeekendPlan : resolvedWeekdayPlan;
+
     const evaluation = evaluateDayPlan(
       dateKey,
       dayData,
       daySessions,
-      planConfig,
+      dayPlan,
     );
 
     // Only count days where the user actually grinded

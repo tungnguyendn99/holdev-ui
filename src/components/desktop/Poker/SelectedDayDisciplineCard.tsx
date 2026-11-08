@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Dayjs } from 'dayjs';
 import { motion } from 'framer-motion';
 import {
@@ -19,6 +19,7 @@ import {
 import {
   evaluateDayPlan,
   getDailyPlanConfig,
+  isWeekend,
   DailyPlanConfig,
   formatMinutesToDisplay,
 } from './disciplineUtils';
@@ -29,6 +30,7 @@ interface SelectedDayDisciplineCardProps {
   dayData?: any;
   daySessions?: any[];
   planConfig?: DailyPlanConfig;
+  weekendPlanConfig?: DailyPlanConfig;
 }
 
 export const SelectedDayDisciplineCard: React.FC<SelectedDayDisciplineCardProps> = ({
@@ -36,10 +38,24 @@ export const SelectedDayDisciplineCard: React.FC<SelectedDayDisciplineCardProps>
   dayData,
   daySessions = [],
   planConfig,
+  weekendPlanConfig,
 }) => {
+  const [planVersion, setPlanVersion] = useState(0);
+
+  useEffect(() => {
+    const handleUpdate = () => setPlanVersion((v) => v + 1);
+    window.addEventListener('poker_daily_plan_updated', handleUpdate);
+    return () => window.removeEventListener('poker_daily_plan_updated', handleUpdate);
+  }, []);
+
+  const isWeekendDay = isWeekend(selectedDate);
+
   const activePlanConfig = useMemo(() => {
-    return planConfig || getDailyPlanConfig();
-  }, [planConfig]);
+    if (isWeekendDay) {
+      return weekendPlanConfig || getDailyPlanConfig(selectedDate);
+    }
+    return planConfig || getDailyPlanConfig(selectedDate);
+  }, [selectedDate, isWeekendDay, planConfig, weekendPlanConfig, planVersion]);
 
   const dateKey = selectedDate.format('YYYY-MM-DD');
 
@@ -82,7 +98,18 @@ export const SelectedDayDisciplineCard: React.FC<SelectedDayDisciplineCardProps>
             <Calendar size={18} />
           </div>
           <div className="sddc-title-group">
-            <span className="sddc-subtitle">Đánh giá kế hoạch ngày</span>
+            <div className="flex items-center gap-2">
+              <span className="sddc-subtitle">Đánh giá kế hoạch ngày</span>
+              {isWeekendDay ? (
+                <span className="px-1.5 py-0.5 text-[10px] font-semibold bg-purple-500/20 text-purple-300 border border-purple-500/30 rounded">
+                  Cuối tuần (T7 & CN: 750 hands / 2h30)
+                </span>
+              ) : (
+                <span className="px-1.5 py-0.5 text-[10px] font-semibold bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded">
+                  Ngày thường (1,500 hands / 5h)
+                </span>
+              )}
+            </div>
             <span className="sddc-date-text">{formattedDateStr}</span>
           </div>
         </div>
@@ -173,7 +200,7 @@ export const SelectedDayDisciplineCard: React.FC<SelectedDayDisciplineCardProps>
           <div className="sddc-metric-values">
             <span className="sddc-metric-actual">{durationDisplay}</span>
             <span className="sddc-metric-target">
-              / {formatMinutesToDisplay(activePlanConfig.plannedMinutes)}
+              / {activePlanConfig.plannedTimeStr || formatMinutesToDisplay(activePlanConfig.plannedMinutes)}
             </span>
           </div>
           <div className="sddc-progress-track">

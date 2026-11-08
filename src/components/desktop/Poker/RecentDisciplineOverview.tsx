@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ShieldAlert,
@@ -18,7 +18,8 @@ import {
 } from 'lucide-react';
 import {
   calculateDisciplineOverview,
-  getDailyPlanConfig,
+  getWeekdayPlanConfig,
+  getWeekendPlanConfig,
   setDailyPlanConfig,
   DailyPlanConfig,
   formatMinutesToDisplay,
@@ -29,28 +30,47 @@ interface RecentDisciplineOverviewProps {
   dataDays: Record<string, any>;
   sessions: any[];
   planConfig?: DailyPlanConfig;
-  onPlanConfigChange?: (newConfig: DailyPlanConfig) => void;
+  weekendPlanConfig?: DailyPlanConfig;
+  onPlanConfigChange?: (newConfig: DailyPlanConfig, isWeekend?: boolean) => void;
 }
 
 export const RecentDisciplineOverview: React.FC<RecentDisciplineOverviewProps> = ({
   dataDays,
   sessions = [],
   planConfig,
+  weekendPlanConfig,
   onPlanConfigChange,
 }) => {
-  const [activePlan, setActivePlan] = useState<DailyPlanConfig>(() => {
-    return planConfig || getDailyPlanConfig();
+  const [weekdayPlan, setWeekdayPlan] = useState<DailyPlanConfig>(() => {
+    return planConfig || getWeekdayPlanConfig();
   });
 
+  const [weekendPlan, setWeekendPlan] = useState<DailyPlanConfig>(() => {
+    return weekendPlanConfig || getWeekendPlanConfig();
+  });
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      setWeekdayPlan(getWeekdayPlanConfig());
+      setWeekendPlan(getWeekendPlanConfig());
+    };
+    window.addEventListener('poker_daily_plan_updated', handleUpdate);
+    return () => window.removeEventListener('poker_daily_plan_updated', handleUpdate);
+  }, []);
+
   const [isEditingPlan, setIsEditingPlan] = useState<boolean>(false);
-  const [tempVolume, setTempVolume] = useState<number>(activePlan.plannedVolume);
-  const [tempHours, setTempHours] = useState<number>(
-    Math.round(activePlan.plannedMinutes / 60)
+  const [tempWeekdayVolume, setTempWeekdayVolume] = useState<number>(weekdayPlan.plannedVolume);
+  const [tempWeekdayHours, setTempWeekdayHours] = useState<number>(
+    Math.round((weekdayPlan.plannedMinutes / 60) * 10) / 10,
+  );
+  const [tempWeekendVolume, setTempWeekendVolume] = useState<number>(weekendPlan.plannedVolume);
+  const [tempWeekendHours, setTempWeekendHours] = useState<number>(
+    Math.round((weekendPlan.plannedMinutes / 60) * 10) / 10,
   );
 
   const overview = useMemo(() => {
-    return calculateDisciplineOverview(dataDays, sessions, activePlan, 8);
-  }, [dataDays, sessions, activePlan]);
+    return calculateDisciplineOverview(dataDays, sessions, weekdayPlan, 8, weekendPlan);
+  }, [dataDays, sessions, weekdayPlan, weekendPlan]);
 
   const {
     totalGrindDays,
@@ -70,17 +90,40 @@ export const RecentDisciplineOverview: React.FC<RecentDisciplineOverviewProps> =
     behaviorAlertDisclaimer,
   } = overview;
 
+  const handleOpenEditPlan = () => {
+    setTempWeekdayVolume(weekdayPlan.plannedVolume);
+    setTempWeekdayHours(Math.round((weekdayPlan.plannedMinutes / 60) * 10) / 10);
+    setTempWeekendVolume(weekendPlan.plannedVolume);
+    setTempWeekendHours(Math.round((weekendPlan.plannedMinutes / 60) * 10) / 10);
+    setIsEditingPlan(true);
+  };
+
   const handleSavePlan = () => {
-    const updated: DailyPlanConfig = {
-      plannedVolume: Number(tempVolume) || 1500,
-      plannedMinutes: (Number(tempHours) || 5) * 60,
-      plannedTimeStr: `${tempHours}h`,
+    const updatedWeekdayMins = Math.round((Number(tempWeekdayHours) || 5) * 60);
+    const updatedWeekday: DailyPlanConfig = {
+      plannedVolume: Number(tempWeekdayVolume) || 1500,
+      plannedMinutes: updatedWeekdayMins,
+      plannedTimeStr: formatMinutesToDisplay(updatedWeekdayMins),
     };
-    setDailyPlanConfig(updated);
-    setActivePlan(updated);
+
+    const updatedWeekendMins = Math.round((Number(tempWeekendHours) || 2.5) * 60);
+    const updatedWeekend: DailyPlanConfig = {
+      plannedVolume: Number(tempWeekendVolume) || 750,
+      plannedMinutes: updatedWeekendMins,
+      plannedTimeStr:
+        Number(tempWeekendHours) === 2.5
+          ? '2h30'
+          : formatMinutesToDisplay(updatedWeekendMins),
+    };
+
+    setDailyPlanConfig(updatedWeekday, false);
+    setDailyPlanConfig(updatedWeekend, true);
+    setWeekdayPlan(updatedWeekday);
+    setWeekendPlan(updatedWeekend);
     setIsEditingPlan(false);
     if (onPlanConfigChange) {
-      onPlanConfigChange(updated);
+      onPlanConfigChange(updatedWeekday, false);
+      onPlanConfigChange(updatedWeekend, true);
     }
   };
 
@@ -149,10 +192,10 @@ export const RecentDisciplineOverview: React.FC<RecentDisciplineOverviewProps> =
             </span>
             <button
               className="text-[11px] text-blue-400 hover:text-blue-300 flex items-center gap-1 cursor-pointer transition"
-              onClick={() => setIsEditingPlan(!isEditingPlan)}
-              title="Cài đặt mục tiêu mỗi ngày"
+              onClick={handleOpenEditPlan}
+              title="Cài đặt mục tiêu ngày thường & cuối tuần"
             >
-              <Settings2 size={12} /> Plan: {activePlan.plannedVolume}h / {activePlan.plannedTimeStr}
+              <Settings2 size={12} /> Plan: T2-T6 ({weekdayPlan.plannedVolume} hands / {weekdayPlan.plannedTimeStr}) • T7-CN ({weekendPlan.plannedVolume} hands / {weekendPlan.plannedTimeStr})
             </button>
           </div>
 
@@ -168,13 +211,13 @@ export const RecentDisciplineOverview: React.FC<RecentDisciplineOverviewProps> =
                       ? 'dot-warning'
                       : 'dot-failed'
                   }`}
-                  title={`${d.dateKey}: ${
+                  title={`${d.dateKey} (${d.isWeekendDay ? 'Cuối tuần' : 'Ngày thường'}): ${
                     d.isCompleted
                       ? 'Đạt kế hoạch'
                       : d.isQuitEarlyWinning
                       ? 'Dừng sớm khi Win'
                       : 'Chưa đạt'
-                  } (${d.hands.toLocaleString()} hands, ${d.durationDisplay})`}
+                  } (${d.hands.toLocaleString()}/${d.plannedVolume.toLocaleString()} hands, ${d.durationDisplay}/${d.plannedTimeStr})`}
                 >
                   {d.isCompleted ? '✓' : d.isQuitEarlyWinning ? '⚡' : '!'}
                 </div>
@@ -199,53 +242,103 @@ export const RecentDisciplineOverview: React.FC<RecentDisciplineOverviewProps> =
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="p-4 bg-slate-900/90 border border-blue-500/30 rounded-xl flex items-center justify-between flex-wrap gap-4"
+            className="p-4 bg-slate-900/95 border border-blue-500/30 rounded-xl flex flex-col gap-3"
           >
-            <div className="flex items-center gap-2">
-              <Settings2 size={16} className="text-blue-400" />
-              <span className="text-sm font-semibold text-slate-200">
-                Điều chỉnh Kế hoạch Mỗi Ngày (Daily Plan):
-              </span>
-            </div>
-
-            <div className="flex items-center gap-4 flex-wrap">
+            <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="text-xs text-slate-400">Planned Volume:</span>
-                <input
-                  type="number"
-                  value={tempVolume}
-                  onChange={(e) => setTempVolume(Number(e.target.value))}
-                  className="w-24 px-2 py-1 text-xs bg-slate-800 border border-slate-700 rounded text-white"
-                  step={100}
-                  min={100}
-                />
-                <span className="text-xs text-slate-400">hands</span>
+                <Settings2 size={16} className="text-blue-400" />
+                <span className="text-sm font-semibold text-slate-200">
+                  Cài đặt Kế hoạch Grind (Daily Plan):
+                </span>
               </div>
-
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-slate-400">Planned Time:</span>
-                <input
-                  type="number"
-                  value={tempHours}
-                  onChange={(e) => setTempHours(Number(e.target.value))}
-                  className="w-16 px-2 py-1 text-xs bg-slate-800 border border-slate-700 rounded text-white"
-                  step={0.5}
-                  min={0.5}
-                />
-                <span className="text-xs text-slate-400">giờ</span>
-              </div>
-
-              <button
-                onClick={handleSavePlan}
-                className="px-3 py-1 text-xs font-semibold bg-blue-600 hover:bg-blue-500 text-white rounded cursor-pointer transition"
-              >
-                Lưu kế hoạch
-              </button>
               <button
                 onClick={() => setIsEditingPlan(false)}
                 className="p-1 text-slate-400 hover:text-white cursor-pointer"
               >
                 <X size={16} />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1 border-t border-slate-800">
+              {/* WEEKDAY PLAN */}
+              <div className="p-3 bg-slate-800/60 rounded-lg border border-slate-700/60 flex flex-col gap-2">
+                <span className="text-xs font-semibold text-blue-300 flex items-center gap-1">
+                  📅 Ngày thường (Thứ 2 - Thứ 6)
+                </span>
+                <div className="flex items-center gap-3 flex-wrap">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs text-slate-400">Volume:</span>
+                    <input
+                      type="number"
+                      value={tempWeekdayVolume}
+                      onChange={(e) => setTempWeekdayVolume(Number(e.target.value))}
+                      className="w-20 px-2 py-1 text-xs bg-slate-900 border border-slate-700 rounded text-white"
+                      step={50}
+                      min={100}
+                    />
+                    <span className="text-xs text-slate-400">hands</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs text-slate-400">Thời gian:</span>
+                    <input
+                      type="number"
+                      value={tempWeekdayHours}
+                      onChange={(e) => setTempWeekdayHours(Number(e.target.value))}
+                      className="w-16 px-2 py-1 text-xs bg-slate-900 border border-slate-700 rounded text-white"
+                      step={0.5}
+                      min={0.5}
+                    />
+                    <span className="text-xs text-slate-400">giờ</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* WEEKEND PLAN */}
+              <div className="p-3 bg-slate-800/60 rounded-lg border border-purple-500/30 flex flex-col gap-2">
+                <span className="text-xs font-semibold text-purple-300 flex items-center gap-1">
+                  🌟 Cuối tuần (Thứ 7 & Chủ Nhật)
+                </span>
+                <div className="flex items-center gap-3 flex-wrap">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs text-slate-400">Volume:</span>
+                    <input
+                      type="number"
+                      value={tempWeekendVolume}
+                      onChange={(e) => setTempWeekendVolume(Number(e.target.value))}
+                      className="w-20 px-2 py-1 text-xs bg-slate-900 border border-slate-700 rounded text-white"
+                      step={50}
+                      min={100}
+                    />
+                    <span className="text-xs text-slate-400">hands</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs text-slate-400">Thời gian:</span>
+                    <input
+                      type="number"
+                      value={tempWeekendHours}
+                      onChange={(e) => setTempWeekendHours(Number(e.target.value))}
+                      className="w-16 px-2 py-1 text-xs bg-slate-900 border border-slate-700 rounded text-white"
+                      step={0.5}
+                      min={0.5}
+                    />
+                    <span className="text-xs text-slate-400">giờ ({Math.round(tempWeekendHours * 60)}p)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end items-center gap-2 pt-2">
+              <button
+                onClick={() => setIsEditingPlan(false)}
+                className="px-3 py-1.5 text-xs text-slate-400 hover:text-white rounded cursor-pointer"
+              >
+                Hủy
+              </button>
+              <button
+                onClick={handleSavePlan}
+                className="px-4 py-1.5 text-xs font-semibold bg-blue-600 hover:bg-blue-500 text-white rounded cursor-pointer transition shadow-sm"
+              >
+                Lưu cài đặt kế hoạch
               </button>
             </div>
           </motion.div>
@@ -269,7 +362,7 @@ export const RecentDisciplineOverview: React.FC<RecentDisciplineOverviewProps> =
             <p className="rdo-lac-desc">
               Tỷ lệ hoàn thành kế hoạch hàng ngày của bạn hiện tại chỉ đạt{' '}
               <strong>{adherenceRate}%</strong> (chỉ tiêu tối thiểu là 75%). Bạn đang gặp vấn đề
-              về việc duy trì đủ thời gian hoặc volume đã cam kết ({activePlan.plannedVolume.toLocaleString()} hands & {activePlan.plannedTimeStr}). Hãy xem lại nguyên nhân: mục tiêu có quá tải hay tâm lý dừng chơi bị chi phối bởi kết quả thắng/thua ngắn hạn?
+              về việc duy trì đủ thời gian hoặc volume đã cam kết (Ngày thường: {weekdayPlan.plannedVolume.toLocaleString()} hands & {weekdayPlan.plannedTimeStr}, Cuối tuần: {weekendPlan.plannedVolume.toLocaleString()} hands & {weekendPlan.plannedTimeStr}). Hãy xem lại nguyên nhân: mục tiêu có quá tải hay tâm lý dừng chơi bị chi phối bởi kết quả thắng/thua ngắn hạn?
             </p>
           </div>
         </motion.div>

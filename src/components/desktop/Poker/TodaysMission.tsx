@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import dayjs from 'dayjs';
-import { getDailyPlanConfig } from './disciplineUtils';
+import { getDailyPlanConfig, isWeekend } from './disciplineUtils';
 import './TodaysMission.scss';
 
 interface ChecklistItem {
@@ -36,24 +36,27 @@ const PRIORITIES = ['A-Game', 'Volume', 'Study', 'Recovery', 'Review'];
 const TodaysMission = () => {
   const router = useRouter();
   const today = dayjs();
+  const isWeekendDay = isWeekend(today);
   const dayName = today.format('dddd').toUpperCase();
+
+  const initialPlan = getDailyPlanConfig(today);
 
   // State
   const [checklist, setChecklist] = useState<ChecklistItem[]>(DEFAULT_CHECKLIST);
-  const [plannedVolume, setPlannedVolume] = useState<number>(1500);
-  const [plannedTime, setPlannedTime] = useState<string>('5h');
+  const [plannedVolume, setPlannedVolume] = useState<number>(initialPlan.plannedVolume);
+  const [plannedTime, setPlannedTime] = useState<string>(initialPlan.plannedTimeStr);
   const [studyTask, setStudyTask] = useState<string>('River decisions');
   const [studyDuration, setStudyDuration] = useState<string>('15 minutes (GTO lab)');
   const [priority, setPriority] = useState<string>('A-Game');
   const [prioritySubtext, setPrioritySubtext] = useState<string>('Process over profit');
 
   useEffect(() => {
-    const cfg = getDailyPlanConfig();
+    const cfg = getDailyPlanConfig(dayjs());
     setPlannedVolume(cfg.plannedVolume);
     setPlannedTime(cfg.plannedTimeStr);
 
     const onUpdate = () => {
-      const updated = getDailyPlanConfig();
+      const updated = getDailyPlanConfig(dayjs());
       setPlannedVolume(updated.plannedVolume);
       setPlannedTime(updated.plannedTimeStr);
     };
@@ -82,7 +85,7 @@ const TodaysMission = () => {
       <div className="tm-header">
         <div className="tm-header-left">
           <span className="tm-day-label">
-            {dayName} • DAILY PLAN
+            {dayName} • DAILY PLAN {isWeekendDay ? '(WEEKEND)' : ''}
           </span>
           <h1 className="tm-title">Today's Mission</h1>
         </div>
